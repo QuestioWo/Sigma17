@@ -1,0 +1,11 @@
+*~
+*.exe
+**/node_modules
+app/dist
+em/testgcc
+**.DS_Store
+main.js
+package-lock.json
+package.json
+preload.js
+renderer.js
