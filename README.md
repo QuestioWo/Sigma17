@@ -1,4 +1,9 @@
-# Sigma16 source directory
+# Sugma17 source directory
+
+Sugma17 is a re-write of the orignal simulator and interpretor written 
+by John O' Donnell. The overall aim of Sugma17 is to re-write the 
+entire web based app but keep apps functionality. This is so that it 
+is easier and more intuitive to code in Sigma16 with the web based app. 
 
 Sigma16 is a computer architecture designed for research and teaching
 in computer systems.  This application provides a complete environment
