@@ -1,117 +1,60 @@
 # Sugma17 source directory
 
-Sugma17 is a re-write of the orignal simulator and interpretor written 
-by John O' Donnell. The overall aim of Sugma17 is to re-write the 
-entire web based app but keep apps functionality. This is so that it 
-is easier and more intuitive to code in Sigma16 with the web based app. 
+Sugma17 is a re-write of the orignal emulator written by John O' Donnell. The overall aim of Sugma17 is to re-write the entire web based app but keep apps functionality. This is so that it is easier and more intuitive to code in Sigma16 with the web based app. 
 
-Sigma16 is a computer architecture designed for research and teaching
-in computer systems.  This application provides a complete environment
-for experimenting with the architecture.
+Sigma16 is a computer architecture designed for research and teaching in computer systems.  This application aims to provide a complete environment for experimenting with the architecture.
 
-## Internet links
+## Using the emulator
 
-This page is the README for the Sigma16 source directory.  To run the
-software, visit the [Sigma16 Home
-Page](https://jtod.github.io/home/Sigma16/), which also contains links
-to documentation and past releases.  The URL for the Sigma16 Home page
-is https://jtod.github.io/home/Sigma16/ and the URL for the source
-repository is https://github.com/jtod/Sigma16
-
-## Links to local files
-
-If you copy the Sigma16 source directory onto your computer, the
-following links will run it locally without requiring further access
-to the Internet.  However, these links will not work if you're reading
-this page on the source repository on GitHub via the Internet.
-
-* [Launch from files in this directory](./app/Sigma16.html) If you
-  have copied this directory onto a local machine, this link will run
-  it, with some limitations on file access (the User Guide won't be
-  visible, and you have to copy examples to the editor manually).  See
-  the Installation section in the User Guide for further ways to run
-  the software.
-* [Up to the top directory](./) Show the listing of files in the
-  directory containing this version.
-
-## Download
-
-It isn't necessary to download, compile, and install the software: you
-can just run it in a browser by clicking the Quick Start link in the
-Sigma16 Home Page.
-
-If you want to run the app when Internet is inaccessible, you can
-download the software and run it locally on your machine.  You don't
-need any special installation; simply store the Sigma16 folder
-anywhere on your computer.  Then there are several options:
+Currently, it is required to download and run the emulator locally using np and a browser. However, once the website is operational, it is to be published as a github.io page.
 
 ### Run in a browser
 
-Open the file *index.html* in a browser; this contains a link to
-launch the app, and there may be contain release notes.  Note that a
-few features won't work, because browsers restrict some operations
-when a web page executes from a local file (as opposed to an https
-server).  In particular, when you open an example program (in the
-Examples tab), the button "Copy example to editor" won't work.  But
-you can select the text of the example with your mouse, right-click
-and Copy, then Paste it into the editor.
+!-- This option is currently unavailable for the react.js version of the emulator however it hopefully to be published as a github.io page once it is functional. --!
 
-### Run with npm
+### Run with npm locally in browser
 
-See app/makefile for notes on how to run the software as a standalone
-program, without using a browser.  The following software needs to be
-installed in order to build the executable using electron
+The following software needs to be installed in order to build the executable using electron
 
     node.js
     npm
 
-### Compile using npm
+After these are installed, to compile the program, navigate to the  `react-version` directory and execute the following commands:
 
-    Clone this repository
-    git clone https://github.com/electron/electron-quick-start
-    cd electron-quick-start  # Go into the repository
-    npm install   # Install dependencies
-    npm start     # Run the app
+    npm install
+    npm start
 
-The following files are required for compilation with npm, but they
-are not needed just to run the source program in a browser.
+This will start the local React.js development server and should open a windown in your default browser to `localhost:3000`, in which the webiste can be used as normal.
 
-    src/main.js
-    src/package.json
-    src/package-lock.json
-    src/preload.js
-    src/renderer.hs
-    src/node_modules/
+## TODO list
 
-## About the software
+  1. Finish code editor
+    1. Implement proper Sigma16 CodeMirror highlighting
+    2. Add breakpoints so that they work and persist
+    3. ( Possible )
+    4. Add auto complete/code snippet shortcuts - not sure about difficulty since using port of CodeMirror
 
-The Sigma16 app (the integrated development environment -- i.e. the
-GUI) is implemented in JavaScript, html 5, and css.  The digital
-circuit is implemented in Hydra, which requires Haskell.  Additional
-software tools, including a high speed emulator, are in progress and
-expected to be available in late 2020.
+  2. Finish code builder
+    1. Implement parser - remove need for whitespace with commands reccognition
+    2. Display errors in CodeMirror chunk for syntax errors
+    3. Have parser translate to machine code
 
-### Author
+  3. Finish code runner
+    1. Add window for displaying register output, memory values and I/O of program after running
+    2. Implement circuit/circuit functionality
+    3. Implement actions based off of machine code
+    4. Link to webpage
 
-The architecture is designed by, and the software tools are written
-by, [John O'Donnell](https://jtod.github.io/index.html).  Email:
+  4. Finish code debugger
+    1. Allow for breakpoints to halt execution of code
+    2. Add window to show register, memory and I/O along with code
+    3. Add highlighting of lines being and have been executed
+    3. Add line by line exectuting ability
+
+## Author
+
+The original Sigma16 language, architecture was software tools are 
+written by, [John O'Donnell](https://jtod.github.io/index.html). Email:
 john.t.odonnnell9@gmail.com
 
-### Copyright and license
-
-Copyright (C) 2019, 2020 John T. O'Donnell.
-
-Sigma16 is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the
-Free Software Foundation, either version 3 of the License, or (at your
-option) any later version.
-
-Sigma16 is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with Sigma16.  If not, see <https://www.gnu.org/licenses/>.
-
-See LICENSE.txt
+The current React.js version of the software is being written by [Jim Carty](https://github.com/questiowo). Email: cartyjim1@gmail.com
