@@ -28,28 +28,28 @@ This will start the local React.js development server and should open a windown 
 
 ## TODO list
 
-  1. Finish code editor
-  ⋅⋅1. Implement proper Sigma16 CodeMirror highlighting
-  ⋅⋅2. Add breakpoints so that they work and persist
-  ⋅⋅3. ( Possible )
-  ⋅⋅4. Add auto complete/code snippet shortcuts - not sure about difficulty since using port of CodeMirror
+1. Finish code editor
+* Implement proper Sigma16 CodeMirror highlighting
+* Add breakpoints so that they work and persist
+* ( Possible )
+* Add auto complete/code snippet shortcuts - not sure about difficulty since using port of CodeMirror
 
-  2. Finish code builder
-  ⋅⋅1. Implement parser - remove need for whitespace with commands reccognition
-  ⋅⋅2. Display errors in CodeMirror chunk for syntax errors
-  ⋅⋅3. Have parser translate to machine code
+2. Finish code builder
+* Implement parser - remove need for whitespace with commands reccognition
+* Display errors in CodeMirror chunk for syntax errors
+* Have parser translate to machine code
 
-  3. Finish code runner
-  ⋅⋅1. Add window for displaying register output, memory values and I/O of program after running
-  ⋅⋅2. Implement circuit/circuit functionality
-  ⋅⋅3. Implement actions based off of machine code
-  ⋅⋅4. Link to webpage
+3. Finish code runner
+* Add window for displaying register output, memory values and I/O of program after running
+* Implement circuit/circuit functionality
+* Implement actions based off of machine code
+* Link to webpage
 
-  4. Finish code debugger
-  ⋅⋅1. Allow for breakpoints to halt execution of code
-  ⋅⋅2. Add window to show register, memory and I/O along with code
-  ⋅⋅3. Add highlighting of lines being and have been executed
-  ⋅⋅3. Add line by line exectuting ability
+4. Finish code debugger
+* Allow for breakpoints to halt execution of code
+* Add window to show register, memory and I/O along with code
+* Add highlighting of lines being and have been executed
+* Add line by line exectuting ability
 
 ## Author
 
