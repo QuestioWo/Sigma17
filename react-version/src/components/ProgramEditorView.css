@@ -1,0 +1,105 @@
+.breakpoint-column {
+  position: relative;
+  width: 16px;
+  height: 100%;
+  font-family: inherit;
+  font-weight: inherit;
+  background: #eaeef3;
+  border-right: 1px solid rgb(221, 221, 221);
+  float: left;
+}
+
+.breakpoint-column .breakpoint {
+  position: absolute;
+  background: white;
+  border: 2px  solid rgb(0, 25, 58);
+  width: 8px;
+  height: 8px;
+  border-radius: 100%;
+  cursor: pointer;
+  left: 8px;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.breakpoint-column .breakpoint.active {
+  background: rgb(0, 25, 58);
+}
+
+.breakpoint-column .breakpoint:hover {
+  box-shadow: 0 0 10px solid black;
+}
+
+.CodeMirror-lines {
+  /*background: #eaeef3;*/
+}
+
+.CodeMirror-linenumbers {
+  background: #eaeef3;
+}
+
+.CodeMirror {
+  /* Set height, width, borders, and global font properties here */
+  height: 100% !important;
+}
+
+/*.line-number-column {
+  position: relative;
+  width: 38px;
+  height: 100%;
+  font-family: inherit;
+  background: #eaeef3;
+  text-align: right;
+  float: left;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.line-number-column .line-number.active {
+  color: lightgreen;
+}
+
+.buffer-column {
+  position: relative;
+  width: 11px;
+  height: 100%;
+  float: left;
+  background-color: #eaeef3;
+  border-right: 1px solid #999999;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.code-chunk-column {
+  height: 100%;
+  font-family: inherit;
+  background-color: #eaeef3;
+  outline: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  overflow: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}*/
+
+.code-area {
+  width: 100%;
+  height: 500px;
+  color: rgb(0, 25, 58);
+  background-color: #eaeef3;
+  border-radius: 7px;
+  box-sizing: border-box;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #eaeef3;
+  font-family: 'Fira Code', monospace;
+  font-size: 15px;
+  font-weight: normal;
+  line-height: 25px;
+  outline: none;
+  overflow: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
