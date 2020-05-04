@@ -17,7 +17,7 @@
   height: 8px;
   border-radius: 100%;
   cursor: pointer;
-  left: 8px;
+  left: 6px;
   transform: translateX(-50%) translateY(-50%);
 }
 
@@ -29,60 +29,13 @@
   box-shadow: 0 0 10px solid black;
 }
 
-.CodeMirror-lines {
-  /*background: #eaeef3;*/
-}
-
 .CodeMirror-linenumbers {
   background: #eaeef3;
 }
 
 .CodeMirror {
-  /* Set height, width, borders, and global font properties here */
   height: 100% !important;
 }
-
-/*.line-number-column {
-  position: relative;
-  width: 38px;
-  height: 100%;
-  font-family: inherit;
-  background: #eaeef3;
-  text-align: right;
-  float: left;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
-}
-
-.line-number-column .line-number.active {
-  color: lightgreen;
-}
-
-.buffer-column {
-  position: relative;
-  width: 11px;
-  height: 100%;
-  float: left;
-  background-color: #eaeef3;
-  border-right: 1px solid #999999;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
-}
-
-.code-chunk-column {
-  height: 100%;
-  font-family: inherit;
-  background-color: #eaeef3;
-  outline: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
-  overflow: auto;
-  overflow-y: hidden;
-  white-space: nowrap;
-}*/
 
 .code-area {
   width: 100%;
