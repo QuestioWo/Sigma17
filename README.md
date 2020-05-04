@@ -30,7 +30,7 @@ This will start the local React.js development server and should open a windown 
 
 1. Finish code editor
 * √ - Implement proper Sigma16 CodeMirror highlighting
-* Add breakpoints so that they work and persist
+* √ - Add breakpoints so that they work and persist
 * ( Possible )
 * Add auto complete/code snippet shortcuts - not sure about difficulty since using port of CodeMirror
 
