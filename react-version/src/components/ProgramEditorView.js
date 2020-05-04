@@ -3,8 +3,8 @@ import React from 'react';
 import 'codemirror/lib/codemirror.css';
 import './ProgramEditorView.css';
 
-import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
-import { FaHammer, FaPlay } from 'react-icons/fa';
+import { Button, ButtonGroup, Col, Row, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { FaHammer, FaPlay, FaTimes } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
 import NavBar from './NavBar';
@@ -16,7 +16,8 @@ export default class ProgramEditorView extends React.Component {
     super( props );
 
     this.state = {
-      code : ''
+      code : '',
+      breakpoints : []
     };
   }
 
@@ -24,13 +25,10 @@ export default class ProgramEditorView extends React.Component {
     this.setState( { code: this.props.code } );
   }
 
-  componentDidUpdate() {
-  }
-
   breakpoints( code ) {
     if ( document.getElementById( 'breakpoint-column' ) ) {
 
-      //TODO: include so breakpoints dont reset on rerender
+      // TODO: include so breakpoints dont reset on rerender
       var lines = code.split( '\n' );
 
       var column = document.getElementById( 'breakpoint-column' );
@@ -45,7 +43,7 @@ export default class ProgramEditorView extends React.Component {
         var yOffset = 25 * ( i + 0.5 );
 
         var ev = document.createElement( 'div' );
-        ev.className = 'breakpoint';
+        ev.className = 'breakpoint ' + ( i + 1 );
         ev.style.top = yOffset + 3 +'px';
 
         ev.onclick = ( function(i) {
@@ -60,10 +58,27 @@ export default class ProgramEditorView extends React.Component {
           }.bind(column);
         })(i);
 
+        if ( this.state.breakpoints.includes( i ) ) {
+          ev.classList.add( 'active' );
+        }
+
         column.appendChild(ev);
       }
     }
   }
+
+  disableBreakpoints = button => {
+    this.setState( { breakpoints : [] } );
+  }
+
+  // onBreakpointClick = breakpoint => {
+  //   if ( breakpoint.classList.contains( 'active' ) ) {
+  //     breakpoint.classList.remove( 'active' );
+  //   } else {
+  //     breakpoint.classList.add( 'active' );
+  //   }
+  //   console.log(this.state.breakpoints);
+  // }
 
   // parseLine( ev, line ) {
   //   var parsed = {
@@ -117,6 +132,21 @@ export default class ProgramEditorView extends React.Component {
   // }
 
   updateCode = newCode => {
+    // breakpoints persisting for state update
+    var breakpoints = document.getElementById( 'breakpoint-column' ).children;
+    var breakpointsActive = this.state.breakpoints;
+
+    for ( var i = 0; i < breakpoints.length; i++ ) {
+      if ( breakpoints[i].classList.contains( 'active' ) && !( breakpointsActive.includes( i ) ) ) {
+        breakpointsActive.push( i );
+      } else if ( !( breakpoints[i].classList.contains( 'active' ) ) && breakpointsActive.includes( i ) ) {
+        var index = breakpointsActive.indexOf( i );
+        breakpointsActive.splice( index, 1 );
+      }
+    }
+    this.setState( { breakpoints : breakpointsActive } );
+
+    // updating code based on contents of codemirror
     if ( newCode ) {
       this.setState( { code : newCode } );
     } else {
@@ -131,14 +161,37 @@ export default class ProgramEditorView extends React.Component {
         <div className='buttonstoolbar'>
           <Row>
             <Col>
-              <ButtonGroup>
-                <Button variant='outline-secondary' size='sm'>
-                  <FaHammer/>
+              <OverlayTrigger
+                key={'top'}
+                placement={'top'}
+                overlay={
+                  <Tooltip>
+                    Build/Run
+                  </Tooltip>
+                }>
+                <ButtonGroup>
+                  <Button variant='outline-secondary' size='sm'>
+                    <FaHammer/>
+                  </Button>
+                  <Button variant='outline-secondary' size='sm'>
+                    <FaPlay/>
+                  </Button>
+                </ButtonGroup>
+              </OverlayTrigger>
+            </Col>
+            <Col>
+              <OverlayTrigger
+                key={'top'}
+                placement={'top'}
+                overlay={
+                  <Tooltip>
+                    {`Disable All Breakpoints`}
+                  </Tooltip>
+                }>
+                <Button variant='outline-secondary' size='sm' onClick={this.disableBreakpoints}>
+                  <FaTimes/>
                 </Button>
-                <Button variant='outline-secondary' size='sm'>
-                  <FaPlay/>
-                </Button>
-              </ButtonGroup>
+              </OverlayTrigger>
             </Col>
           </Row>
         </div>    

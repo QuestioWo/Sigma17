@@ -1,7 +1,11 @@
 .buttonstoolbar {
   padding-top: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 25px;
+  padding-right: 25px;
+}
+
+.btn-sm {
+  border-radius: 7px;
 }
 
 .mainbody {
