@@ -71,15 +71,6 @@ export default class ProgramEditorView extends React.Component {
     this.setState( { breakpoints : [] } );
   }
 
-  // onBreakpointClick = breakpoint => {
-  //   if ( breakpoint.classList.contains( 'active' ) ) {
-  //     breakpoint.classList.remove( 'active' );
-  //   } else {
-  //     breakpoint.classList.add( 'active' );
-  //   }
-  //   console.log(this.state.breakpoints);
-  // }
-
   // parseLine( ev, line ) {
   //   var parsed = {
   //     'label' : '',
@@ -123,9 +114,6 @@ export default class ProgramEditorView extends React.Component {
   //           }
   //         }
   //       }
-
-
-
   //     }
   //   }
   //   return parsed
