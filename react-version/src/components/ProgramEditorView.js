@@ -28,7 +28,6 @@ export default class ProgramEditorView extends React.Component {
   breakpoints( code ) {
     if ( document.getElementById( 'breakpoint-column' ) ) {
 
-      // TODO: include so breakpoints dont reset on rerender
       var lines = code.split( '\n' );
 
       var column = document.getElementById( 'breakpoint-column' );
