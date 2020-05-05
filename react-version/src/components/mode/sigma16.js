@@ -5,7 +5,7 @@
 
   CodeMirror.defineMode('sigma16', function() {
 
-    var words = function(str) { return str.split(" "); };;
+    var words = function(str) { return str.split(" "); };
     function define(style, dict) {
       for(var i = 0; i < dict.length; i++) {
         words[dict[i]] = style;
@@ -13,9 +13,7 @@
     };
 
     var commonCommands = ["add", "sub", "mul", "div", "cmp", "cmplt", "cmpeq", "cmpgt", "inv", "and", "or", "xor", "nop", "trap", 
-                          "lea", "load", "store", "jump", "jumpc0", "jumpc1", "jumpf", "jumpt", "jal", "testset", 
-                          "rfi", 
-                          "execute", "getctl", "putctl", "push", "pop", "top", "shiftl", "shiftr", "getbit", "getbiti", "putbit", "putbiti", "extract", "save", "restore",
+                          "lea", "load", "store", "jump", "jumpc0", "jumpc1", "jumpf", "jumpt", "jal", 
                           "data"];
 
     CodeMirror.registerHelper("hintWords", "sigma16", commonCommands);
@@ -34,7 +32,7 @@
       if (ch === ';') {
         stream.skipToEnd();
         return 'comment';
-      } else if ( /([r]|[R])([0-9])/.test(ch+peek) ) {
+      } else if ( /(r|R)([0-9])/.test(ch+peek) ) {
         if ( /(1)/.test( peek ) ) {
           stream.next();
           peek = stream.peek();
@@ -47,8 +45,7 @@
         }
         return 'def';   
       } else if (ch === '$') {
-        stream.next();
-        stream.eatWhile(/\d|[a-f]|[A-F]/);
+        stream.eatWhile(/((\d)|([a-f])|([A-F]))/);
         if(stream.eol() || !/\w/.test(stream.peek())) {
           return 'number';
         }
