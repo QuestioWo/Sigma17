@@ -13,3 +13,7 @@
   padding-left: 40px;
   padding-right: 40px;
 }
+
+p.alertbody {
+  margin-bottom: 0px;
+}

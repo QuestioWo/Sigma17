@@ -1,42 +1,3 @@
-.breakpoint-column {
-  position: relative;
-  width: 16px;
-  height: 100%;
-  font-family: inherit;
-  font-weight: inherit;
-  background: #eaeef3;
-  border-right: 1px solid rgb(221, 221, 221);
-  float: left;
-}
-
-.breakpoint-column .breakpoint {
-  position: absolute;
-  background: white;
-  border: 2px  solid rgb(0, 25, 58);
-  width: 8px;
-  height: 8px;
-  border-radius: 100%;
-  cursor: pointer;
-  left: 6px;
-  transform: translateX(-50%) translateY(-50%);
-}
-
-.breakpoint-column .breakpoint.active {
-  background: rgb(0, 25, 58);
-}
-
-.breakpoint-column .breakpoint:hover {
-  box-shadow: 0 0 10px solid black;
-}
-
-.CodeMirror-linenumbers {
-  background: #eaeef3;
-}
-
-.CodeMirror {
-  height: 100% !important;
-}
-
 .code-area {
   width: 100%;
   height: 500px;
@@ -55,4 +16,51 @@
   overflow: auto;
   overflow-y: hidden;
   white-space: nowrap;
+}
+
+.breakpoint-column {
+  position: relative;
+  width: 16px;
+  height: 100%;
+  font-family: inherit;
+  font-weight: inherit;
+  background: #eaeef3;
+  border-right: 1px solid rgb(221, 221, 221);
+  float: left;
+}
+
+
+
+.breakpoint-column .breakpoint {
+  position: absolute;
+  background: #eaeef3;
+  border: 2px solid rgb(0, 25, 58);
+  width: 8px;
+  height: 8px;
+  border-radius: 100%;
+  cursor: pointer;
+  left: 6px;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.breakpoint-column .breakpoint.active {
+  background: rgb(0, 25, 58);
+}
+
+.breakpoint-column .breakpoint.error {
+  border: 2px solid rgb(255, 0, 0);
+}
+
+.breakpoint-column .breakpoint.active.error {
+  background: rgb(255, 0, 0);
+}
+
+
+
+.CodeMirror-linenumbers {
+  background: #eaeef3;
+}
+
+.CodeMirror {
+  height: 100% !important;
 }

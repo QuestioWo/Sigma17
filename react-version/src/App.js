@@ -16,18 +16,14 @@ export default class App extends React.Component {
 
     this.state = {}
 
-    this.state.code = `;Program Swap - works
-
- load R1,x[R0]; R1:=x
- load R2,y[R0]; R2:=y
-
- store R2,x[R0]; x:=y
- store R1,y[R0]; y:=x, x and y swapped
-
- trap R0,R0,R0; halt
-
-x data 3; x:=3, set initial value
-y data 19; y:=19, set initial value`
+    this.state.code = `load r1,x[r0]; r1:=x
+load r2,y[r0]; r2:=y
+add r3,r1,r2; r3:=x+y
+store r3,z[r0]; z:=x=y
+trap r0,r0,r0; terminate
+x data $0017
+y data 14
+z data 0`
 
   }
   render() {
