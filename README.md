@@ -35,9 +35,9 @@ This will start the local React.js development server and should open a windown 
 * Add auto complete/code snippet shortcuts - not sure about difficulty since using port of CodeMirror
 
 2. Finish code builder
-* Implement parser - remove need for whitespace with commands reccognition
-* Display errors in CodeMirror chunk for syntax errors
-* Have parser translate to machine code
+* √ - Implement parser - remove need for whitespace with commands reccognition
+* √ - Display errors in CodeMirror chunk for syntax errors
+* √ - Have parser translate to machine code
 
 3. Finish code runner
 * Add window for displaying register output, memory values and I/O of program after running

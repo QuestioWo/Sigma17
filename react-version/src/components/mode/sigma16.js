@@ -12,9 +12,9 @@
       }
     };
 
-    var commonCommands = ["add", "sub", "mul", "div", "cmp", "cmplt", "cmpeq", "cmpgt", "inv", "and", "or", "xor", "nop", "trap", 
-                          "lea", "load", "store", "jump", "jumpc0", "jumpc1", "jumpf", "jumpt", "jal", 
-                          "data"];
+    const commonCommands = ["add", "sub", "mul", "div", "cmplt", "cmpeq", "cmpgt", "and", "or", "xor", "trap", 
+                            "lea", "load", "store", "jumpf", "jumpt", "jal", 
+                            "data"];
 
     CodeMirror.registerHelper("hintWords", "sigma16", commonCommands);
 
