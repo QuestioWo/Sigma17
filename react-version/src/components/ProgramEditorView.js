@@ -58,6 +58,7 @@ export default class ProgramEditorView extends React.Component {
 
       alertShow : false,
       alertMessage : '',
+      alertNature : 'success',
 
       machineCode : []
     };
@@ -450,8 +451,13 @@ export default class ProgramEditorView extends React.Component {
         }
       }
       this.setState( { machineCode : machineCode } );
+
+      this.setState( { alertMessage : 'Built successfully' } );
+      this.setState( { alertNature : 'success' } );
+      this.setState( { alertShow : true } );
     } else {
-      this.setState( { alertMessage : 'Make sure that all syntax error are dealt with before building. Syntax errors are shown by the red breakpoints next to the line numbers.' } );
+      this.setState( { alertMessage : 'Built unsuccesfully, correct syntax errors' } );
+      this.setState( { alertNature : 'danger' } );
       this.setState( { alertShow : true } );
     }
   }
@@ -478,7 +484,7 @@ export default class ProgramEditorView extends React.Component {
       <React.Fragment>
         <NavBar currentKey={ this.props.location.pathname }/>
         <div className='buttonstoolbar'>
-          <Alert variant='danger' onClose={this.closeAlert} show={this.state.alertShow} dismissible>
+          <Alert variant={this.state.alertNature} onClose={this.closeAlert} show={this.state.alertShow} dismissible>
             <p className='alertbody'>
               {this.state.alertMessage}
             </p>
