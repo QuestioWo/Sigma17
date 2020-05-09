@@ -36,27 +36,27 @@ export default class ProgramEditorView extends React.Component {
       machineCodeUpdated : false,
 
       registers : {
-        'r0' : '0000',
-        'r1' : '0000',
-        'r2' : '0000',
-        'r3' : '0000',
-        'r4' : '0000',
-        'r5' : '0000',
-        'r6' : '0000',
-        'r7' : '0000',
-        'r8' : '0000',
-        'r9' : '0000',
-        'r10' : '0000',
-        'r11' : '0000',
-        'r12' : '0000',
-        'r13' : '0000',
-        'r14' : '0000',
-        'r15' : '0000'
+        'r0' : 0,
+        'r1' : 0,
+        'r2' : 0,
+        'r3' : 0,
+        'r4' : 0,
+        'r5' : 0,
+        'r6' : 0,
+        'r7' : 0,
+        'r8' : 0,
+        'r9' : 0,
+        'r10' : 0,
+        'r11' : 0,
+        'r12' : 0,
+        'r13' : 0,
+        'r14' : 0,
+        'r15' : 0
       },
       cpuControl : {
-        'pc' : '0000',
-        'ir' : '0000',
-        'adr' : '0000'
+        'pc' : 0,
+        'ir' : 0,
+        'adr' : 0
       },
 
       memory : {}
@@ -153,7 +153,7 @@ export default class ProgramEditorView extends React.Component {
                             <strong>{controlKeys[i]}</strong>
                           </Col>
                           <Col style={{textAlign:'right'}}>
-                              ${this.state.cpuControl[controlKeys[i]]}
+                              ${CompilationUtils.writeHex( this.state.cpuControl[controlKeys[i]] )}
                           </Col>
                         </Row>
                       </div> );
@@ -180,11 +180,11 @@ export default class ProgramEditorView extends React.Component {
                               placement={'left'}
                               overlay={
                                 <Tooltip>
-                                  { parseInt( this.state.registers['r' + i], 16 ) }/{ CompilationUtils.readSignedHex( this.state.registers['r' + i] ) }
+                                  { parseInt( this.state.registers['r' + i] )}/{ CompilationUtils.readSignedHex( this.state.registers['r' + i] ) }
                                 </Tooltip>
                               }>
                               <span>
-                                ${this.state.registers['r' + i]}
+                                ${CompilationUtils.writeHex( this.state.registers['r' + i] )}
                               </span>
                             </OverlayTrigger>
                           </Col>
@@ -197,7 +197,7 @@ export default class ProgramEditorView extends React.Component {
   //
   memoryColumn() {
     var memoryValues = [];
-    var memoryKeys = Object.keys( this.state.memory );
+    var memoryKeys = Object.keys( this.state.memory ).map( key => Number( key ) );
 
     for ( var i = 0; i < memoryKeys.length; i++ ) {
       memoryValues.push( <div 
@@ -206,7 +206,7 @@ export default class ProgramEditorView extends React.Component {
                           className={'systeminfo-column-elem'}>
                           <Row>
                             <Col>
-                              <strong>${memoryKeys[i]}</strong>
+                              <strong>${CompilationUtils.writeHex( memoryKeys[i] )}</strong>
                             </Col>
                             <Col style={{textAlign:'right'}}>
                               <OverlayTrigger
@@ -214,11 +214,11 @@ export default class ProgramEditorView extends React.Component {
                                 placement={'left'}
                                 overlay={
                                   <Tooltip>
-                                    { parseInt( this.state.memory[memoryKeys[i]], 16 ) }/{ CompilationUtils.readSignedHex( this.state.memory[memoryKeys[i]] ) }
+                                    { this.state.memory[memoryKeys[i]] }/{ CompilationUtils.readSignedHex( this.state.memory[memoryKeys[i]] ) }
                                   </Tooltip>
                                 }>
                                 <span>
-                                  ${this.state.memory[memoryKeys[i]]}
+                                  ${CompilationUtils.writeHex( this.state.memory[memoryKeys[i]] )}
                                 </span>
                               </OverlayTrigger>
                             </Col>
@@ -287,13 +287,12 @@ export default class ProgramEditorView extends React.Component {
   parseCode = button => {
     var lines = this.state.code.toLowerCase().split( '\n' );
     
-    var currentLine = '0';
+    var currentLine = 0;
 
-    var parsed = '';
+    var parsed = {};
     var labels = {};
 
     var machineCode = [];
-    var machineCodeLine = [];
 
     var parsedSuccessfully = true;
 
@@ -305,15 +304,17 @@ export default class ProgramEditorView extends React.Component {
           labels[parsed['label']] = currentLine;
         }
 
-        currentLine = ( parseInt( currentLine, 16 ) + parsed['instructionWords'] ).toString( 16 );
+        currentLine += parsed['instructionWords'];
       }
 
       for ( var it = 0; it < lines.length; it++ ) {
         if ( lines[it].trim() !== '' ) {
-          machineCodeLine = CompilationUtils.parseLineForMachineCode( lines[it], labels ).split( '\n' );
-
-          for ( var ite = 0; ite < machineCodeLine.length; ite++ ) {
-            machineCode.push( machineCodeLine[ite] );
+          parsed = CompilationUtils.parseLineForMachineCode( lines[it], labels );
+          machineCode.push( parsed[0] );
+          
+          // if two word instruction
+          if ( parsed[1] && parsed[1] !== -1 ) {
+            machineCode.push( parsed[1] );
           }
         }
       }
@@ -335,28 +336,28 @@ export default class ProgramEditorView extends React.Component {
 // RUNNING METHODS
   resetCPUandMemory() {
     var registersNew = {
-      'r0' : '0000',
-      'r1' : '0000',
-      'r2' : '0000',
-      'r3' : '0000',
-      'r4' : '0000',
-      'r5' : '0000',
-      'r6' : '0000',
-      'r7' : '0000',
-      'r8' : '0000',
-      'r9' : '0000',
-      'r10' : '0000',
-      'r11' : '0000',
-      'r12' : '0000',
-      'r13' : '0000',
-      'r14' : '0000',
-      'r15' : '0000'
+      'r0' : 0,
+      'r1' : 0,
+      'r2' : 0,
+      'r3' : 0,
+      'r4' : 0,
+      'r5' : 0,
+      'r6' : 0,
+      'r7' : 0,
+      'r8' : 0,
+      'r9' : 0,
+      'r10' : 0,
+      'r11' : 0,
+      'r12' : 0,
+      'r13' : 0,
+      'r14' : 0,
+      'r15' : 0
     };
 
     var cpuControlNew = {
-      'pc' : '0000',
-      'ir' : '0000',
-      'adr' : '0000'
+      'pc' : 0,
+      'ir' : 0,
+      'adr' : 0
     };
 
     this.setState( { registers : registersNew } );
@@ -367,7 +368,7 @@ export default class ProgramEditorView extends React.Component {
     var error = true;
 
     if ( this.state.machineCode.length !== 0 ) {
-      if ( !this.state.machineCode.includes( 'd000' ) ) {
+      if ( !this.state.machineCode.includes( 0xd000 ) ) {
         error = 'Cannot run code without a "trap R0,R0,R0" instruction';
       }
     } else {
@@ -396,7 +397,7 @@ export default class ProgramEditorView extends React.Component {
         localMemory = ran['memory'];
 
         // if ran out of commands
-        if ( !( Object.keys( localMemory ).includes( localControl['pc'] ) ) ) ran['halted'] = true;
+        if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
       }
 
       this.setState( { cpuControl : localControl } );
