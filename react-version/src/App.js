@@ -16,14 +16,27 @@ export default class App extends React.Component {
 
     this.state = {}
 
-    this.state.code = `load r1,x[r0]; r1:=x
-load r2,y[r0]; r2:=y
-add r3,r1,r2; r3:=x+y
-store r3,z[r0]; z:=x=y
-trap r0,r0,r0; terminate
-x data $0017
-y data 14
-z data 0`
+//     this.state.code = `load r1,x[r0]; r1:=x
+// load r2,y[r0]; r2:=y
+// jump label[r0]
+// add r3,r1,r2; r3:=x+y
+// label 
+// sub r3,r1,r2
+// store r3,z[r0]; z:=x=y
+// trap r0,r0,r0; terminate
+// x data $0017
+// y data 14
+// z data 0`;
+
+    this.state.code = ` load R1,x[R0]
+ load R2,y[R0]
+
+ cmp R1,R2
+
+ trap R0,R0,R0
+
+x data $fffb;-5
+y data $fffd;-3`;
 
   }
   render() {

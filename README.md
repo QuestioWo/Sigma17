@@ -40,10 +40,14 @@ This will start the local React.js development server and should open a windown 
 * √ - Have parser translate to machine code
 
 3. Finish code runner
-* Add window for displaying register output, memory values and I/O of program after running
-* Implement circuit/circuit functionality
-* Implement actions based off of machine code
-* Link to webpage
+* √ - Add window for displaying register output, memory values and I/O of program after running
+* √ - Implement circuit/circuit functionality
+* √ - Implement actions based off of machine code
+* Implement all RRR/RR functions
+* Implement all RX/JX/KX functions
+* Implement all EXP functions
+* Small rewrite to use binary checking instead of string checking to increase performance further
+* √ - Link to webpage
 
 4. Finish code debugger
 * Allow for breakpoints to halt execution of code
