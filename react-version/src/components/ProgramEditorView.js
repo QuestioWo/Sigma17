@@ -36,22 +36,22 @@ export default class ProgramEditorView extends React.Component {
       machineCodeUpdated : false,
 
       registers : {
-        'r0' : 0,
-        'r1' : 0,
-        'r2' : 0,
-        'r3' : 0,
-        'r4' : 0,
-        'r5' : 0,
-        'r6' : 0,
-        'r7' : 0,
-        'r8' : 0,
-        'r9' : 0,
-        'r10' : 0,
-        'r11' : 0,
-        'r12' : 0,
-        'r13' : 0,
-        'r14' : 0,
-        'r15' : 0
+        0 : 0,
+        1 : 0,
+        2 : 0,
+        3 : 0,
+        4 : 0,
+        5 : 0,
+        6 : 0,
+        7 : 0,
+        8 : 0,
+        9 : 0,
+        10 : 0,
+        11 : 0,
+        12 : 0,
+        13 : 0,
+        14 : 0,
+        15 : 0
       },
       cpuControl : {
         'pc' : 0,
@@ -180,11 +180,11 @@ export default class ProgramEditorView extends React.Component {
                               placement={'left'}
                               overlay={
                                 <Tooltip>
-                                  { CompilationUtils.readUnsignedHex( this.state.registers['r' + i] )}/{ CompilationUtils.readSignedHex( this.state.registers['r' + i] ) }
+                                  { CompilationUtils.readUnsignedHex( this.state.registers[i] )}/{ CompilationUtils.readSignedHex( this.state.registers[i] ) }
                                 </Tooltip>
                               }>
                               <span>
-                                ${CompilationUtils.writeHex( this.state.registers['r' + i] )}
+                                ${CompilationUtils.writeHex( this.state.registers[i] )}
                               </span>
                             </OverlayTrigger>
                           </Col>
@@ -336,22 +336,22 @@ export default class ProgramEditorView extends React.Component {
 // RUNNING METHODS
   resetCPUandMemory() {
     var registersNew = {
-      'r0' : 0,
-      'r1' : 0,
-      'r2' : 0,
-      'r3' : 0,
-      'r4' : 0,
-      'r5' : 0,
-      'r6' : 0,
-      'r7' : 0,
-      'r8' : 0,
-      'r9' : 0,
-      'r10' : 0,
-      'r11' : 0,
-      'r12' : 0,
-      'r13' : 0,
-      'r14' : 0,
-      'r15' : 0
+      0 : 0,
+      1 : 0,
+      2 : 0,
+      3 : 0,
+      4 : 0,
+      5 : 0,
+      6 : 0,
+      7 : 0,
+      8 : 0,
+      9 : 0,
+      10 : 0,
+      11 : 0,
+      12 : 0,
+      13 : 0,
+      14 : 0,
+      15 : 0
     };
 
     var cpuControlNew = {

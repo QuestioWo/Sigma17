@@ -338,7 +338,7 @@ const fourthColumn = Math.pow( 16, 0 );
       info['b'] = Number( argumentListRRR[2].slice( 1, argumentListRRR[2].length ) );
     } else if ( type === 'jx' ) {
       var argumentListJX = argument.split( '[' );
-      info['a'] = Number( argumentListJX[1].slice( 1, argumentListJX[1].length - 1 ) ); // removes 'r' and ']' from string
+      info['a'] = Number( argumentListJX[1].slice( 1, argumentListJX[1].length - 1 ) ); // removes ']' from string
       if ( argumentListJX[0].startsWith( '$' ) ) {
         info['disp'] = argumentListJX[0].slice( 1, argumentListJX[0].length );
       } else {
@@ -351,7 +351,7 @@ const fourthColumn = Math.pow( 16, 0 );
       info['d'] = Number( argumentListHX[0].slice( 1, argumentListHX[0].length ) );
 
       argumentListHX = argumentListHX[1].split( '[' );
-      info['a'] = Number( argumentListHX[1].slice( 1, argumentListHX[1].length - 1 ) ); // removes 'r' and ']' from string
+      info['a'] = Number( argumentListHX[1].slice( 1, argumentListHX[1].length - 1 ) ); // removes ']' from string
       if ( argumentListHX[0].startsWith( '$' ) ) {
         info['disp'] = argumentListHX[0].slice( 1, argumentListHX[0].length );
       } else {
@@ -362,7 +362,7 @@ const fourthColumn = Math.pow( 16, 0 );
       info['d'] = Number( argumentListRX[0].slice( 1, argumentListRX[0].length ) );
 
       argumentListRX = argumentListRX[1].split( '[' );
-      info['a'] = Number( argumentListRX[1].slice( 1, argumentListRX[1].length - 1 ) ); // removes 'r' and ']' from string
+      info['a'] = Number( argumentListRX[1].slice( 1, argumentListRX[1].length - 1 ) ); // removes ']' from string
       if ( argumentListRX[0].startsWith( '$' ) ) {
         info['disp'] = argumentListRX[0].slice( 1, argumentListRX[0].length );
       } else {
@@ -525,55 +525,55 @@ const fourthColumn = Math.pow( 16, 0 );
     return result;
   }
 
-  function processRXInstruction( control, registers, memory, ir, adr ) {
+  function processRXInstruction( control, registers, memory, Rd, Ra, Op, adr ) {
     // Ra == ir[1]
     // Rd == ir[2]
-    var effectiveADR = registers['r' + ir[2]] + adr;
+    var effectiveADR = registers[Ra] + adr;
 
-    switch ( ir[3] ) {
-      case '0' :
+    switch ( Op ) {
+      case 0x0 :
         // lea
-        registers['r' + ir[1]] = effectiveADR;
+        registers[Rd] = effectiveADR;
         break;
 
-      case '1' :
+      case 0x1 :
         // load
-        registers['r' + ir[1]] = memory[ effectiveADR ];
+        registers[Rd] = memory[ effectiveADR ];
         break;
 
-      case '2' :
+      case 0x2 :
         // store
-        memory[ effectiveADR ] = registers['r' + ir[1]];
+        memory[ effectiveADR ] = registers[Rd];
         break;
 
-      case '3' :
+      case 0x3 :
         // jump
         control['pc'] = effectiveADR;
         break;
 
-      case '4' :
+      case 0x4 :
         /* jumpc0 */
 
         break;
 
-      case '5' :
+      case 0x5 :
         /* jumpc1 */
 
         break;
 
-      case '6' :
+      case 0x6 :
         // jumpf
-        if ( !( registers['r' + ir[1]] === 1 ) ) control['pc'] = effectiveADR;
+        if ( !( registers[Rd] === 1 ) ) control['pc'] = effectiveADR;
         break;
 
-      case '7' :
+      case 0x7 :
         // jumpt
-        if ( registers['r' + ir[1]] === 1 ) control['pc'] = effectiveADR;
+        if ( registers[Rd] === 1 ) control['pc'] = effectiveADR;
         break;
 
-      case '8' :
+      case 0x8 :
         // jal
-        registers['r' + ir[1]] = control['pc'];
+        registers[Rd] = control['pc'];
         control['pc'] = effectiveADR;
         break;
 
@@ -584,7 +584,7 @@ const fourthColumn = Math.pow( 16, 0 );
     return { 'control' : control, 'registers' : registers, 'memory' : memory };
   }
 
-  function processEXPInstruction( control, registers, memory, instruction, adr ) {
+  function processEXPInstruction( control, registers, memory, Rd, Ra, Rb, adr ) {
     return { 'control' : control, 'registers' : registers, 'memory' : memory };
   }
 
@@ -597,27 +597,30 @@ const fourthColumn = Math.pow( 16, 0 );
     var instructionWords = 0;
 
     var instructionIr = memory[startpc];
-    var instructionIrString = writeHex( memory[startpc] );
-    var instructionIrOp = Math.floor( memory[startpc] / firstColumn );
     var instructionADR = 0;
 
-    var RaValue = registers['r' + instructionIrString[2]];    
-    var RbValue = registers['r' + instructionIrString[3]];
+    var Op = Math.floor( memory[startpc] / firstColumn );
+    var Rd = Math.floor( ( memory[startpc] - ( Op * firstColumn ) ) / secondColumn );
+    var Ra = Math.floor( ( memory[startpc] - ( Rd * secondColumn ) - ( Op * firstColumn ) ) / thirdColumn );
+    var Rb = Math.floor( ( memory[startpc] - ( Ra * thirdColumn ) - ( Rd * secondColumn ) - ( Op * firstColumn ) ) / fourthColumn );
+
+    var RaValue = registers[Ra];    
+    var RbValue = registers[Rb];
 
     if ( ( RaValue & 0x8000 ) > 0 ) RaValue = readSignedHex( RaValue );
     if ( ( RbValue & 0x8000 ) > 0 ) RbValue = readSignedHex( RbValue );
 
-    switch ( instructionIrOp ) {
+    switch ( Op ) {
       case 0x0 :
         // add
         instructionWords = 1;
-        registers['r' + instructionIrString[1]] = RaValue + RbValue;
+        registers[Ra] = RaValue + RbValue;
 
-        if ( ( registers['r' + instructionIrString[1]] & 0x10000 ) > 0 ) {
-          registers['r' + instructionIrString[1]] -= 0x10000;
-          registers['r15'] = 0b00000101 * secondColumn;
+        if ( ( registers[Rd] & 0x10000 ) > 0 ) {
+          registers[Rd] -= 0x10000;
+          registers[15] = 0b00000101 * secondColumn;
         } else {
-          registers['r15'] = 0;
+          registers[15] = 0;
         }
 
         break;
@@ -627,24 +630,24 @@ const fourthColumn = Math.pow( 16, 0 );
         instructionWords = 1;
         
         if ( RaValue < RbValue ) {
-          registers['r' + instructionIrString[1]] = ( RaValue + 0x10000 );
-          registers['r15'] = 0b00000010 * secondColumn;
+          registers[Rd] = ( RaValue + 0x10000 );
+          registers[15] = 0b00000010 * secondColumn;
         } else {
-          registers['r' + instructionIrString[1]] = RaValue;
-          registers['r15'] = 0;
+          registers[Rd] = RaValue;
+          registers[15] = 0;
         }
 
-        registers['r' + instructionIrString[1]] -= RbValue;
+        registers[Rd] -= RbValue;
 
         break;
 
       case 0x2 :
         // mul
         instructionWords = 1;
-        registers['r' + instructionIrString[1]] = RaValue * RbValue;
+        registers[Rd] = RaValue * RbValue;
 
-        if ( ( registers['r' + instructionIrString[1]] >= 0x10000 ) > 0 ) registers['r15'] = 0b00000010 * secondColumn;
-        while ( ( registers['r' + instructionIrString[1]] >= 0x10000 ) > 0 ) { registers['r' + instructionIrString[1]] -= 0x10000; };
+        if ( ( registers[Rd] >= 0x10000 ) > 0 ) registers[15] = 0b00000010 * secondColumn;
+        while ( ( registers[Rd] >= 0x10000 ) > 0 ) { registers[Rd] -= 0x10000; };
         
         break;
 
@@ -653,11 +656,11 @@ const fourthColumn = Math.pow( 16, 0 );
         instructionWords = 1;
 
         if ( RbValue !== 0 ) {          
-          registers['r' + instructionIrString[1]] = Math.floor( RaValue / RbValue );
-          registers['r15'] = RaValue % RbValue
+          registers[Rd] = Math.floor( RaValue / RbValue );
+          registers[15] = RaValue % RbValue
         } else {
-          registers['r' + instructionIrString[1]] = RaValue;
-          registers['r15'] = 0
+          registers[Rd] = RaValue;
+          registers[15] = 0
         }
 
         break;
@@ -665,33 +668,33 @@ const fourthColumn = Math.pow( 16, 0 );
       case 0x4 :
         // cmp
         instructionWords = 1;
-        registers['r15'] = compareRegisters( registers['r' + instructionIrString[2]], registers['r' + instructionIrString[3]] );
+        registers[15] = compareRegisters( registers[Ra], registers[Rb] );
 
         break;
 
       case 0x5 :
         // cmplt
         instructionWords = 1;
-        ( RaValue < RbValue ) ? registers['r' + instructionIrString[1]] = 1 : registers['r' + instructionIrString[1]] = 0;
+        ( RaValue < RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
         
         break;
 
       case 0x6 :
         // cmpeq
         instructionWords = 1;
-        ( RaValue === RbValue ) ? registers['r' + instructionIrString[1]] = 1 : registers['r' + instructionIrString[1]] = 0;
+        ( RaValue === RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
         break;
 
       case 0x7 :
         // cmpgt
         instructionWords = 1;
-        ( RaValue > RbValue ) ? registers['r' + instructionIrString[1]] = 1 : registers['r' + instructionIrString[1]] = 0;
+        ( RaValue > RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
         break;
 
       case 0x8 :
         // inv
         instructionWords = 1;
-        registers['r' + instructionIrString[2]] = RbValue ^ 0xffff;
+        registers[Ra] = RbValue ^ 0xffff;
 
         break;
 
@@ -700,7 +703,7 @@ const fourthColumn = Math.pow( 16, 0 );
         instructionWords = 1;
         RaValue = ( RaValue === 1 );
         RbValue = ( RbValue === 1 );
-        ( RaValue && RbValue ) ? registers['r' + instructionIrString[1]] = 1 : registers['r' + instructionIrString[1]] = 0;
+        ( RaValue && RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
         break;
 
       case 0xa :
@@ -708,7 +711,7 @@ const fourthColumn = Math.pow( 16, 0 );
         instructionWords = 1;
         RaValue = ( RaValue === 1 );
         RbValue = ( RbValue === 1 );
-        ( RaValue || RbValue ) ? registers['r' + instructionIrString[1]] = 1 : registers['r' + instructionIrString[1]] = 0;
+        ( RaValue || RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
         break;
 
       case 0xb :
@@ -716,7 +719,7 @@ const fourthColumn = Math.pow( 16, 0 );
         instructionWords = 1;
         RaValue = ( RaValue === 1 );
         RbValue = ( RbValue === 1 );
-        ( RaValue ^ RbValue ) ? registers['r' + instructionIrString[1]] = 1 : registers['r' + instructionIrString[1]] = 0;
+        ( RaValue ^ RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
         break;
 
       case 0xc :
@@ -735,7 +738,7 @@ const fourthColumn = Math.pow( 16, 0 );
       case 0xe :
         instructionWords = 2;
         instructionADR = memory[control['pc'] + 1];
-        processed = processEXPInstruction( control, registers, memory, instructionIrString, instructionADR );
+        processed = processEXPInstruction( control, registers, memory, Rd, Ra, Rb, instructionADR );
 
         control = processed['control'];
         registers = processed['registers'];
@@ -746,7 +749,7 @@ const fourthColumn = Math.pow( 16, 0 );
       case 0xf :
         instructionWords = 2;
         instructionADR = memory[control['pc'] + 1];
-        processed = processRXInstruction( control, registers, memory, instructionIrString, instructionADR );
+        processed = processRXInstruction( control, registers, memory, Rd, Ra, Rb, instructionADR );
 
         control = processed['control'];
         registers = processed['registers'];
@@ -761,8 +764,8 @@ const fourthColumn = Math.pow( 16, 0 );
     }
 
     for ( var it = 0; it < 16; it++ ) {
-      if ( registers['r' + it] < 0 ) {
-        registers['r' + it] = readUnsignedHex( registers['r' + it] );
+      if ( registers[it] < 0 ) {
+        registers[it] = readUnsignedHex( registers[it] );
       }
     }
 
