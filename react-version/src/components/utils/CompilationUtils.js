@@ -1,55 +1,72 @@
-const allCommands = ["add", "sub", "mul", "div", "cmp", "cmplt", "cmpeq", "cmpgt", "inv", "and", "or", "xor", "trap", 
-                    "lea", "load", "store", "jump", "jumpc0", "jumpc1", "jumpf", "jumpt", "jal", 
-                    "data"];
+// CONSTS FOR COMMAND RECOGNITION
+  const allCommands = ["add", "sub", "mul", "div", "cmp", "cmplt", "cmpeq", "cmpgt", "inv", "and", "or", "xor", "trap", 
+                      "lea", "load", "store", "jump", "jumpc0", "jumpc1", "jumpf", "jumpt", "jal", "testset",
+                      "data"];
 
-const firstColumn = Math.pow( 16, 3 );
-const secondColumn = Math.pow( 16, 2 );
-const thirdColumn = Math.pow( 16, 1 );
-const fourthColumn = Math.pow( 16, 0 );
+  const firstColumn = Math.pow( 16, 3 );
+  const secondColumn = Math.pow( 16, 2 );
+  const thirdColumn = Math.pow( 16, 1 );
+  const fourthColumn = Math.pow( 16, 0 );
 
-// "jumplt", "jumple", "jumpne", "jumpeq", "jumpge", "jumpgt",
+  // "jumplt", "jumple", "jumpne", "jumpeq", "jumpge", "jumpgt",
 
-// RRR
-  const rrCommands = {
-    cmp : 4,
-    inv : 8
-  };
-  const rrrCommands = { 
-    add : 0, 
-    sub : 1,
-    mul : 2,
-    div : 3,
-    cmplt : 5,
-    cmpeq : 6,
-    cmpgt : 7,
-    and : 9,
-    or : 0xa,
-    xor : 0xb,
-    nop : 0xc,
-    trap : 0xd
-  };
+  // RRR
+    const rrCommands = {
+      cmp : 4,
+      inv : 8
+    };
+    const rrrCommands = { 
+      add : 0, 
+      sub : 1,
+      mul : 2,
+      div : 3,
+      cmplt : 5,
+      cmpeq : 6,
+      cmpgt : 7,
+      and : 9,
+      or : 0xa,
+      xor : 0xb,
+      nop : 0xc,
+      trap : 0xd
+    };
 
-// RX
-  const jxCommands = {
-    jump : 3
-  };
-  const kxCommands = {
-    jumpc0 : 4,
-    jumpc1 : 5,
-  }
-  const rxCommands = {
-    lea : 0,
-    load : 1,
-    store : 2,
-    jumpf : 6,
-    jumpt : 7,
-    jal : 8
-  };
+  // RX
+    const jxCommands = {
+      jump : 3
+    };
+    const kxCommands = {
+      jumpc0 : 4,
+      jumpc1 : 5,
+    };
+    const rxCommands = {
+      lea : 0,
+      load : 1,
+      store : 2,
+      jumpf : 6,
+      jumpt : 7,
+      jal : 8,
+      testset : 9
+    };
 
-// X
-  const xCommands = {data : 0}; // data doesnt have an op code since it kind of isnt a command but for convention sake, its in a dictionary
+  // X
+    const xCommands = {data : 0}; // data doesnt have an op code since it kind of isnt a command but for convention sake, its in a dictionary
 
 // UTIL FUNCTIONS
+  export function readSignedHex( a ) {
+    a = Number( a );
+    if ( ( a & 0x8000 ) > 0) {
+      a = a - 0x10000;
+    }
+    return a;
+  }
+
+  export function readUnsignedHex( a ) {
+    if ( a < 0 ) {
+      a = a + 0x10000;
+    }
+    return a;
+  }
+
   function isValidNumber( numString ) {
     var num = 0;
 
@@ -57,12 +74,12 @@ const fourthColumn = Math.pow( 16, 0 );
       num = parseInt( numString );
     } else if ( numString.startsWith( '$' ) ) {
       numString = numString.slice( 1, numString.length );
-      num = parseInt( numString, 16 );
+      num = readSignedHex( parseInt( numString, 16 ) );
     } else {
       num = 65536;
     }
 
-    return ( num <= 65535 ) ? true : false;
+    return ( num < 32768 && num >= -32768 ) ? true : false;
   }
 
   function isValidNumberBit( numString ) {
@@ -72,7 +89,7 @@ const fourthColumn = Math.pow( 16, 0 );
       num = parseInt( numString );
     } else if ( numString.startsWith( '$' ) ) {
       numString = numString.slice( 1, numString.length );
-      num = parseInt( numString, 16 );
+      num = readSignedHex( parseInt( numString, 16 ) );
     } else {
       num = 16;
     }
@@ -212,14 +229,14 @@ const fourthColumn = Math.pow( 16, 0 );
       // first word is an jx command
       if ( argument ) { 
         // there is a second argument
-        check = checkJXCommand( argument, labels );
+        check = checkKXCommand( argument, labels );
         if ( check.length ) {
           // if jx command doesnt follow requirements 
           return check;
         }
         // does follow requirements, and therefore function returns true
       } else {
-        return command + ' must be followed by arguments in the format of disp[Ra]';
+        return command + ' must be followed by arguments in the format of k,disp[Ra], where k is a bit';
       }
     } else if ( Object.keys( rxCommands ).includes( command ) ) {
       // first word is an rx command
@@ -371,7 +388,7 @@ const fourthColumn = Math.pow( 16, 0 );
     } else if ( type === 'x' ) {
       if ( ! isNaN( argument ) ) {
         // number is in decimal
-        info['disp'] = Number( argument );
+        info['disp'] = readUnsignedHex( Number( argument ) );
       } else {
         // number is in hex
         argument = argument.slice( 1, argument.length );
@@ -478,21 +495,6 @@ const fourthColumn = Math.pow( 16, 0 );
     return memory;
   }
 
-  export function readSignedHex( a ) {
-    a = Number( a );
-    if ( ( a & 0x8000 ) > 0) {
-      a = a - 0x10000;
-    }
-    return a;
-  }
-
-  export function readUnsignedHex( a ) {
-    if ( a < 0 ) {
-      a = a + 0x10000;
-    }
-    return a;
-  }
-
   function compareRegisters( RaValue, RbValue ) {
     var RaValueSigned = readSignedHex( RaValue );
     var RbValueSigned = readSignedHex( RbValue );
@@ -576,6 +578,11 @@ const fourthColumn = Math.pow( 16, 0 );
         registers[Rd] = control['pc'];
         control['pc'] = effectiveADR;
         break;
+
+      case 0x9 :
+        // testset
+        registers[Rd] = effectiveADR;
+        memory[effectiveADR] = 1;
 
       default :
 

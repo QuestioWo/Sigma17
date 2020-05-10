@@ -13,7 +13,7 @@
     };
 
     const allCommands = ["add", "sub", "mul", "div", "cmp", "cmplt", "cmpeq", "cmpgt", "inv", "and", "or", "xor", "trap", 
-                        "lea", "load", "store", "jump", "jumpc0", "jumpc1", "jumpf", "jumpt", "jal", 
+                        "lea", "load", "store", "jump", "jumpc0", "jumpc1", "jumpf", "jumpt", "jal", "testset",
                         "data"];
 
     CodeMirror.registerHelper("hintWords", "sigma16", allCommands);
