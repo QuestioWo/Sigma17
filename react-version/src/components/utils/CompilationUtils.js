@@ -143,7 +143,7 @@
     if ( !( /((\$(\d)|([a-f])|([A-F]))|(\d)),((\$(\d)|([a-f])|([A-F]))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]/.test( kx ) ) ) {
       return 'arguments must be in the form of "k,disp[Ra]"';
     }
-    var splat = kx.split;
+    var splat = kx.split( ',' );
     var k = splat[0];
     var disp = splat[1].split( '[' )[0];
 
@@ -321,6 +321,10 @@
       result['words'] = 2;
       result['type'] = 'jx';
       result['op'] = jxCommands[command];
+    } else if ( Object.keys( kxCommands ).includes( command ) ) {
+      result['words'] = 2;
+      result['type'] = 'kx';
+      result['op'] = kxCommands[command]; 
     } else if ( Object.keys( rxCommands ).includes( command ) ) {
       result['words'] = 2;
       result['type'] = 'rx';
@@ -332,6 +336,25 @@
     }
 
     return result;
+  }
+
+  function readConstant( argument ) {
+    var info = 0;
+
+    if ( ! isNaN( argument ) ) {
+      // number is in decimal
+      info = readUnsignedHex( Number( argument ) );
+    } else {
+      // number is either hex or string
+      if ( isValidNumber( argument ) ) {
+        argument = argument.slice( 1, argument.length );
+        info = parseInt( argument, 16);
+      } else {
+        info = argument;
+      }
+    }
+
+    return info;
   }
 
   function findArgumentInfo( argument, type ) {
@@ -356,44 +379,30 @@
     } else if ( type === 'jx' ) {
       var argumentListJX = argument.split( '[' );
       info['a'] = Number( argumentListJX[1].slice( 1, argumentListJX[1].length - 1 ) ); // removes ']' from string
-      if ( argumentListJX[0].startsWith( '$' ) ) {
-        info['disp'] = argumentListJX[0].slice( 1, argumentListJX[0].length );
-      } else {
-        info['disp'] = argumentListJX[0];
-      }
+      info['disp'] = readConstant( argumentListJX[0] );
 
       info['d'] = 0;
-    } else if ( type === 'hx' ) {
-      var argumentListHX = argument.split( ',' );
-      info['d'] = Number( argumentListHX[0].slice( 1, argumentListHX[0].length ) );
+    } else if ( type === 'kx' ) {
+      var argumentListKX = argument.split( ',' );
+      info['d'] = readConstant( argumentListKX[0] );
 
-      argumentListHX = argumentListHX[1].split( '[' );
-      info['a'] = Number( argumentListHX[1].slice( 1, argumentListHX[1].length - 1 ) ); // removes ']' from string
-      if ( argumentListHX[0].startsWith( '$' ) ) {
-        info['disp'] = argumentListHX[0].slice( 1, argumentListHX[0].length );
-      } else {
-        info['disp'] = argumentListHX[0];
-      }
+      argumentListKX = argumentListKX[1].split( '[' );
+      info['a'] = Number( argumentListKX[1].slice( 1, argumentListKX[1].length - 1 ) ); // removes ']' from string
+      info['disp'] = readConstant( argumentListKX[0] );
     } else if ( type === 'rx' ) {
       var argumentListRX = argument.split( ',' );
       info['d'] = Number( argumentListRX[0].slice( 1, argumentListRX[0].length ) );
 
       argumentListRX = argumentListRX[1].split( '[' );
       info['a'] = Number( argumentListRX[1].slice( 1, argumentListRX[1].length - 1 ) ); // removes ']' from string
+      info['disp'] = readConstant( argumentListRX[0] );
       if ( argumentListRX[0].startsWith( '$' ) ) {
         info['disp'] = argumentListRX[0].slice( 1, argumentListRX[0].length );
       } else {
         info['disp'] = argumentListRX[0];
       }
     } else if ( type === 'x' ) {
-      if ( ! isNaN( argument ) ) {
-        // number is in decimal
-        info['disp'] = readUnsignedHex( Number( argument ) );
-      } else {
-        // number is in hex
-        argument = argument.slice( 1, argument.length );
-        info['disp'] = parseInt( argument, 16);
-      }
+      info['disp'] = readConstant( argument );
     }
 
     return info;
@@ -408,7 +417,7 @@
 
     if ( commandInfo['type'] === 'rr' || commandInfo['type'] === 'rrr' ) {
       machineCode += commandInfo['op']*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + argumentInfo['b']*fourthColumn;
-    } else if ( commandInfo['type'] === 'jx' || commandInfo['type'] === 'rx' ) {
+    } else if ( commandInfo['type'] === 'jx' || commandInfo['type'] === 'kx' || commandInfo['type'] === 'rx' ) {
       machineCode += ( 0xf*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + commandInfo['op']*fourthColumn );
 
       if ( Object.keys( labels ).includes( argumentInfo['disp'] ) ) {
@@ -554,12 +563,14 @@
         break;
 
       case 0x4 :
-        /* jumpc0 */
+        // jumpc0 
+        if ( !( ( registers[15] & Math.pow( 2, Rd ) ) > 0 ) ) control['pc'] = effectiveADR;
 
         break;
 
       case 0x5 :
-        /* jumpc1 */
+        // jumpc1
+        if ( ( registers[15] & Math.pow( 2, Rd ) ) > 0 ) control['pc'] = effectiveADR;
 
         break;
 
@@ -583,6 +594,8 @@
         // testset
         registers[Rd] = effectiveADR;
         memory[effectiveADR] = 1;
+
+        break;
 
       default :
 

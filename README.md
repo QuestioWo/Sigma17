@@ -44,7 +44,8 @@ This will start the local React.js development server and should open a windown 
 * √ - Implement circuit/circuit functionality
 * √ - Implement actions based off of machine code
 * √ - Implement all RRR/RR functions
-* Implement all RX/JX/KX functions
+* √ - Implement all RX/JX/KX functions
+* Implement 'jump alias' functions
 * Implement all EXP functions
 * √ - Small rewrite to use binary checking instead of string checking to increase performance further
 * √ - Link to webpage
