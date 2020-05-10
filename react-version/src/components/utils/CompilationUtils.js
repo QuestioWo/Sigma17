@@ -479,8 +479,16 @@ const fourthColumn = Math.pow( 16, 0 );
   }
 
   export function readSignedHex( a ) {
+    a = Number( a );
     if ( ( a & 0x8000 ) > 0) {
       a = a - 0x10000;
+    }
+    return a;
+  }
+
+  export function readUnsignedHex( a ) {
+    if ( a < 0 ) {
+      a = a + 0x10000;
     }
     return a;
   }
@@ -587,13 +595,17 @@ const fourthColumn = Math.pow( 16, 0 );
     var startpc = control['pc'];
 
     var instructionWords = 0;
-    var instructionIr = memory[control['pc']];
-    var instructionIrString = writeHex( memory[control['pc']] );
-    var instructionIrOp = Math.floor( memory[control['pc']] / firstColumn );
+
+    var instructionIr = memory[startpc];
+    var instructionIrString = writeHex( memory[startpc] );
+    var instructionIrOp = Math.floor( memory[startpc] / firstColumn );
     var instructionADR = 0;
 
-    var RaValue = registers['r' + instructionIrString[2]];
+    var RaValue = registers['r' + instructionIrString[2]];    
     var RbValue = registers['r' + instructionIrString[3]];
+
+    if ( ( RaValue & 0x8000 ) > 0 ) RaValue = readSignedHex( RaValue );
+    if ( ( RbValue & 0x8000 ) > 0 ) RbValue = readSignedHex( RbValue );
 
     switch ( instructionIrOp ) {
       case 0x0 :
@@ -601,25 +613,53 @@ const fourthColumn = Math.pow( 16, 0 );
         instructionWords = 1;
         registers['r' + instructionIrString[1]] = RaValue + RbValue;
 
+        if ( ( registers['r' + instructionIrString[1]] & 0x10000 ) > 0 ) {
+          registers['r' + instructionIrString[1]] -= 0x10000;
+          registers['r15'] = 0b00000101 * secondColumn;
+        } else {
+          registers['r15'] = 0;
+        }
+
         break;
 
       case 0x1 :
         // sub
         instructionWords = 1;
-        registers['r' + instructionIrString[1]] = RaValue - RbValue;
+        
+        if ( RaValue < RbValue ) {
+          registers['r' + instructionIrString[1]] = ( RaValue + 0x10000 );
+          registers['r15'] = 0b00000010 * secondColumn;
+        } else {
+          registers['r' + instructionIrString[1]] = RaValue;
+          registers['r15'] = 0;
+        }
+
+        registers['r' + instructionIrString[1]] -= RbValue;
+
         break;
 
       case 0x2 :
         // mul
         instructionWords = 1;
         registers['r' + instructionIrString[1]] = RaValue * RbValue;
+
+        if ( ( registers['r' + instructionIrString[1]] >= 0x10000 ) > 0 ) registers['r15'] = 0b00000010 * secondColumn;
+        while ( ( registers['r' + instructionIrString[1]] >= 0x10000 ) > 0 ) { registers['r' + instructionIrString[1]] -= 0x10000; };
+        
         break;
 
       case 0x3 :
         // div
         instructionWords = 1;
-        registers['r' + instructionIrString[1]] = Math.floor( RaValue / RbValue );
-        // registers['r15'] = writeHex( RaValue % RbValue );
+
+        if ( RbValue !== 0 ) {          
+          registers['r' + instructionIrString[1]] = Math.floor( RaValue / RbValue );
+          registers['r15'] = RaValue % RbValue
+        } else {
+          registers['r' + instructionIrString[1]] = RaValue;
+          registers['r15'] = 0
+        }
+
         break;
 
       case 0x4 :
@@ -718,6 +758,12 @@ const fourthColumn = Math.pow( 16, 0 );
         instructionWords = 1;
         halted = true;
         break;
+    }
+
+    for ( var it = 0; it < 16; it++ ) {
+      if ( registers['r' + it] < 0 ) {
+        registers['r' + it] = readUnsignedHex( registers['r' + it] );
+      }
     }
 
     // R0 holds constant 0

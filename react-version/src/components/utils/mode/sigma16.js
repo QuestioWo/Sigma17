@@ -32,7 +32,7 @@
       if (ch === ';') {
         stream.skipToEnd();
         return 'comment';
-      } else if ( /(r|R)([0-9])/.test(ch+peek) ) {
+      } else if ( /(r|R)([0-9])/.test( ch + peek ) ) {
         if ( /(1)/.test( peek ) ) {
           stream.next();
           peek = stream.peek();
@@ -44,14 +44,19 @@
           stream.next();
         }
         return 'def';   
-      } else if (ch === '$') {
-        stream.eatWhile(/((\d)|([a-f])|([A-F]))/);
-        if(stream.eol() || !/\w/.test(stream.peek())) {
+      } else if ( ch === '$' ) {
+        stream.eatWhile( /((\d)|([a-f])|([A-F]))/ );
+        if( stream.eol() || !/\w/.test( stream.peek() ) ) {
           return 'number';
         }
-      } else if (/\d/.test(ch)) {
-        stream.eatWhile(/\d/);
-        if(stream.eol() || !/\w/.test(stream.peek())) {
+      } else if ( ch === '-' ) {
+        stream.eatWhile( /\d/ );
+        if( stream.eol() || !/\w/.test( stream.peek() ) ) {
+          return 'number';
+        }
+      } else if ( /\d/.test( ch ) ) {
+        stream.eatWhile( /\d/ );
+        if( stream.eol() || !/\w/.test( stream.peek() ) ) {
           return 'number';
         }
       }

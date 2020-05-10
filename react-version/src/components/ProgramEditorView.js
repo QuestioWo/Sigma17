@@ -180,7 +180,7 @@ export default class ProgramEditorView extends React.Component {
                               placement={'left'}
                               overlay={
                                 <Tooltip>
-                                  { parseInt( this.state.registers['r' + i] )}/{ CompilationUtils.readSignedHex( this.state.registers['r' + i] ) }
+                                  { CompilationUtils.readUnsignedHex( this.state.registers['r' + i] )}/{ CompilationUtils.readSignedHex( this.state.registers['r' + i] ) }
                                 </Tooltip>
                               }>
                               <span>
@@ -214,7 +214,7 @@ export default class ProgramEditorView extends React.Component {
                                 placement={'left'}
                                 overlay={
                                   <Tooltip>
-                                    { this.state.memory[memoryKeys[i]] }/{ CompilationUtils.readSignedHex( this.state.memory[memoryKeys[i]] ) }
+                                    { CompilationUtils.readUnsignedHex( this.state.memory[memoryKeys[i]] ) }/{ CompilationUtils.readSignedHex( this.state.memory[memoryKeys[i]] ) }
                                   </Tooltip>
                                 }>
                                 <span>
