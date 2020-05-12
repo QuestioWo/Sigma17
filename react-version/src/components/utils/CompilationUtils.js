@@ -62,11 +62,11 @@
       jump : 3
     };
     const jumpAliasCommands = { // 4 is jumpc0, 5 is jumpc1
-      jumplt : [ 5, 10 ],
+      jumplt : [ 5, 11 ],
       jumple : [ 4, 15 ],
       jumpne : [ 4, 13 ],
       jumpeq : [ 5, 13 ],
-      jumpge : [ 4, 10 ],
+      jumpge : [ 4, 11 ],
       jumpgt : [ 5, 15 ]
     };
     const kxCommands = {
@@ -102,7 +102,7 @@
     return a;
   }
 
-  function readConstant( argument ) {
+  function readConstant( argument, labels ) {
     var info = 0;
 
     if ( ! isNaN( argument ) ) {
@@ -114,14 +114,18 @@
         argument = argument.slice( 1, argument.length );
         info = parseInt( argument, 16);
       } else {
-        info = argument;
+        if ( labels && Object.keys( labels ).includes( argument ) ) {
+          info = labels[argument];
+        } else {
+          info = argument;
+        }
       }
     }
 
     return info;
   }
 
-  function isValidNumber( numString ) {
+  export function isValidNumber( numString ) {
     var num = 0;
 
     if ( !isNaN( numString ) ) {
@@ -148,14 +152,17 @@
       num = 16;
     }
 
-    return ( num <= 15 && num > 0 ) ? true : false;
+    return ( num <= 15 && num >= 0 ) ? true : false;
   }
 
   export function writeHex( x ) {
-    if ( !x.length ) {
-      x = x.toString( 16 );
+    if ( x !== undefined ) {
+      if ( !x.length ) {
+        x = x.toString( 16 );
+      }
+      while ( x.length < 4 ) { x = '0' + x; }
+      return x;
     }
-    while ( x.length < 4 ) { x = '0' + x; }
     return x;
   }
 
@@ -178,7 +185,7 @@
 
   function checkJXCommand( jx, labels ) {
     // check that rx is in the form of rd,disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( /((\$(\d)|([a-f])|([A-F]))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]/.test( jx ) ) ) {
+    if ( !( /((\$(\d)|([a-f])|([A-F]))|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]/.test( jx ) ) ) {
       return 'arguments must be in the form of "disp[Ra]"';
     }
     var disp = jx.split( '[' )[0];
@@ -194,7 +201,7 @@
 
   function checkKXCommand( kx, labels ) {
     // check that rx is in the form of rd,disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( /((\$(\d)|([a-f])|([A-F]))|(\d)),((\$(\d)|([a-f])|([A-F]))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]/.test( kx ) ) ) {
+    if ( !( /((\$(\d)|([a-f])|([A-F]))||(-(\d))|(\d)),((\$(\d)|([a-f])|([A-F]))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]/.test( kx ) ) ) {
       return 'arguments must be in the form of "k,disp[Ra]"';
     }
     var splat = kx.split( ',' );
@@ -216,7 +223,7 @@
 
   function checkRXCommand( rx, labels ) {
     // check that rx is in the form of rd,disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( /r((1[0-5])|([0-9])),((\$(\d)|([a-f])|([A-F]))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]/.test( rx ) ) ) {
+    if ( !( /r((1[0-5])|([0-9])),((\$(\d)|([a-f])|([A-F]))|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]/.test( rx ) ) ) {
       return 'arguments must be in the form of "Rd,disp[Ra]"';
     }
     var disp = rx.split( ',' )[1].split( '[' )[0];
@@ -360,7 +367,61 @@
     var result = {
       words : 0,
       type : '',
-      op : 0,
+      op : 0
+    };
+
+    switch ( allCommands[command] ) {
+      case 'rr' :
+        result['words'] = 1;
+        result['type'] = 'rrr';
+        result['op'] = rrCommands[command];
+        break;
+        
+      case 'rrr' :
+        result['words'] = 1;
+        result['type'] = 'rrr';
+        result['op'] = rrrCommands[command];
+        break;
+        
+      case 'jx' :
+        result['words'] = 2;
+        result['type'] = 'rx';
+        result['op'] = jxCommands[command];
+        break;
+        
+      case 'jumpAlias' :
+        result['words'] = 2;
+        result['type'] = 'rx';
+        result['op'] = jumpAliasCommands[command][0];
+        break;
+        
+      case 'kx' :
+        result['words'] = 2;
+        result['type'] = 'rx';
+        result['op'] = kxCommands[command];
+        break;
+        
+      case 'rx' :
+        result['words'] = 2;
+        result['type'] = 'rx';
+        result['op'] = rxCommands[command];
+        break;
+        
+      case 'x' :
+        result['words'] = 1;
+        result['type'] = 'x';
+        result['op'] = xCommands[command];
+        break;
+
+      default :
+        break;
+    }
+
+    return result;
+  }
+
+  function findArgumentInfo( command, argument, labels ) {
+    var result = {
       d : 0,
       a : 0,
       b : 0,
@@ -369,11 +430,6 @@
 
     switch ( allCommands[command] ) {
       case 'rr' :
-        result['words'] = 1;
-        result['type'] = 'rrr';
-        result['op'] = rrCommands[command];
-
-        // arguments
         var argumentListRR = argument.split( ',' );
         result['a'] = Number( argumentListRR[0].slice( 1, argumentListRR[0].length ) );
         result['b'] = Number( argumentListRR[1].slice( 1, argumentListRR[1].length ) );
@@ -382,11 +438,6 @@
         break;
         
       case 'rrr' :
-        result['words'] = 1;
-        result['type'] = 'rrr';
-        result['op'] = rrrCommands[command];
-
-        // arguments
         var argumentListRRR = argument.split( ',' );
         result['d'] = Number( argumentListRRR[0].slice( 1, argumentListRRR[0].length ) );
         result['a'] = Number( argumentListRRR[1].slice( 1, argumentListRRR[1].length ) );
@@ -394,71 +445,41 @@
         break;
         
       case 'jx' :
-        result['words'] = 2;
-        result['type'] = 'rx';
-        result['op'] = jxCommands[command];
-
-        // arguments
         var argumentListJX = argument.split( '[' );
         result['a'] = Number( argumentListJX[1].slice( 1, argumentListJX[1].length - 1 ) ); // removes ']' from string
-        result['disp'] = readConstant( argumentListJX[0] );
+        result['disp'] = readConstant( argumentListJX[0], labels );
 
         result['d'] = 0;
         break;
         
       case 'jumpAlias' :
-        result['words'] = 2;
-        result['type'] = 'rx';
-        result['op'] = jumpAliasCommands[command][0];
-
-        // arguments
         var argumentListJumpAlias = argument.split( '[' );
         result['a'] = Number( argumentListJumpAlias[1].slice( 1, argumentListJumpAlias[1].length - 1 ) ); // removes ']' from string
-        result['disp'] = readConstant( argumentListJumpAlias[0] );
+        result['disp'] = readConstant( argumentListJumpAlias[0], labels );
 
         result['d'] = jumpAliasCommands[command][1];
         break;
         
       case 'kx' :
-        result['words'] = 2;
-        result['type'] = 'rx';
-        result['op'] = kxCommands[command]; 
-
-        // arguments
         var argumentListKX = argument.split( ',' );
-        result['d'] = readConstant( argumentListKX[0] );
+        result['d'] = readConstant( argumentListKX[0], labels );
 
         argumentListKX = argumentListKX[1].split( '[' );
         result['a'] = Number( argumentListKX[1].slice( 1, argumentListKX[1].length - 1 ) ); // removes ']' from string
-        result['disp'] = readConstant( argumentListKX[0] );
+        result['disp'] = readConstant( argumentListKX[0], labels );
         break;
         
       case 'rx' :
-        result['words'] = 2;
-        result['type'] = 'rx';
-        result['op'] = rxCommands[command];
-
-        // arguments
         var argumentListRX = argument.split( ',' );
         result['d'] = Number( argumentListRX[0].slice( 1, argumentListRX[0].length ) );
 
         argumentListRX = argumentListRX[1].split( '[' );
         result['a'] = Number( argumentListRX[1].slice( 1, argumentListRX[1].length - 1 ) ); // removes ']' from string
-        result['disp'] = readConstant( argumentListRX[0] );
-        if ( argumentListRX[0].startsWith( '$' ) ) {
-          result['disp'] = argumentListRX[0].slice( 1, argumentListRX[0].length );
-        } else {
-          result['disp'] = argumentListRX[0];
-        }
+        result['disp'] = readConstant( argumentListRX[0], labels );
         break;
         
       case 'x' :
-        result['words'] = 1;
-        result['type'] = 'x';
-        result['op'] = xCommands[command];
-
-        // arguments
-        result['disp'] = readConstant( argument );
+        result['disp'] = readConstant( argument, labels );
         break;
 
       default :
@@ -470,27 +491,24 @@
 
   function generateMachineCode( command, argument, labels ) {
     var machineCode = 0;
-    var machineCodeSecond = -1;
+    var machineCodeSecond = 65536;
 
     var commandInfo = findInstuctionInfo( command, argument );
+    var argumentInfo = findArgumentInfo( command, argument, labels );
 
     switch ( commandInfo['type'] ) {
       case 'rrr' :
-        machineCode += commandInfo['op']*firstColumn + commandInfo['d']*secondColumn + commandInfo['a']*thirdColumn + commandInfo['b']*fourthColumn;
+        machineCode += commandInfo['op']*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + argumentInfo['b']*fourthColumn;
         break;
 
       case 'rx' :
-        machineCode += ( 0xf*firstColumn + commandInfo['d']*secondColumn + commandInfo['a']*thirdColumn + commandInfo['op']*fourthColumn );
+        machineCode += 0xf*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + commandInfo['op']*fourthColumn;
 
-        if ( Object.keys( labels ).includes( commandInfo['disp'] ) ) {
-          machineCodeSecond = labels[commandInfo['disp']];
-        } else {
-          machineCodeSecond = commandInfo['disp'];
-        }
+        machineCodeSecond = argumentInfo['disp'];
         break;
 
       case 'x' :
-        machineCode += commandInfo['disp'];
+        machineCode += argumentInfo['disp'];
         break;
 
       default :
@@ -505,10 +523,11 @@
     
     var result = {
       label : '',
-      instructionWords : 0
+      instructionWords : 0,
+      justLabel : false
     };
 
-    if ( linesplit[0] ) {
+    if ( linesplit[0] && linesplit[0] !== '' ) {
       // lines isnt empty
       if ( Object.keys( allCommands ).includes( linesplit[0] ) ) {
         // first word is a command
@@ -520,12 +539,15 @@
           if ( linesplit[1] ) {
             // theres more after label
             if ( Object.keys( allCommands ).includes( linesplit[1] ) ) {
+              result['label'] = linesplit[0];
               result['instructionWords'] = findInstuctionInfo( linesplit[1], linesplit[2] )['words'];
             }
+          } else {
+            // just a label, therefore allowed and function returns true
+            result['label'] = linesplit[0];
+            result['instructionWords'] = 1;
+            result['justLabel'] = true;
           }
-          // just a label, therefore allowed and function returns true
-          result['label'] = linesplit[0];
-          result['instructionWords'] = 1; // returns nop on this line which is an RRR instruction with length 1
         }
       }
     }
@@ -533,11 +555,11 @@
   }
 
   export function parseLineForMachineCode( line, labels ) {
-    var machineCode = 0;
+    var machineCode = [ 0, 65536 ];
 
     var linesplit = line.trim().split( ';' )[0].split( /\s+/ );
 
-    if ( linesplit[0] ) {
+    if ( linesplit[0] && linesplit[0] !== '' ) {
       // lines isnt empty
       if ( Object.keys( allCommands ).includes( linesplit[0] ) ) {
         // first word is a command
@@ -552,7 +574,9 @@
               machineCode = generateMachineCode( linesplit[1], linesplit[2], labels );
             }
           } else {
-            machineCode = [ 0xc000 ];
+            // is a just a label and must not be recognised as a seperate command so 
+            // undefined is returned so that parent method can skip it from being added to machine code
+            machineCode = undefined;
           }
         }
       }
@@ -600,13 +624,44 @@
     }
 
     result = result * secondColumn;
-
     return result;
   }
 
-  function processRXInstruction( control, registers, memory, Rd, Ra, Op, adr ) {
-    // Ra == ir[1]
-    // Rd == ir[2]
+  function processTRAPInstruction( control, registers, memory, output, Rd, Ra, Rb ) {
+    var halted = false;
+
+    switch ( registers[Rd] ) {
+      case 0x0 :
+        halted = true;
+        break;
+
+      case 0x1 :
+
+        break;
+
+      case 0x2 :
+        var memoryBufferStart = registers[Ra];
+
+        var i = 0;
+
+        for ( i; i < registers[Rb]; i++ ) {
+          // if in memory, add to output, else add default memory value
+          if ( memory[memoryBufferStart + i] ) {
+            output += String.fromCharCode( memory[memoryBufferStart + i] );
+          } else {
+            output += String.fromCharCode( 0 );
+          }
+        }
+        break;
+
+      default :
+        break;
+    }
+
+    return { 'control' : control, 'registers' : registers, 'memory' : memory, 'output' : output, 'halted' : halted };
+  }
+
+  function processRXInstruction( control, registers, memory, output, Rd, Ra, Op, adr ) {
     var effectiveADR = registers[Ra] + adr;
 
     switch ( Op ) {
@@ -631,8 +686,8 @@
         break;
 
       case 0x4 :
-        // jumpc0 
-        if ( !( ( registers[15] & Math.pow( 2, Rd ) ) > 0 ) ) control['pc'] = effectiveADR;
+        // jumpc0
+        if ( ( registers[15] & Math.pow( 2, Rd ) ) === 0 ) control['pc'] = effectiveADR;
 
         break;
 
@@ -654,7 +709,7 @@
 
       case 0x8 :
         // jal
-        registers[Rd] = control['pc'];
+        registers[Rd] = control['pc'] + 2;
         control['pc'] = effectiveADR;
         break;
 
@@ -669,14 +724,14 @@
 
         break;
     }
-    return { 'control' : control, 'registers' : registers, 'memory' : memory };
+    return { 'control' : control, 'registers' : registers, 'memory' : memory, 'output' : output };
   }
 
-  function processEXPInstruction( control, registers, memory, Rd, Ra, Rb, adr ) {
-    return { 'control' : control, 'registers' : registers, 'memory' : memory };
+  function processEXPInstruction( control, registers, memory, output, Rd, Ra, Rb, adr ) {
+    return { 'control' : control, 'registers' : registers, 'memory' : memory, 'output' : output };
   }
 
-  export function runMemory( control, registers, memory ) {
+  export function runMemory( control, registers, memory, output ) {
     var halted = false;
     var processed = {};
 
@@ -702,7 +757,7 @@
       case 0x0 :
         // add
         instructionWords = 1;
-        registers[Ra] = RaValue + RbValue;
+        registers[Rd] = RaValue + RbValue;
 
         if ( ( registers[Rd] & 0x10000 ) > 0 ) {
           registers[Rd] -= 0x10000;
@@ -826,29 +881,38 @@
       case 0xd :
         // trap
         instructionWords = 1;
-        halted = true;
+        processed = processTRAPInstruction( control, registers, memory, output, Rd, Ra, Rb, instructionADR );
+
+        control = processed['control'];
+        registers = processed['registers'];
+        memory = processed['memory'];
+        output = processed['output'];
+
+        halted = processed['halted'];
 
         break;
 
       case 0xe :
         instructionWords = 2;
         instructionADR = memory[control['pc'] + 1];
-        processed = processEXPInstruction( control, registers, memory, Rd, Ra, Rb, instructionADR );
+        processed = processEXPInstruction( control, registers, memory, output, Rd, Ra, Rb, instructionADR );
 
         control = processed['control'];
         registers = processed['registers'];
         memory = processed['memory'];
-        
+        output = processed['output'];
+
         break;
 
       case 0xf :
         instructionWords = 2;
         instructionADR = memory[control['pc'] + 1];
-        processed = processRXInstruction( control, registers, memory, Rd, Ra, Rb, instructionADR );
+        processed = processRXInstruction( control, registers, memory, output, Rd, Ra, Rb, instructionADR );
 
         control = processed['control'];
         registers = processed['registers'];
         memory = processed['memory'];
+        output = processed['output'];
         
         break;
 
@@ -865,12 +929,22 @@
     }
 
     // R0 holds constant 0
-    registers['r0'] = 0;
+    registers[0] = 0;
 
     control['ir'] = instructionIr;
     control['adr'] = instructionADR;
 
-    if ( control['pc'] === startpc ) control['pc'] += instructionWords;
+    if ( control['pc'] === startpc ) control['pc'] += instructionWords; 
 
-    return { 'control' : control, 'registers' : registers, 'memory' : memory, 'halted' : halted };
+    if ( Object.values( registers ).includes( NaN ) || Object.values( registers ).includes( undefined )  ) {
+      console.log( control )
+      console.log( registers )
+      console.log( memory )
+
+      output += '==== SEVERE SYSTEM ERROR ====';
+
+      halted = true;
+    }
+
+    return { 'control' : control, 'registers' : registers, 'memory' : memory, 'output' : output, 'halted' : halted };
   }

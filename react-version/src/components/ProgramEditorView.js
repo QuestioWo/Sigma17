@@ -3,7 +3,7 @@ import React from 'react';
 import 'codemirror/lib/codemirror.css';
 import './ProgramEditorView.css';
 
-import { Alert, Button, ButtonGroup, Col, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
+import { Alert, Button, ButtonGroup, Col, InputGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 import { FaHammer, FaPlay, FaTimes } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
@@ -32,6 +32,8 @@ export default class ProgramEditorView extends React.Component {
       runModalRegisters : {},
       runModalMemory : {},
 
+      outputZoomed : false,
+
       machineCode : [],
       machineCodeUpdated : false,
 
@@ -59,7 +61,9 @@ export default class ProgramEditorView extends React.Component {
         'adr' : 0
       },
 
-      memory : {}
+      memory : {},
+
+      output : ''
     };
   }
 
@@ -195,6 +199,18 @@ export default class ProgramEditorView extends React.Component {
     return registers;
   }
   //
+  outputColumn() {
+    var outputResult = <div style={{height:'100%', width:'100%'}}>
+                        <InputGroup 
+                          className='output-area'
+                          as='textarea'
+                          value={this.state.output}
+                          onClick={this.resizeOutput}
+                          disabled/>
+                      </div>
+    return outputResult;
+  }
+  //
   memoryColumn() {
     var memoryValues = [];
     var memoryKeys = Object.keys( this.state.memory ).map( key => Number( key ) );
@@ -246,6 +262,19 @@ export default class ProgramEditorView extends React.Component {
     this.setState( { runModalShow : false } );
   }
 
+  resizeOutput = outputColumn => {
+    var target = outputColumn.currentTarget;
+
+    // if currently zoomed and are setting to smaller
+    if ( this.state.outputZoomed ) {
+      target.style.height = '82px';
+    } else {
+      target.style.height = '518px';
+    }
+
+    this.setState( { outputZoomed : !( this.state.outputZoomed ) } );
+  }
+
 // CHECKING METHOD
   checkCode( code ) {
     var lines = code.toLowerCase().split( '\n' );
@@ -253,10 +282,11 @@ export default class ProgramEditorView extends React.Component {
 
     var lineErrorCopy = {};
 
-    var currentLine = '0';
+    var currentLine = 0;
 
-    var parsed = '';
+    var parsed = {};
     var labels = {};
+    var justLabelOffset = 0;
 
     var ranSuccessfully = true;
 
@@ -264,16 +294,21 @@ export default class ProgramEditorView extends React.Component {
       parsed = CompilationUtils.parseLineForLabels( lines[i] );
 
       if ( parsed['label'] !== '' ) {
-        labels[parsed['label']] = currentLine;
+        if ( parsed['justLabel'] ) {
+          justLabelOffset += 1;
+          labels[parsed['label']] = currentLine - justLabelOffset + 1;
+        } else {
+          labels[parsed['label']] = currentLine - justLabelOffset;
+        }
       }
 
-      currentLine = ( parseInt( currentLine, 16 ) + parsed['instructionWords'] ).toString( 16 );
+      currentLine += parsed['instructionWords'];
     }
 
     for ( var it = 0; it < lines.length; it++ ) {
       check = CompilationUtils.checkLine( lines[it], labels );
       if ( check.length ) {
-        lineErrorCopy[Number( it + 1 )] = check;
+        lineErrorCopy[it + 1] = check;
         ranSuccessfully = false;
       }
     }
@@ -285,12 +320,13 @@ export default class ProgramEditorView extends React.Component {
 
 // PARSING METHOD
   parseCode = button => {
-    var lines = this.state.code.toLowerCase().split( '\n' );
+    var lines = this.state.code.split( '\n' );
     
     var currentLine = 0;
 
     var parsed = {};
     var labels = {};
+    var justLabelOffset = 0;
 
     var machineCode = [];
 
@@ -301,27 +337,33 @@ export default class ProgramEditorView extends React.Component {
         parsed = CompilationUtils.parseLineForLabels( lines[i] );
 
         if ( parsed['label'] !== '' ) {
-          labels[parsed['label']] = currentLine;
+          if ( parsed['justLabel'] ) {
+            justLabelOffset += 1;
+            labels[parsed['label']] = currentLine - justLabelOffset + 1;
+          } else {
+            labels[parsed['label']] = currentLine - justLabelOffset;
+          }
         }
 
         currentLine += parsed['instructionWords'];
       }
 
       for ( var it = 0; it < lines.length; it++ ) {
-        if ( lines[it].trim() !== '' ) {
+        var trimmed = lines[it].trim();
+        if ( trimmed !== '' && trimmed.split( ';' )[0] !== '' ) {
           parsed = CompilationUtils.parseLineForMachineCode( lines[it], labels );
-          machineCode.push( parsed[0] );
-          
-          // if two word instruction
-          if ( parsed[1] && parsed[1] !== -1 ) {
-            machineCode.push( parsed[1] );
+          if ( parsed ) {
+            machineCode.push( parsed[0] );
+            
+            // if two word instruction
+            if ( CompilationUtils.isValidNumber( CompilationUtils.readSignedHex( parsed[1] ) ) ) {
+              machineCode.push( parsed[1] );
+            }
           }
         }
       }
       this.setState( { machineCode : machineCode } );
       this.setState( { machineCodeUpdated : true } );
-
-      // console.log( machineCode )
 
       this.updateAlert( 'Built successfully', 'success' );
     } else {
@@ -360,8 +402,11 @@ export default class ProgramEditorView extends React.Component {
       'adr' : 0
     };
 
+    var outputNew = '';
+
     this.setState( { registers : registersNew } );
     this.setState( { cpuControl : cpuControlNew } );
+    this.setState( { output : outputNew } );
   }
 
   canRunCode( code ) {
@@ -388,13 +433,15 @@ export default class ProgramEditorView extends React.Component {
       var localControl = this.state.cpuControl;
       var localRegisters = this.state.registers;
       var localMemory = CompilationUtils.setMemory( this.state.machineCode );
+      var localOutput = this.state.output;
 
       while ( !( ran['halted'] ) ) {
-        ran = CompilationUtils.runMemory( localControl, localRegisters, localMemory );
+        ran = CompilationUtils.runMemory( localControl, localRegisters, localMemory, localOutput );
 
         localControl = ran['control'];
         localRegisters = ran['registers'];
         localMemory = ran['memory'];
+        localOutput = ran['output'];
 
         // if ran out of commands
         if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
@@ -403,7 +450,9 @@ export default class ProgramEditorView extends React.Component {
       this.setState( { cpuControl : localControl } );
       this.setState( { registers : localRegisters } );
       this.setState( { memory : localMemory } );
+      this.setState( { output : localOutput } );
 
+      this.setState( { outputZoomed : false } );
       this.setState( { runModalShow : true } );
     } else {
       this.updateAlert( canRun, 'danger' );
@@ -443,36 +492,40 @@ export default class ProgramEditorView extends React.Component {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            { !( this.state.outputZoomed ) &&
+              <Row>
+                <Col>
+                  <h6>
+                    Control/Registers
+                  </h6>
+                </Col>
+                <Col>
+                  <h6>
+                    Memory/Output
+                  </h6>
+                </Col>
+              </Row>
+            }
             <Row>
+              { !( this.state.outputZoomed ) &&
+                <Col className='runmodal-left-col'>
+                  <div id='control-column' className='control-column'>
+                    {this.controlColumn()}
+                  </div>
+                  <div id='register-column' className='register-column'>
+                    {this.registerColumn()}
+                  </div>
+                </Col>
+              }
               <Col>
-                <h6>
-                  CPU
-                </h6>
-              </Col>
-              <Col>
-                <h6>
-                  Memory
-                </h6>
-              </Col>
-            </Row>
-            <Row>
-              <Col className='runmodal-left-col'>
-                <div id='control-column' className='control-column'>
-                  {this.controlColumn()}
+                { !( this.state.outputZoomed ) &&
+                  <div id='memory-column' className='memory-column'>
+                    {this.memoryColumn()}
+                  </div>
+                }
+                <div id='output-column' className='output-column' onDoubleClick={this.resizeOutput}>
+                  {this.outputColumn()}
                 </div>
-                <div id='register-column' className='register-column'>
-                  {this.registerColumn()}
-                </div>
-              </Col>
-              <Col>
-                <div id='memory-column' className='memory-column'>
-                  {this.memoryColumn()}
-                </div>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                
               </Col>
             </Row>
           </Modal.Body>
