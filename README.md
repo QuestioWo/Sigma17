@@ -46,10 +46,10 @@ This will start the local React.js development server and should open a windown 
 * √ - Implement all RRR/RR functions ( except trap )
 * √ - Implement all RX/JX/KX functions
 * √ - Implement 'jump alias' functions
+* Implement full function of trap instruction
 * Implement all EXP functions
 * √ - Small rewrite to use binary checking instead of string checking to increase performance further
 * √ - Link to webpage
-* Implement full function of trap instruction
 
 4. Finish code debugger
 * Allow for breakpoints to halt execution of code

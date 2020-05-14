@@ -434,7 +434,7 @@ export default class ProgramEditorView extends React.PureComponent {
     return error;
   }
 
-  runCode = async button => {
+  runCode = button => {
     var canRun = this.canRunCode( this.state.code );
     var ran = {
       halted : false
