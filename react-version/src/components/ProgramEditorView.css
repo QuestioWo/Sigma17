@@ -16,7 +16,11 @@
   overflow: auto;
   overflow-y: hidden;
   white-space: nowrap;
+
+  display: flex;
+  flex-direction: row;
 }
+
 
 .breakpoint-column {
   position: relative;
@@ -28,8 +32,6 @@
   border-right: 1px solid rgb(221, 221, 221);
   float: left;
 }
-
-
 
 .breakpoint-column .breakpoint {
   position: absolute;
@@ -56,13 +58,57 @@
 }
 
 
-
-.CodeMirror-linenumbers {
-  background: #eaeef3;
-}
-
 .CodeMirror {
   height: 100% !important;
+}
+
+.ReactCodeMirror {
+  width: 100% !important;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.line-number-column {
+  float: left;
+  position: relative;
+  font-family: inherit;
+  background: #eaeef3;
+  text-align: right;
+  float: left;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  padding-top: 4px;
+  color: rgb(153, 153, 153);
+  border-right: 1px solid rgb(221, 221, 221);
+  box-sizing: border-box;
+}
+
+.line-number-column .line-number {
+  padding-left: 5px;
+  padding-right: 3px;
+  box-sizing: content-box;
+}
+
+.code-chunk-column {
+  border-color: white;
+  padding-top: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
+  padding-bottom: 4px;
+  resize: none;
+  outline: none;
+
+  font-family: inherit;
+  background-color: white;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  white-space: pre;
+
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 

@@ -4,7 +4,7 @@ import 'codemirror/lib/codemirror.css';
 import './ProgramEditorView.css';
 
 import { Alert, Button, ButtonGroup, Col, InputGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
-import { FaHammer, FaPlay, FaTimes } from 'react-icons/fa';
+import { FaCheck, FaHammer, FaPlay, FaTimes } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
 import * as CompilationUtils from './utils/CompilationUtils';
@@ -13,7 +13,7 @@ import NavBar from './NavBar';
 
 require( './utils/mode/sigma16' );
 
-export default class ProgramEditorView extends React.Component {
+export default class ProgramEditorView extends React.PureComponent {
 // CLASS METHODS
   constructor( props, context ) {
     super( props );
@@ -23,6 +23,8 @@ export default class ProgramEditorView extends React.Component {
       breakpoints : [],
 
       lineError : {},
+
+      highlightedCodeChunk : true,
 
       alertShow : false,
       alertMessage : '',
@@ -76,9 +78,10 @@ export default class ProgramEditorView extends React.Component {
     var breakpoints = [];
     var lines = code.split( '\n' );
 
-    if ( document.getElementById( 'code-area' ) ) {
+    var codeArea = document.getElementById( 'code-area' );
+
+    if ( codeArea ) {
       // deal with code chunk height in this function since only column rendered
-      var codeArea = document.getElementById( 'code-area' );
       codeArea.style.height = ( 25 * ( lines.length ) ) + 18 + 'px';
 
       for ( var i = 0; i < lines.length; i++ ) {
@@ -110,7 +113,8 @@ export default class ProgramEditorView extends React.Component {
                 className={className} 
                 style={{top : styleTop}} 
                 onClick={this.breakpointOnClick}/>
-            </OverlayTrigger> );
+            </OverlayTrigger>
+          );
         } else {
           breakpoints.push( 
             <div 
@@ -148,19 +152,21 @@ export default class ProgramEditorView extends React.Component {
     var controlKeys = Object.keys( this.state.cpuControl );
 
     for ( var i = 0; i < controlKeys.length; i++ ) {
-      controls.push( <div 
-                        key={'control ' + controlKeys[i]}
-                        id={'control ' + controlKeys[i]}
-                        className={'systeminfo-column-elem'}>
-                        <Row>
-                          <Col>
-                            <strong>{controlKeys[i]}</strong>
-                          </Col>
-                          <Col style={{textAlign:'right'}}>
-                              ${CompilationUtils.writeHex( this.state.cpuControl[controlKeys[i]] )}
-                          </Col>
-                        </Row>
-                      </div> );
+      controls.push( 
+        <div 
+          key={'control ' + controlKeys[i]}
+          id={'control ' + controlKeys[i]}
+          className={'systeminfo-column-elem'}>
+          <Row>
+            <Col>
+              <strong>{controlKeys[i]}</strong>
+            </Col>
+            <Col style={{textAlign:'right'}}>
+                ${CompilationUtils.writeHex( this.state.cpuControl[controlKeys[i]] )}
+            </Col>
+          </Row>
+        </div> 
+      );
     }
 
     return controls;
@@ -170,45 +176,48 @@ export default class ProgramEditorView extends React.Component {
     var registers = [];
 
     for ( var i = 0; i < 16; i++ ) {
-      registers.push( <div 
-                        key={'register ' + i}
-                        id={'register ' + i}
-                        className={'systeminfo-column-elem'}>
-                        <Row>
-                          <Col>
-                            <strong>{'R'+i}</strong>
-                          </Col>
-                          <Col style={{textAlign:'right'}}>
-                            <OverlayTrigger
-                              key={'left'}
-                              placement={'left'}
-                              overlay={
-                                <Tooltip>
-                                  { CompilationUtils.readUnsignedHex( this.state.registers[i] )}/{ CompilationUtils.readSignedHex( this.state.registers[i] ) }
-                                </Tooltip>
-                              }>
-                              <span>
-                                ${CompilationUtils.writeHex( this.state.registers[i] )}
-                              </span>
-                            </OverlayTrigger>
-                          </Col>
-                        </Row>
-                      </div> );
+      registers.push( 
+        <div 
+          key={'register ' + i}
+          id={'register ' + i}
+          className={'systeminfo-column-elem'}>
+          <Row>
+            <Col>
+              <strong>{'R'+i}</strong>
+            </Col>
+            <Col style={{textAlign:'right'}}>
+              <OverlayTrigger
+                key={'left'}
+                placement={'left'}
+                overlay={
+                  <Tooltip>
+                    { CompilationUtils.readUnsignedHex( this.state.registers[i] )}/{ CompilationUtils.readSignedHex( this.state.registers[i] ) }
+                  </Tooltip>
+                }>
+                <span>
+                  ${CompilationUtils.writeHex( this.state.registers[i] )}
+                </span>
+              </OverlayTrigger>
+            </Col>
+          </Row>
+        </div> 
+      );
     }
 
     return registers;
   }
   //
   outputColumn() {
-    var outputResult = <div style={{height:'100%', width:'100%'}}>
-                        <InputGroup 
-                          className='output-area'
-                          as='textarea'
-                          value={this.state.output}
-                          onClick={this.resizeOutput}
-                          disabled/>
-                      </div>
-    return outputResult;
+    return ( 
+      <div style={{height:'100%', width:'100%'}}>
+        <InputGroup 
+          className='output-area'
+          as='textarea'
+          value={this.state.output}
+          onClick={this.resizeOutput}
+          disabled/>
+      </div>
+    );
   }
   //
   memoryColumn() {
@@ -216,30 +225,32 @@ export default class ProgramEditorView extends React.Component {
     var memoryKeys = Object.keys( this.state.memory ).map( key => Number( key ) );
 
     for ( var i = 0; i < memoryKeys.length; i++ ) {
-      memoryValues.push( <div 
-                          key={'memory ' + memoryKeys[i]}
-                          id={'memory ' + memoryKeys[i]}
-                          className={'systeminfo-column-elem'}>
-                          <Row>
-                            <Col>
-                              <strong>${CompilationUtils.writeHex( memoryKeys[i] )}</strong>
-                            </Col>
-                            <Col style={{textAlign:'right'}}>
-                              <OverlayTrigger
-                                key={'left'}
-                                placement={'left'}
-                                overlay={
-                                  <Tooltip>
-                                    { CompilationUtils.readUnsignedHex( this.state.memory[memoryKeys[i]] ) }/{ CompilationUtils.readSignedHex( this.state.memory[memoryKeys[i]] ) }
-                                  </Tooltip>
-                                }>
-                                <span>
-                                  ${CompilationUtils.writeHex( this.state.memory[memoryKeys[i]] )}
-                                </span>
-                              </OverlayTrigger>
-                            </Col>
-                          </Row>
-                        </div> );
+      memoryValues.push( 
+        <div 
+          key={'memory ' + memoryKeys[i]}
+          id={'memory ' + memoryKeys[i]}
+          className={'systeminfo-column-elem'}>
+          <Row>
+            <Col>
+              <strong>${CompilationUtils.writeHex( memoryKeys[i] )}</strong>
+            </Col>
+            <Col style={{textAlign:'right'}}>
+              <OverlayTrigger
+                key={'left'}
+                placement={'left'}
+                overlay={
+                  <Tooltip>
+                    { CompilationUtils.readUnsignedHex( this.state.memory[memoryKeys[i]] ) }/{ CompilationUtils.readSignedHex( this.state.memory[memoryKeys[i]] ) }
+                  </Tooltip>
+                }>
+                <span>
+                  ${CompilationUtils.writeHex( this.state.memory[memoryKeys[i]] )}
+                </span>
+              </OverlayTrigger>
+            </Col>
+          </Row>
+        </div> 
+      );
     }
 
     return memoryValues;
@@ -423,7 +434,7 @@ export default class ProgramEditorView extends React.Component {
     return error;
   }
 
-  runCode = button => {
+  runCode = async button => {
     var canRun = this.canRunCode( this.state.code );
     var ran = {
       halted : false
@@ -474,6 +485,50 @@ export default class ProgramEditorView extends React.Component {
       this.setState( { code : ' ' } );
     }
     this.setState( { machineCodeUpdated : false  } );
+  }
+
+// CODE CHUNK METHODS
+  createLineNumberColumn() {
+    var linesOfCode = this.state.code.split( '\n' ).length;
+    var result = [];
+
+    var lineNoWidth = '21px';
+
+    var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
+
+    if ( lineNoWidthLength > 2 ) {
+      lineNoWidth = ( ( lineNoWidthLength * 7 ) + 7 ) + 'px';
+    }
+
+    for ( var i = 0; i < linesOfCode; i++ ) {
+      var yOffset = 25 * ( i + 0.5 );
+
+      result.push(
+        <div
+          key={'line-number ' + ( i + 1 )} 
+          className='line-number'
+          style={{top:{yOffset}, width:lineNoWidth}}>
+          {i + 1}
+        </div>
+      );
+    }
+
+    return result;
+  }
+  //
+  codeBlockEdit = divContent => {
+    this.checkCode( divContent.target.value );
+
+    if ( divContent.target.value ) {
+      this.setState( { code : divContent.target.value } );
+    } else {
+      this.setState( { code : ' ' } );
+    }
+    this.setState( { machineCodeUpdated : false  } );
+  }
+
+  toggleHighlighting = button => {
+    this.setState( { highlightedCodeChunk : !( this.state.highlightedCodeChunk ) } );
   }
 
 // RENDER
@@ -570,6 +625,21 @@ export default class ProgramEditorView extends React.Component {
                 </Button>
               </OverlayTrigger>
             </Col>
+            <Col>
+              <OverlayTrigger
+                key={'top'}
+                placement={'top'}
+                overlay={
+                  <Tooltip>
+                    Toggle Highlighting
+                    Improves speed if disabled
+                  </Tooltip>
+                }>
+                <Button variant='outline-secondary' size='sm' onClick={this.toggleHighlighting} active={this.state.highlightedCodeChunk}>
+                  <FaCheck/>
+                </Button>
+              </OverlayTrigger>
+            </Col>
           </Row>
         </div>    
         <div className='mainbody'>
@@ -578,14 +648,30 @@ export default class ProgramEditorView extends React.Component {
               <div id='breakpoint-column' className='breakpoint-column'>
                 {this.breakpointsColumn(this.state.code)}
               </div>
+              <div className='line-number-column'>
+                {this.createLineNumberColumn()}
+              </div>
               { this.state.code &&
-                <CodeMirror
-                  mode='sigma16'
-                  value={this.state.code} 
-                  onChange={this.updateCode} 
-                  options={{ lineNumbers : true, scrollbarStyle: "null" }}
-                  className='code-chunk-column'
-                  autoFocus/>
+                <React.Fragment>
+                  { this.state.highlightedCodeChunk ?
+                    <CodeMirror
+                      mode='sigma16'
+                      value={this.state.code} 
+                      onChange={this.updateCode} 
+                      options={{ lineNumbers : false, scrollbarStyle: "null" }}
+                      autoFocus/>
+                  : 
+                    <React.Fragment>
+                      
+                      <InputGroup
+                        as='textarea'
+                        className='code-chunk-column'
+                        value={this.state.code}
+                        onChange={this.codeBlockEdit}
+                        autoFocus/>
+                    </React.Fragment>
+                  }
+                </React.Fragment>
               }
             </div>
           </Row>
