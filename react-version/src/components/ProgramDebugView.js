@@ -22,7 +22,7 @@ export default class ProgramDebugView extends React.Component {
         <div className="mainbody">
           <Row>
             <Col>
-              daj
+              Empty for now
             </Col>
           </Row>
         </div>

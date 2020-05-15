@@ -12,13 +12,13 @@
       }
     };
 
-    const commonCommands = ["add", "sub", "mul", "div", "cmplt", "cmpeq", "cmpgt", "and", "or", "xor", "trap", 
-                            "lea", "load", "store", "jumpf", "jumpt", "jal", 
-                            "data"];
+    const allCommands = ["add", "sub", "mul", "div", "cmp", "cmplt", "cmpeq", "cmpgt", "inv", "and", "or", "xor", "trap", 
+                        "lea", "load", "store", "jump", "jumpc0", "jumpc1", "jumpf", "jumpt", "jal", "testset", "jumplt", "jumple", "jumpne", "jumpeq", "jumpge", "jumpgt",
+                        "data"];
 
-    CodeMirror.registerHelper("hintWords", "sigma16", commonCommands);
+    CodeMirror.registerHelper("hintWords", "sigma16", allCommands);
 
-    define('keyword', commonCommands);
+    define('keyword', allCommands);
 
     function tokenBase(stream, state) {
       if ( stream.eatSpace() ) return null;
@@ -32,7 +32,7 @@
       if (ch === ';') {
         stream.skipToEnd();
         return 'comment';
-      } else if ( /(r|R)([0-9])/.test(ch+peek) ) {
+      } else if ( /(r|R)([0-9])/.test( ch + peek ) ) {
         if ( /(1)/.test( peek ) ) {
           stream.next();
           peek = stream.peek();
@@ -44,14 +44,19 @@
           stream.next();
         }
         return 'def';   
-      } else if (ch === '$') {
-        stream.eatWhile(/((\d)|([a-f])|([A-F]))/);
-        if(stream.eol() || !/\w/.test(stream.peek())) {
+      } else if ( ch === '$' ) {
+        stream.eatWhile( /((\d)|([a-f])|([A-F]))/ );
+        if( stream.eol() || !/\w/.test( stream.peek() ) ) {
           return 'number';
         }
-      } else if (/\d/.test(ch)) {
-        stream.eatWhile(/\d/);
-        if(stream.eol() || !/\w/.test(stream.peek())) {
+      } else if ( ch === '-' ) {
+        stream.eatWhile( /\d/ );
+        if( stream.eol() || !/\w/.test( stream.peek() ) ) {
+          return 'number';
+        }
+      } else if ( /\d/.test( ch ) ) {
+        stream.eatWhile( /\d/ );
+        if( stream.eol() || !/\w/.test( stream.peek() ) ) {
           return 'number';
         }
       }
