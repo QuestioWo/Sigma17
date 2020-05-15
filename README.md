@@ -19,7 +19,7 @@ The following software needs to be installed in order to build the executable us
     node.js
     npm
 
-After these are installed, to compile the program, navigate to the  `react-version` directory and execute the following commands:
+After these are installed, to compile the program, execute the following commands in the repository directory:
 
     npm install
     npm start
