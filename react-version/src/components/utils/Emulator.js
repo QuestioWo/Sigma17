@@ -627,7 +627,7 @@
     return result;
   }
 
-  function processTRAPInstruction( control, registers, memory, output, Rd, Ra, Rb ) {
+  function processTRAPInstruction( control, registers, memory, input, output, Rd, Ra, Rb ) {
     var halted = false;
 
     switch ( registers[Rd] ) {
@@ -636,18 +636,27 @@
         break;
 
       case 0x1 :
+        var memoryBufferStartInput = registers[Ra];
+
+        for ( var i = 0; i < registers[Rb]; i++ ) {
+          if ( input.length > i ) {
+            memory[memoryBufferStartInput + i] = input.charCodeAt( i );
+          } else {
+            memory[memoryBufferStartInput + i] = 0;
+          }
+        }
+        output += '>>' + input.slice( 0, registers[Rb] );
+        input = input.slice( registers[Rb], input.length );
 
         break;
 
       case 0x2 :
-        var memoryBufferStart = registers[Ra];
+        var memoryBufferStartOutput = registers[Ra];
 
-        var i = 0;
-
-        for ( i; i < registers[Rb]; i++ ) {
+        for ( var it = 0; it < registers[Rb]; it++ ) {
           // if in memory, add to output, else add default memory value
-          if ( memory[memoryBufferStart + i] ) {
-            output += String.fromCharCode( memory[memoryBufferStart + i] );
+          if ( memory[memoryBufferStartOutput + it] ) {
+            output += String.fromCharCode( memory[memoryBufferStartOutput + it] );
           } else {
             output += String.fromCharCode( 0 );
           }
@@ -658,10 +667,17 @@
         break;
     }
 
-    return { 'control' : control, 'registers' : registers, 'memory' : memory, 'output' : output, 'halted' : halted };
+    return { 
+      'control' : control,
+      'registers' : registers, 
+      'memory' : memory, 
+      'input': input, 
+      'output' : output, 
+      'halted' : halted 
+    };
   }
 
-  function processRXInstruction( control, registers, memory, output, Rd, Ra, Op, adr ) {
+  function processRXInstruction( control, registers, memory, Rd, Ra, Op, adr ) {
     var effectiveADR = registers[Ra] + adr;
 
     switch ( Op ) {
@@ -724,14 +740,22 @@
 
         break;
     }
-    return { 'control' : control, 'registers' : registers, 'memory' : memory, 'output' : output };
+    return { 
+      'control' : control,
+      'registers' : registers, 
+      'memory' : memory
+    };
   }
 
-  function processEXPInstruction( control, registers, memory, output, Rd, Ra, Rb, adr ) {
-    return { 'control' : control, 'registers' : registers, 'memory' : memory, 'output' : output };
+  function processEXPInstruction( control, registers, memory, Rd, Ra, Rb, adr ) {
+    return { 
+      'control' : control,
+      'registers' : registers, 
+      'memory' : memory 
+    };
   }
 
-  export function runMemory( control, registers, memory, output ) {
+  export function runMemory( control, registers, memory, input, output ) {
     var halted = false;
     var processed = {};
 
@@ -881,11 +905,12 @@
       case 0xd :
         // trap
         instructionWords = 1;
-        processed = processTRAPInstruction( control, registers, memory, output, Rd, Ra, Rb, instructionADR );
+        processed = processTRAPInstruction( control, registers, memory, input, output, Rd, Ra, Rb, instructionADR );
 
         control = processed['control'];
         registers = processed['registers'];
         memory = processed['memory'];
+        input = processed['input'];
         output = processed['output'];
 
         halted = processed['halted'];
@@ -895,24 +920,22 @@
       case 0xe :
         instructionWords = 2;
         instructionADR = memory[control['pc'] + 1];
-        processed = processEXPInstruction( control, registers, memory, output, Rd, Ra, Rb, instructionADR );
+        processed = processEXPInstruction( control, registers, memory, Rd, Ra, Rb, instructionADR );
 
         control = processed['control'];
         registers = processed['registers'];
         memory = processed['memory'];
-        output = processed['output'];
 
         break;
 
       case 0xf :
         instructionWords = 2;
         instructionADR = memory[control['pc'] + 1];
-        processed = processRXInstruction( control, registers, memory, output, Rd, Ra, Rb, instructionADR );
+        processed = processRXInstruction( control, registers, memory, Rd, Ra, Rb, instructionADR );
 
         control = processed['control'];
         registers = processed['registers'];
         memory = processed['memory'];
-        output = processed['output'];
         
         break;
 
@@ -946,5 +969,12 @@
       halted = true;
     }
 
-    return { 'control' : control, 'registers' : registers, 'memory' : memory, 'output' : output, 'halted' : halted };
+    return { 
+      'control' : control, 
+      'registers' : registers, 
+      'memory' : memory, 
+      'input': input, 
+      'output' : output, 
+      'halted' : halted 
+    };
   }

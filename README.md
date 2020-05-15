@@ -29,25 +29,25 @@ This will start the local React.js development server and should open a windown 
 ## TODO list
 
 1. Finish code editor
-* √ - Implement proper Sigma16 CodeMirror highlighting
+* √ - Implement proper Sigma16 `CodeMirror` highlighting
 * √ - Add breakpoints so that they work and persist
 * ( Possible )
 * Add auto complete/code snippet shortcuts - not sure about difficulty since using port of CodeMirror
 
 2. Finish code builder
 * √ - Implement parser - remove need for whitespace with commands reccognition
-* √ - Display errors in CodeMirror chunk for syntax errors
+* √ - Display errors in `CodeMirror` chunk for syntax errors
 * √ - Have parser translate to machine code
 
 3. Finish code runner
 * √ - Add window for displaying register output, memory values and I/O of program after running
 * √ - Implement circuit/circuit functionality
 * √ - Implement actions based off of machine code
-* √ - Implement all RRR/RR functions ( except trap )
-* √ - Implement all RX/JX/KX functions
-* √ - Implement 'jump alias' functions
-* Implement full function of trap instruction
-* Implement all EXP functions
+* √ - Implement all `RRR`/`RR` functions ( except `trap` )
+* √ - Implement all `RX`/`JX`/`KX` functions
+* √ - Implement '`jumpAlias`' functions
+* √ - Implement full function of `trap` instruction
+* Implement all `EXP` functions
 * √ - Small rewrite to use binary checking instead of string checking to increase performance further
 * √ - Link to webpage
 
@@ -56,6 +56,11 @@ This will start the local React.js development server and should open a windown 
 * Add window to show register, memory and I/O along with code
 * Add highlighting of lines being and have been executed
 * Add line by line exectuting ability
+
+5. Clean-Up
+* Write testing framework for/how to set tests out
+* Write tests for `Emulator.js`
+* Write documentation that outlines function calls, i.e how to debug as an outsider.
 
 ## Author
 

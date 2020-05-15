@@ -4,10 +4,10 @@ import 'codemirror/lib/codemirror.css';
 import './ProgramEditorView.css';
 
 import { Alert, Button, ButtonGroup, Col, InputGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
-import { FaCheck, FaHammer, FaPlay, FaTimes } from 'react-icons/fa';
+import { FaCheck, FaHammer, FaPen, FaPlay, FaTimes } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
-import * as CompilationUtils from './utils/CompilationUtils';
+import * as Emulator from './utils/Emulator';
 
 import NavBar from './NavBar';
 
@@ -31,10 +31,9 @@ export default class ProgramEditorView extends React.PureComponent {
       alertNature : 'success',
 
       runModalShow : false,
-      runModalRegisters : {},
-      runModalMemory : {},
-
       outputZoomed : false,
+
+      inputModalShow : false,
 
       machineCode : [],
       machineCodeUpdated : false,
@@ -65,7 +64,9 @@ export default class ProgramEditorView extends React.PureComponent {
 
       memory : {},
 
-      output : ''
+      output : '',
+
+      input : ''
     };
   }
 
@@ -162,7 +163,7 @@ export default class ProgramEditorView extends React.PureComponent {
               <strong>{controlKeys[i]}</strong>
             </Col>
             <Col style={{textAlign:'right'}}>
-                ${CompilationUtils.writeHex( this.state.cpuControl[controlKeys[i]] )}
+                ${Emulator.writeHex( this.state.cpuControl[controlKeys[i]] )}
             </Col>
           </Row>
         </div> 
@@ -191,11 +192,11 @@ export default class ProgramEditorView extends React.PureComponent {
                 placement={'left'}
                 overlay={
                   <Tooltip>
-                    { CompilationUtils.readUnsignedHex( this.state.registers[i] )}/{ CompilationUtils.readSignedHex( this.state.registers[i] ) }
+                    { Emulator.readUnsignedHex( this.state.registers[i] )}/{ Emulator.readSignedHex( this.state.registers[i] ) }
                   </Tooltip>
                 }>
                 <span>
-                  ${CompilationUtils.writeHex( this.state.registers[i] )}
+                  ${Emulator.writeHex( this.state.registers[i] )}
                 </span>
               </OverlayTrigger>
             </Col>
@@ -232,7 +233,7 @@ export default class ProgramEditorView extends React.PureComponent {
           className={'systeminfo-column-elem'}>
           <Row>
             <Col>
-              <strong>${CompilationUtils.writeHex( memoryKeys[i] )}</strong>
+              <strong>${Emulator.writeHex( memoryKeys[i] )}</strong>
             </Col>
             <Col style={{textAlign:'right'}}>
               <OverlayTrigger
@@ -240,11 +241,11 @@ export default class ProgramEditorView extends React.PureComponent {
                 placement={'left'}
                 overlay={
                   <Tooltip>
-                    { CompilationUtils.readUnsignedHex( this.state.memory[memoryKeys[i]] ) }/{ CompilationUtils.readSignedHex( this.state.memory[memoryKeys[i]] ) }
+                    { Emulator.readUnsignedHex( this.state.memory[memoryKeys[i]] ) }/{ Emulator.readSignedHex( this.state.memory[memoryKeys[i]] ) }
                   </Tooltip>
                 }>
                 <span>
-                  ${CompilationUtils.writeHex( this.state.memory[memoryKeys[i]] )}
+                  ${Emulator.writeHex( this.state.memory[memoryKeys[i]] )}
                 </span>
               </OverlayTrigger>
             </Col>
@@ -267,8 +268,8 @@ export default class ProgramEditorView extends React.PureComponent {
     this.setState( { alertShow : false } );
   }
 
-// MODAL METHODS
-  onModalClose = modal => {
+// RUN MODAL METHODS
+  runModalClose = modal => {
     this.resetCPUandMemory();
     this.setState( { runModalShow : false } );
   }
@@ -302,7 +303,7 @@ export default class ProgramEditorView extends React.PureComponent {
     var ranSuccessfully = true;
 
     for ( var i = 0; i < lines.length; i++ ) {
-      parsed = CompilationUtils.parseLineForLabels( lines[i] );
+      parsed = Emulator.parseLineForLabels( lines[i] );
 
       if ( parsed['label'] !== '' ) {
         if ( parsed['justLabel'] ) {
@@ -317,7 +318,7 @@ export default class ProgramEditorView extends React.PureComponent {
     }
 
     for ( var it = 0; it < lines.length; it++ ) {
-      check = CompilationUtils.checkLine( lines[it], labels );
+      check = Emulator.checkLine( lines[it], labels );
       if ( check.length ) {
         lineErrorCopy[it + 1] = check;
         ranSuccessfully = false;
@@ -326,7 +327,7 @@ export default class ProgramEditorView extends React.PureComponent {
 
     this.setState( { lineError : lineErrorCopy } );
 
-    return ranSuccessfully;
+    return [ranSuccessfully, lineErrorCopy];
   }
 
 // PARSING METHOD
@@ -341,11 +342,11 @@ export default class ProgramEditorView extends React.PureComponent {
 
     var machineCode = [];
 
-    var parsedSuccessfully = true;
+    var check = this.checkCode( this.state.code );
 
-    if ( this.checkCode( this.state.code ) ) {
+    if ( check[0] ) {
       for ( var i = 0; i < lines.length; i++ ) {
-        parsed = CompilationUtils.parseLineForLabels( lines[i] );
+        parsed = Emulator.parseLineForLabels( lines[i] );
 
         if ( parsed['label'] !== '' ) {
           if ( parsed['justLabel'] ) {
@@ -362,12 +363,12 @@ export default class ProgramEditorView extends React.PureComponent {
       for ( var it = 0; it < lines.length; it++ ) {
         var trimmed = lines[it].trim();
         if ( trimmed !== '' && trimmed.split( ';' )[0] !== '' ) {
-          parsed = CompilationUtils.parseLineForMachineCode( lines[it], labels );
+          parsed = Emulator.parseLineForMachineCode( lines[it], labels );
           if ( parsed ) {
             machineCode.push( parsed[0] );
             
             // if two word instruction
-            if ( CompilationUtils.isValidNumber( CompilationUtils.readSignedHex( parsed[1] ) ) ) {
+            if ( Emulator.isValidNumber( Emulator.readSignedHex( parsed[1] ) ) ) {
               machineCode.push( parsed[1] );
             }
           }
@@ -378,12 +379,21 @@ export default class ProgramEditorView extends React.PureComponent {
 
       this.updateAlert( 'Built successfully', 'success' );
     } else {
-      this.updateAlert( 'Built unsuccesfully, correct syntax errors', 'danger' );
-      
-      parsedSuccessfully = false;
+      var keys = Object.keys( check[1] )
+      var keysString = '';
+
+      for ( var ite = 0; ite < keys.length; ite++ ) {
+        if ( ite !== 0 ) {
+          keysString += ', '
+        }
+
+        keysString += keys[ite];
+      }
+
+      this.updateAlert( 'Built unsuccesfully, correct syntax errors at line(s): ' + keysString, 'danger' );
     }
 
-    return parsedSuccessfully;
+    return machineCode;
   }
 
 // RUNNING METHODS
@@ -420,11 +430,11 @@ export default class ProgramEditorView extends React.PureComponent {
     this.setState( { output : outputNew } );
   }
 
-  canRunCode( code ) {
+  canRunCode( code, machineCode ) {
     var error = true;
 
-    if ( this.state.machineCode.length !== 0 ) {
-      if ( !this.state.machineCode.includes( 0xd000 ) ) {
+    if ( machineCode.length !== 0 ) {
+      if ( !machineCode.includes( 0xd000 ) ) {
         error = 'Cannot run code without a "trap R0,R0,R0" instruction';
       }
     } else {
@@ -435,7 +445,15 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   runCode = button => {
-    var canRun = this.canRunCode( this.state.code );
+    // implicit build if needed
+    var machineCode = [];
+    if ( this.machineCodeUpdated ) {
+      machineCode = this.state.machineCode;
+    } else {
+      machineCode = this.parseCode();
+    }
+
+    var canRun = this.canRunCode( this.state.code, machineCode );
     var ran = {
       halted : false
     };
@@ -443,15 +461,17 @@ export default class ProgramEditorView extends React.PureComponent {
     if ( !canRun.length ) {
       var localControl = this.state.cpuControl;
       var localRegisters = this.state.registers;
-      var localMemory = CompilationUtils.setMemory( this.state.machineCode );
+      var localMemory = Emulator.setMemory( machineCode );
+      var localInput = this.state.input;
       var localOutput = this.state.output;
 
       while ( !( ran['halted'] ) ) {
-        ran = CompilationUtils.runMemory( localControl, localRegisters, localMemory, localOutput );
+        ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
 
         localControl = ran['control'];
         localRegisters = ran['registers'];
         localMemory = ran['memory'];
+        localInput = ran['input'];
         localOutput = ran['output'];
 
         // if ran out of commands
@@ -468,15 +488,26 @@ export default class ProgramEditorView extends React.PureComponent {
     } else {
       this.updateAlert( canRun, 'danger' );
     }
+  }
 
-    if ( !this.state.machineCodeUpdated ) {
-      this.updateAlert( 'Remember to build code after editing before running', 'warning' );
-    }
+// INPUT MODAL METHODS
+  setInput = button => {
+    this.setState( { inputModalShow : true } );
+  }
+
+  inputUpdate = textarea => {
+    this.setState( { input : textarea.target.value } );
+  }
+
+  inputModalClose = modal => {
+    this.setState( { inputModalShow : false } );
   }
 
 // CODEMIRROR METHODS
   updateCode = newCode => {
-    this.checkCode( newCode );
+    if ( !( newCode.split( '\n' ).length > 500 ) ) {
+      this.checkCode( newCode );
+    }
 
     // updating code based on contents of codemirror
     if ( newCode ) {
@@ -517,7 +548,9 @@ export default class ProgramEditorView extends React.PureComponent {
   }
   //
   codeBlockEdit = divContent => {
-    this.checkCode( divContent.target.value );
+    if ( !( divContent.target.value.split( '\n' ).length > 500 ) ) {
+      this.checkCode( divContent.target.value );
+    }
 
     if ( divContent.target.value ) {
       this.setState( { code : divContent.target.value } );
@@ -538,7 +571,7 @@ export default class ProgramEditorView extends React.PureComponent {
         <NavBar currentKey={ this.props.location.pathname }/>
         <Modal
           show={this.state.runModalShow}
-          onHide={this.onModalClose}
+          onHide={this.runModalClose}
           dialogClassName="runmodal"
           animation={false} >
           <Modal.Header closeButton>
@@ -585,6 +618,34 @@ export default class ProgramEditorView extends React.PureComponent {
             </Row>
           </Modal.Body>
         </Modal>
+
+        <Modal
+          show={this.state.inputModalShow}
+          onHide={this.inputModalClose}
+          dialogClassName="inputmodal"
+          animation={false} >
+          <Modal.Header closeButton>
+            <Modal.Title>
+              Set Input
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className='input-column'>
+              <InputGroup
+                as='textarea'
+                className='input-modal-input'
+                value={this.state.input}
+                onChange={this.inputUpdate}
+                autoFocus/>
+            </div>
+            <div style={{paddingTop : '15px'}}>
+              <Button variant='outline-secondary' onClick={this.inputModalClose} style={{float : 'right'}}>
+                Set Input
+              </Button>
+            </div>
+          </Modal.Body>
+        </Modal>
+
         <div className='buttonstoolbar'>
           <Alert variant={this.state.alertNature} onClose={this.closeAlert} show={this.state.alertShow} dismissible>
             <p className='alertbody'>
@@ -598,10 +659,13 @@ export default class ProgramEditorView extends React.PureComponent {
                 placement={'top'}
                 overlay={
                   <Tooltip>
-                    Build/Run
+                    Set Input/Build/Run
                   </Tooltip>
                 }>
                 <ButtonGroup>
+                  <Button variant='outline-secondary' size='sm' onClick={this.setInput}>
+                    <FaPen/>
+                  </Button>
                   <Button variant='outline-secondary' size='sm' onClick={this.parseCode}>
                     <FaHammer/>
                   </Button>

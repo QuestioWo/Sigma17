@@ -50,6 +50,7 @@
 }
 
 .breakpoint-column .breakpoint.error {
+  border-radius: 0%;
   border: 2px solid rgb(255, 0, 0);
 }
 
@@ -113,6 +114,31 @@
 
 
 
+.input-column {
+  float: none;
+  box-sizing: border-box;
+  border-radius: 7px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #eaeef3;
+  background-color: #eaeef3;
+  height: 150px;
+}
+
+.input-modal-input {
+  height: 100%;
+  width: 100%;
+  font-family: 'Fira Code', monospace;
+  resize: none;
+  border-radius: 7px;
+  border-width: 5px;
+  border-color: white;
+  white-space: pre;
+  outline: none;
+}
+
+
+
 .modal-content {
   border-radius: 7px;
 }
@@ -122,6 +148,7 @@
 }
 
 .control-column {
+  overflow: hidden;
   margin: 0px auto;
   width: 100%;
   border-radius: 7px;
@@ -134,6 +161,7 @@
 }
 
 .register-column {
+  overflow-x: hidden;
   float: none;
   margin: 0px auto;
   width: 100%;
@@ -179,7 +207,7 @@
   border-style: solid;
   border-color: #eaeef3;
   background-color: #eaeef3;
-  overflow: auto;
+  overflow-x: hidden;
   margin-bottom: 15px;
 }
 
