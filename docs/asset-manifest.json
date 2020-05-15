@@ -1,25 +1,25 @@
 {
   "files": {
-    "main.css": "/static/css/main.6829a06d.chunk.css",
-    "main.js": "/static/js/main.d52c2f22.chunk.js",
-    "main.js.map": "/static/js/main.d52c2f22.chunk.js.map",
-    "runtime-main.js": "/static/js/runtime-main.fe1fdc48.js",
-    "runtime-main.js.map": "/static/js/runtime-main.fe1fdc48.js.map",
-    "static/css/2.4116fba5.chunk.css": "/static/css/2.4116fba5.chunk.css",
-    "static/js/2.e8708d4c.chunk.js": "/static/js/2.e8708d4c.chunk.js",
-    "static/js/2.e8708d4c.chunk.js.map": "/static/js/2.e8708d4c.chunk.js.map",
-    "index.html": "/index.html",
-    "precache-manifest.4651a4351a38174992857701f3b987aa.js": "/precache-manifest.4651a4351a38174992857701f3b987aa.js",
-    "service-worker.js": "/service-worker.js",
-    "static/css/2.4116fba5.chunk.css.map": "/static/css/2.4116fba5.chunk.css.map",
-    "static/css/main.6829a06d.chunk.css.map": "/static/css/main.6829a06d.chunk.css.map",
-    "static/js/2.e8708d4c.chunk.js.LICENSE.txt": "/static/js/2.e8708d4c.chunk.js.LICENSE.txt"
+    "main.css": "/Sugma17/static/css/main.6829a06d.chunk.css",
+    "main.js": "/Sugma17/static/js/main.a80f85ee.chunk.js",
+    "main.js.map": "/Sugma17/static/js/main.a80f85ee.chunk.js.map",
+    "runtime-main.js": "/Sugma17/static/js/runtime-main.abb96e92.js",
+    "runtime-main.js.map": "/Sugma17/static/js/runtime-main.abb96e92.js.map",
+    "static/css/2.4116fba5.chunk.css": "/Sugma17/static/css/2.4116fba5.chunk.css",
+    "static/js/2.c0a0e0e0.chunk.js": "/Sugma17/static/js/2.c0a0e0e0.chunk.js",
+    "static/js/2.c0a0e0e0.chunk.js.map": "/Sugma17/static/js/2.c0a0e0e0.chunk.js.map",
+    "index.html": "/Sugma17/index.html",
+    "precache-manifest.d73a89c4d39f578c3fd2c7a926868a6d.js": "/Sugma17/precache-manifest.d73a89c4d39f578c3fd2c7a926868a6d.js",
+    "service-worker.js": "/Sugma17/service-worker.js",
+    "static/css/2.4116fba5.chunk.css.map": "/Sugma17/static/css/2.4116fba5.chunk.css.map",
+    "static/css/main.6829a06d.chunk.css.map": "/Sugma17/static/css/main.6829a06d.chunk.css.map",
+    "static/js/2.c0a0e0e0.chunk.js.LICENSE.txt": "/Sugma17/static/js/2.c0a0e0e0.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.fe1fdc48.js",
+    "static/js/runtime-main.abb96e92.js",
     "static/css/2.4116fba5.chunk.css",
-    "static/js/2.e8708d4c.chunk.js",
+    "static/js/2.c0a0e0e0.chunk.js",
     "static/css/main.6829a06d.chunk.css",
-    "static/js/main.d52c2f22.chunk.js"
+    "static/js/main.a80f85ee.chunk.js"
   ]
 }
