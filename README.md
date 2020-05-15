@@ -61,6 +61,8 @@ This will start the local React.js development server and should open a windown 
 * Write testing framework for/how to set tests out
 * Write tests for `Emulator.js`
 * Write documentation that outlines function calls, i.e how to debug as an outsider.
+* Set up `githib.io` page for emulator
+* Write 'Hello World!' program to be default display
 
 ## Author
 
