@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/Sugma17/static/css/main.6829a06d.chunk.css",
-    "main.js": "/Sugma17/static/js/main.d8d1bb92.chunk.js",
-    "main.js.map": "/Sugma17/static/js/main.d8d1bb92.chunk.js.map",
+    "main.js": "/Sugma17/static/js/main.9d559005.chunk.js",
+    "main.js.map": "/Sugma17/static/js/main.9d559005.chunk.js.map",
     "runtime-main.js": "/Sugma17/static/js/runtime-main.abb96e92.js",
     "runtime-main.js.map": "/Sugma17/static/js/runtime-main.abb96e92.js.map",
     "static/css/2.4116fba5.chunk.css": "/Sugma17/static/css/2.4116fba5.chunk.css",
     "static/js/2.0626ecf0.chunk.js": "/Sugma17/static/js/2.0626ecf0.chunk.js",
     "static/js/2.0626ecf0.chunk.js.map": "/Sugma17/static/js/2.0626ecf0.chunk.js.map",
     "index.html": "/Sugma17/index.html",
-    "precache-manifest.f6a10a897ae9231b0d1ef3c0e725f1f1.js": "/Sugma17/precache-manifest.f6a10a897ae9231b0d1ef3c0e725f1f1.js",
+    "precache-manifest.633601e2a805fb44e14a807981e15ae8.js": "/Sugma17/precache-manifest.633601e2a805fb44e14a807981e15ae8.js",
     "service-worker.js": "/Sugma17/service-worker.js",
     "static/css/2.4116fba5.chunk.css.map": "/Sugma17/static/css/2.4116fba5.chunk.css.map",
     "static/css/main.6829a06d.chunk.css.map": "/Sugma17/static/css/main.6829a06d.chunk.css.map",
@@ -20,6 +20,6 @@
     "static/css/2.4116fba5.chunk.css",
     "static/js/2.0626ecf0.chunk.js",
     "static/css/main.6829a06d.chunk.css",
-    "static/js/main.d8d1bb92.chunk.js"
+    "static/js/main.9d559005.chunk.js"
   ]
 }
