@@ -52,6 +52,7 @@ This will start the local React.js development server and should open a windown 
 * √ - Link to webpage
 
 4. Finish code debugger
+* √ - Allow for code and breakpoints to be passed/persist between different pages
 * Allow for breakpoints to halt execution of code
 * Add window to show register, memory and I/O along with code
 * Add highlighting of lines being and have been executed
