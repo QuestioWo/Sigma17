@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "fc1dadc54b55d68ffec042b358c64935",
+    "revision": "22b04e69a3fea404a97dc06d3df083c8",
     "url": "/Sugma17/index.html"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/Sugma17/static/css/2.4116fba5.chunk.css"
   },
   {
-    "revision": "e952e5b7e4581c7d4597",
+    "revision": "29cc795d2283d1c4abc3",
     "url": "/Sugma17/static/css/main.6829a06d.chunk.css"
   },
   {
@@ -20,8 +20,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/Sugma17/static/js/2.0626ecf0.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "e952e5b7e4581c7d4597",
-    "url": "/Sugma17/static/js/main.fc0f2bc1.chunk.js"
+    "revision": "29cc795d2283d1c4abc3",
+    "url": "/Sugma17/static/js/main.d8d1bb92.chunk.js"
   },
   {
     "revision": "30f9061d935dc9a9b13b",
