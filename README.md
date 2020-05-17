@@ -1,4 +1,4 @@
-# Sugma17 source directory
+# Sigma17 repository
 
 Sugma17 is a re-write of the orignal emulator written by John O' Donnell. The overall aim of Sugma17 is to re-write the entire web based app but keep apps functionality. This is so that it is easier and more intuitive to code in Sigma16 with the web based app. 
 
@@ -6,11 +6,13 @@ Sigma16 is a computer architecture designed for research and teaching in compute
 
 ## Using the emulator
 
-Currently, it is required to download and run the emulator locally using np and a browser. However, once the website is operational, it is to be published as a github.io page.
+Currently, the emulator can be used by visiting the [Sigma17 website](https://questiowo.github.io/Sigma17) which is hosted by github as a `github.io` project site and is kept up to date with all major changes.
+
+Also, the emulator can be ran locally using npm and React from the source directory which will support more minor changes that will not effect the overall ability of the `github.io` site.
 
 ### Run in a browser
 
-!-- This option is currently unavailable for the react.js version of the emulator however it hopefully to be published as a github.io page once it is functional. --!
+Visit [the website](https://questiowo.github.io/Sigma17).
 
 ### Run with npm locally in browser
 
