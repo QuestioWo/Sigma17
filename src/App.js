@@ -16,19 +16,31 @@ export default class App extends React.Component {
 
     this.state = {};
 
-    this.state.code = `load r1,x[r0]; r1:=x
-load r2,y[r0]; r2:=y
-jump label[r0]
-add r3,r1,r2; r3:=x+y
-label 
-sub r3,r1,r2
-store r3,z[r0]; z:=x=y
-trap r0,r0,r0; terminate
-x data $0017
-y data 14
-z data 0`;
+    // the default program that takes up the code chunk
+    this.state.code = `lea r1,2[r0]
+lea r2,buffer[r0]
+load r3,buffersize[r0]
 
-    this.state.breakpoints = [2];
+trap r1,r2,r3
+
+trap r0,r0,r0
+
+buffersize data 13
+buffer data $0048
+  data $0065
+  data $006c
+  data $006c
+  data $006f
+  data $002c
+  data $0020
+  data $0057
+  data $006f
+  data $0072
+  data $006c
+  data $0064
+  data $0021`;
+
+    this.state.breakpoints = [];
 
   }
   render() {
