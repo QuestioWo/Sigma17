@@ -34,7 +34,7 @@ export default class DocumentationView extends React.Component {
         <div className="mainbody">
           <Row>
             <Col>
-              <h1>Sigma16 home page</h1>
+              <h1>Sigma17 home page</h1>
             </Col>
           </Row>
           <Row>
