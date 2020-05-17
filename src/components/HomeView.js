@@ -2,6 +2,7 @@ import React from 'react';
 
 import './HomeView.css';
 
+import { Link } from 'react-router-dom';
 import { Col, Row } from 'react-bootstrap';
 
 import NavBar from './NavBar';
@@ -9,12 +10,27 @@ import NavBar from './NavBar';
 export default class DocumentationView extends React.Component {
   constructor( props, context ) {
     super( props );
+
+    this.state = {
+      code : '',
+      breakpoints : []
+    };
+  }
+
+  componentDidMount() {
+    if ( this.props.location.state ) {
+      this.setState( { code : this.props.location.state.code } );
+      this.setState( { breakpoints : this.props.location.state.breakpoints } );
+    } else if ( this.props.code !== undefined ) {
+      this.setState( { code : this.props.code } );
+      this.setState( { breakpoints : this.props.breakpoints } );
+    }
   }
 
   render() {
     return(
       <React.Fragment>
-        <NavBar currentKey={this.props.location.pathname}/>   
+        <NavBar state={this.state}/> 
         <div className="mainbody">
           <Row>
             <Col>
@@ -29,9 +45,12 @@ export default class DocumentationView extends React.Component {
           <Row>
             <Col>
               <div className="click-editor">
-                <a href='./editor'>
+                <Link to={{
+                  pathname : "/editor",
+                  state : this.state
+                  }}>
                   Click Here To Run IDE
-                </a>
+                </Link>
               </div>
             </Col>
           </Row>

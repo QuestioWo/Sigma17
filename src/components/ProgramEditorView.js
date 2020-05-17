@@ -71,7 +71,13 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.setState( { code: this.props.code } );
+    if ( this.props.location.state ) {
+      this.setState( { code : this.props.location.state.code } );
+      this.setState( { breakpoints : this.props.location.state.breakpoints } );
+    } else if ( this.props.code !== undefined ) {
+      this.setState( { code : this.props.code } );
+      this.setState( { breakpoints : this.props.breakpoints } );
+    }
   }
 
 // BREAKPOINTS
@@ -568,7 +574,7 @@ export default class ProgramEditorView extends React.PureComponent {
   render() {
     return(
       <React.Fragment>
-        <NavBar currentKey={ this.props.location.pathname }/>
+        <NavBar state={{code : this.state.code, breakpoints : this.state.breakpoints}}/>
         <Modal
           show={this.state.runModalShow}
           onHide={this.runModalClose}

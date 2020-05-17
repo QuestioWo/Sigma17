@@ -9,16 +9,27 @@ import NavBar from './NavBar';
 export default class DocumentationView extends React.Component {
   constructor( props, context ) {
     super( props );
+
+    this.state = {
+      code : '',
+      breakpoints : []
+    };
   }
 
   componentDidMount() {
-
+    if ( this.props.location.state ) {
+      this.setState( { code : this.props.location.state.code } );
+      this.setState( { breakpoints : this.props.location.state.breakpoints } );
+    } else if ( this.props.code !== undefined ) {
+      this.setState( { code : this.props.code } );
+      this.setState( { breakpoints : this.props.breakpoints } );
+    }
   }
 
   render() {
     return(
       <React.Fragment>
-        <NavBar currentKey={this.props.location.pathname}/>   
+        <NavBar state={this.state}/>
         <div className="mainbody">
           <Row>
             <Col>
