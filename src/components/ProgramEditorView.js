@@ -3,8 +3,9 @@ import React from 'react';
 import 'codemirror/lib/codemirror.css';
 import './ProgramEditorView.css';
 
+import { Link } from 'react-router-dom';
 import { Alert, Button, ButtonGroup, Col, InputGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
-import { FaCheck, FaHammer, FaPen, FaPlay, FaTimes } from 'react-icons/fa';
+import { FaBug, FaCheck, FaHammer, FaPen, FaPlay, FaTimes } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
 import * as Emulator from './utils/Emulator';
@@ -138,14 +139,17 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   breakpointOnClick = breakpoint => {
+    var breakpoints = this.state.breakpoints;
+
     if ( breakpoint.currentTarget.classList.contains( 'active' ) ) {
       breakpoint.currentTarget.classList.remove( 'active' );
+      var index = breakpoints.indexOf( Number( breakpoint.currentTarget.id.slice( 'breakpoint '.length, breakpoint.currentTarget.id.length ) ) );
+      breakpoints.splice( index, 1 );
     } else {
       breakpoint.currentTarget.classList.add( 'active' );
+      breakpoints.push( Number( breakpoint.currentTarget.id.slice( 'breakpoint '.length, breakpoint.currentTarget.id.length ) ) );
     }
 
-    var breakpoints = this.state.breakpoints;
-    breakpoints.push( Number( breakpoint.currentTarget.id.slice( 'breakpoint '.length, breakpoint.currentTarget.id.length ) ) );
     this.setState( { breakpoints : breakpoints } );
   }
 
@@ -574,7 +578,7 @@ export default class ProgramEditorView extends React.PureComponent {
   render() {
     return(
       <React.Fragment>
-        <NavBar state={{code : this.state.code, breakpoints : this.state.breakpoints}}/>
+        <NavBar state={{code : this.state.code, breakpoints : this.state.breakpoints, input : this.state.input}}/>
         <Modal
           show={this.state.runModalShow}
           onHide={this.runModalClose}
@@ -652,57 +656,89 @@ export default class ProgramEditorView extends React.PureComponent {
           </Modal.Body>
         </Modal>
 
-        <div className='buttonstoolbar'>
+        <div className='mainbody'>
           <Alert variant={this.state.alertNature} onClose={this.closeAlert} show={this.state.alertShow} dismissible>
             <p className='alertbody'>
               {this.state.alertMessage}
             </p>
           </Alert>
-          <Row>
+          <Row className='buttontoolbar'>
             <Col>
-              <OverlayTrigger
-                key={'top'}
-                placement={'top'}
-                overlay={
-                  <Tooltip>
-                    Set Input/Build/Run
-                  </Tooltip>
-                }>
-                <ButtonGroup>
+              <ButtonGroup>
+                <OverlayTrigger
+                  placement={'top'}
+                  overlay={
+                    <Tooltip>
+                      {`Set input`}
+                    </Tooltip>
+                  }>
                   <Button variant='outline-secondary' size='sm' onClick={this.setInput}>
                     <FaPen/>
                   </Button>
+                </OverlayTrigger>
+                <OverlayTrigger
+                  placement={'top'}
+                  overlay={
+                    <Tooltip>
+                      {`Build`}
+                    </Tooltip>
+                  }>
                   <Button variant='outline-secondary' size='sm' onClick={this.parseCode}>
                     <FaHammer/>
                   </Button>
+                </OverlayTrigger>
+                <OverlayTrigger
+                  placement={'top'}
+                  overlay={
+                    <Tooltip>
+                      {`Run`}
+                    </Tooltip>
+                  }>
                   <Button variant='outline-secondary' size='sm' onClick={this.runCode}>
                     <FaPlay/>
                   </Button>
-                </ButtonGroup>
-              </OverlayTrigger>
+                </OverlayTrigger>
+              </ButtonGroup>
             </Col>
             <Col>
               <OverlayTrigger
-                key={'top'}
                 placement={'top'}
                 overlay={
                   <Tooltip>
-                    {`Disable All Breakpoints`}
+                    {`Disable all breakpoints`}
                   </Tooltip>
                 }>
                 <Button variant='outline-secondary' size='sm' onClick={this.disableBreakpoints}>
                   <FaTimes/>
                 </Button>
               </OverlayTrigger>
+              {' '}
+              
+              <Link to={{
+                pathname : "/debug",
+                state : {code : this.state.code, breakpoints : this.state.breakpoints}
+                }}>
+                <OverlayTrigger
+                  placement={'top'}
+                  overlay={
+                    <Tooltip>
+                      {`Run in debug mode`}
+                    </Tooltip>
+                  }>
+                  <Button variant='outline-secondary' size='sm'>
+                    <FaBug/>
+                  </Button>
+                </OverlayTrigger>
+              </Link>
             </Col>
             <Col>
               <OverlayTrigger
-                key={'top'}
+                key={`highlighting-tooltip`}
                 placement={'top'}
                 overlay={
                   <Tooltip>
-                    Toggle Highlighting
-                    Improves speed if disabled
+                    {`Toggle highlighting
+                    improves speed if disabled`}
                   </Tooltip>
                 }>
                 <Button variant='outline-secondary' size='sm' onClick={this.toggleHighlighting} active={this.state.highlightedCodeChunk}>
@@ -711,39 +747,39 @@ export default class ProgramEditorView extends React.PureComponent {
               </OverlayTrigger>
             </Col>
           </Row>
-        </div>    
-        <div className='mainbody'>
           <Row>
-            <div id="code-area" className='code-area'> 
-              <div id='breakpoint-column' className='breakpoint-column'>
-                {this.breakpointsColumn(this.state.code)}
-              </div>
-              <div className='line-number-column'>
-                {this.createLineNumberColumn()}
-              </div>
-              { this.state.code &&
-                <React.Fragment>
-                  { this.state.highlightedCodeChunk ?
-                    <CodeMirror
-                      mode='sigma16'
-                      value={this.state.code} 
-                      onChange={this.updateCode} 
-                      options={{ lineNumbers : false, scrollbarStyle: "null" }}
-                      autoFocus/>
-                  : 
-                    <React.Fragment>
-                      
-                      <InputGroup
-                        as='textarea'
-                        className='code-chunk-column'
-                        value={this.state.code}
-                        onChange={this.codeBlockEdit}
+            <Col>
+              <div id="code-area" className='code-area'> 
+                <div id='breakpoint-column' className='breakpoint-column'>
+                  {this.breakpointsColumn(this.state.code)}
+                </div>
+                <div className='line-number-column'>
+                  {this.createLineNumberColumn()}
+                </div>
+                { this.state.code &&
+                  <React.Fragment>
+                    { this.state.highlightedCodeChunk ?
+                      <CodeMirror
+                        mode='sigma16'
+                        value={this.state.code} 
+                        onChange={this.updateCode} 
+                        options={{ lineNumbers : false, scrollbarStyle: "null" }}
                         autoFocus/>
-                    </React.Fragment>
-                  }
-                </React.Fragment>
-              }
-            </div>
+                    : 
+                      <React.Fragment>
+                        
+                        <InputGroup
+                          as='textarea'
+                          className='code-chunk-column'
+                          value={this.state.code}
+                          onChange={this.codeBlockEdit}
+                          autoFocus/>
+                      </React.Fragment>
+                    }
+                  </React.Fragment>
+                }
+              </div>
+            </Col>
           </Row>
         </div>
       </React.Fragment>

@@ -54,6 +54,11 @@ export default class DocumentationView extends React.Component {
               </div>
             </Col>
           </Row>
+          <Row>
+            <Col>
+              This web based IDE is not to be used in complete replacement the orignal written by John O'Donnel as it has properties of it which could mean that programs written using this emulator <strong>will not work</strong> with the orignal and could lead to repurcussions because of it.
+            </Col>
+          </Row>
         </div>
       </React.Fragment>
     );

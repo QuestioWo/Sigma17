@@ -1,0 +1,11 @@
+.systeminfo-column-elem .active {
+  color : green;
+}
+
+.systeminfo-column-elem .last {
+  color : blue;
+}
+
+.systeminfo-column-elem .break {
+  color : pink;
+}
