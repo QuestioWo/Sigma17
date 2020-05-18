@@ -172,17 +172,18 @@ export default class ProgramDebugView extends React.Component {
 
     for ( var i = 0; i < memoryKeys.length; i++ ) {
       var classNameMemory = 'systeminfo-column-elem';
+      var decoration = '';
       
       if ( i === this.state.lastLine ) classNameMemory = 'systeminfo-column-elem last';
       if ( i === this.state.activeLine ) classNameMemory = 'systeminfo-column-elem active';
-      if ( this.state.breakpointsMachineCode.includes( i ) ) classNameMemory = 'systeminfo-column-elem break';
+      if ( this.state.breakpointsMachineCode.includes( i ) ) decoration = 'underline';
 
       memoryValues.push( 
         <div 
           key={'memory ' + memoryKeys[i]}
           id={'memory ' + memoryKeys[i]}
           className={classNameMemory}>
-          <Row>
+          <Row style={{textDecoration : decoration}}>
             <Col className={classNameMemory}>
               <strong>${Emulator.writeHex( memoryKeys[i] )}</strong>
             </Col>
@@ -206,6 +207,17 @@ export default class ProgramDebugView extends React.Component {
     }
 
     return memoryValues;
+  }
+
+// ALERT METHODS
+  updateAlert( message, nature ) {
+    this.setState( { alertMessage : message } );
+    this.setState( { alertNature : nature } );
+    this.setState( { alertShow : true } );
+  }
+
+  closeAlert = alert => {
+    this.setState( { alertShow : false } );
   }
 
 // CHECKING METHOD
@@ -366,7 +378,7 @@ export default class ProgramDebugView extends React.Component {
 
     if ( machineCode.length !== 0 ) {
       if ( !machineCode.includes( 0xd000 ) ) {
-        error = 'Cannot run code without a "trap R0,R0,R0" instruction';
+        error = 'Cannot run code without a "trap R0,R0,R0" instruction. Can step-through.';
       }
     } else {
       // machine language is blank
@@ -427,7 +439,6 @@ export default class ProgramDebugView extends React.Component {
   }
 
   stepForward = button => {
-    var canRun = this.canRunCode( this.state.code, this.state.machineCode );
     var ran = {
       halted : false
     };
