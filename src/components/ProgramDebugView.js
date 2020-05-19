@@ -3,8 +3,8 @@ import React from 'react';
 import 'codemirror/lib/codemirror.css';
 import './ProgramDebugView.css';
 
-import { Alert, Button, ButtonGroup, Col, InputGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
-import { FaBackward, FaCheck, FaPen, FaPlay, FaStepForward, FaTimes } from 'react-icons/fa';
+import { Alert, Button, ButtonGroup, Col, Collapse, InputGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
+import { FaBackward, FaCheck, FaMinus, FaPen, FaPlay, FaStepForward, FaTimes } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
 import * as Emulator from './utils/Emulator';
@@ -68,7 +68,13 @@ export default class ProgramDebugView extends React.Component {
 
       halted : false,
 
-      inputRan : ''
+      inputRan : '',
+
+      memoryToLine : {},
+      lineToMemory : {},
+
+      showCodeChunk : true,
+      renderCodeChunk : true
     };
   }
 
@@ -97,60 +103,15 @@ export default class ProgramDebugView extends React.Component {
     this.setState( { memory : Emulator.setMemory( machineCode ) } )
   }
 
-// BREAKPOINTS
-  breakpointsColumn( code ) {
-    var breakpoints = [];
-    var lines = code.split( '\n' );
-
-    var codeAreaWrapper = document.getElementById( 'code-area-wrapper' );
-
-    if ( codeAreaWrapper ) {
-      codeAreaWrapper.style.height = ( 25 * ( lines.length ) ) + 8 + 'px';
-
-      for ( var i = 0; i < lines.length; i++ ) {
-        var yOffset = 25 * ( i + 0.5 );
-        var styleTop = yOffset + 3 +'px';
-
-        var id = 'breakpoint ' + ( i + 1 );
-        var className = 'breakpoint ' + ( i + 1 );
-
-        if ( this.state.breakpoints.includes( i + 1 ) ) {
-          className = className + ' active';
-        }
-        
-        breakpoints.push( 
-          <div 
-            key={id}
-            id={id} 
-            className={className} 
-            style={{top : styleTop}} 
-            onClick={this.breakpointOnClick}/>
-        );
-      }
-      return breakpoints;
-    }
+// ALERT METHODS
+  updateAlert( message, nature ) {
+    this.setState( { alertMessage : message } );
+    this.setState( { alertNature : nature } );
+    this.setState( { alertShow : true } );
   }
 
-  breakpointOnClick = breakpoint => {
-    var breakpoints = this.state.breakpoints;
-
-    if ( breakpoint.currentTarget.classList.contains( 'active' ) ) {
-      breakpoint.currentTarget.classList.remove( 'active' );
-      var index = breakpoints.indexOf( Number( breakpoint.currentTarget.id.slice( 'breakpoint '.length, breakpoint.currentTarget.id.length ) ) );
-      breakpoints.splice( index, 1 );
-    } else {
-      breakpoint.currentTarget.classList.add( 'active' );
-      breakpoints.push( Number( breakpoint.currentTarget.id.slice( 'breakpoint '.length, breakpoint.currentTarget.id.length ) ) );
-    }
-
-    this.setState( { breakpoints : breakpoints } );
-    this.parseCode( this.state.code, breakpoints );
-  }
-
-  disableBreakpoints = button => {
-    this.setState( { breakpoints : [] } );
-    this.setState( { breakpointsMachineCode : [] } );
-    this.parseCode( this.state.code, [] );
+  closeAlert = alert => {
+    this.setState( { alertShow : false } );
   }
 
 // REGISTER/MEMORY METHODS
@@ -186,7 +147,6 @@ export default class ProgramDebugView extends React.Component {
           className='input-area'
           as='textarea'
           value={this.state.inputRan}
-          //onClick={this.resizeOutput}
           disabled/>
       </div>
     );
@@ -248,8 +208,8 @@ export default class ProgramDebugView extends React.Component {
       var classNameMemory = 'systeminfo-column-elem';
       var decoration = '';
       
-      if ( i === this.state.lastLine ) classNameMemory = 'systeminfo-column-elem last';
-      if ( i === this.state.activeLine ) classNameMemory = 'systeminfo-column-elem active';
+      if ( i === this.state.lastLine && this.state.lastLine !== this.state.activeLine ) classNameMemory = 'systeminfo-column-elem last';
+      if ( i === this.state.activeLine && !( this.state.halted ) ) classNameMemory = 'systeminfo-column-elem active';
       if ( this.state.breakpointsMachineCode.includes( i ) ) decoration = 'underline';
 
       memoryValues.push( 
@@ -283,15 +243,60 @@ export default class ProgramDebugView extends React.Component {
     return memoryValues;
   }
 
-// ALERT METHODS
-  updateAlert( message, nature ) {
-    this.setState( { alertMessage : message } );
-    this.setState( { alertNature : nature } );
-    this.setState( { alertShow : true } );
+// BREAKPOINTS
+  breakpointsColumn( code ) {
+    var breakpoints = [];
+    var lines = code.split( '\n' );
+
+    var codeAreaWrapper = document.getElementById( 'code-area-wrapper' );
+
+    if ( codeAreaWrapper ) {
+      codeAreaWrapper.style.height = ( 25 * ( lines.length ) ) + 8 + 'px';
+
+      for ( var i = 0; i < lines.length; i++ ) {
+        var yOffset = 25 * ( i + 0.5 );
+        var styleTop = yOffset + 3 +'px';
+
+        var id = 'breakpoint ' + ( i + 1 );
+        var className = 'breakpoint ' + ( i + 1 );
+
+        if ( this.state.breakpoints.includes( i + 1 ) ) {
+          className = className + ' active';
+        }
+        
+        breakpoints.push( 
+          <div 
+            key={id}
+            id={id} 
+            className={className} 
+            style={{top : styleTop}} 
+            onClick={this.breakpointOnClick}/>
+        );
+      }
+      return breakpoints;
+    }
   }
 
-  closeAlert = alert => {
-    this.setState( { alertShow : false } );
+  breakpointOnClick = breakpoint => {
+    var breakpoints = this.state.breakpoints;
+
+    if ( breakpoint.currentTarget.classList.contains( 'active' ) ) {
+      breakpoint.currentTarget.classList.remove( 'active' );
+      var index = breakpoints.indexOf( Number( breakpoint.currentTarget.id.slice( 'breakpoint '.length, breakpoint.currentTarget.id.length ) ) );
+      breakpoints.splice( index, 1 );
+    } else {
+      breakpoint.currentTarget.classList.add( 'active' );
+      breakpoints.push( Number( breakpoint.currentTarget.id.slice( 'breakpoint '.length, breakpoint.currentTarget.id.length ) ) );
+    }
+
+    this.setState( { breakpoints : breakpoints } );
+    this.parseCode( this.state.code, breakpoints );
+  }
+
+  disableBreakpoints = button => {
+    this.setState( { breakpoints : [] } );
+    this.setState( { breakpointsMachineCode : [] } );
+    this.parseCode( this.state.code, [] );
   }
 
 // CODE CHUNK METHODS
@@ -299,28 +304,146 @@ export default class ProgramDebugView extends React.Component {
     var linesOfCode = this.state.code.split( '\n' ).length;
     var result = [];
 
-    var lineNoWidth = '21px';
-
+    var lineNoWidth = 21;
     var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
 
     if ( lineNoWidthLength > 2 ) {
-      lineNoWidth = ( ( lineNoWidthLength * 7 ) + 7 ) + 'px';
+      lineNoWidth = ( ( lineNoWidthLength * 7 ) + 7 );
     }
+
+    lineNoWidth += 'px';
 
     for ( var i = 0; i < linesOfCode; i++ ) {
       var yOffset = 25 * ( i + 0.5 );
 
-      result.push(
-        <div
-          key={'line-number ' + ( i + 1 )} 
-          className='line-number'
-          style={{top:{yOffset}, width:lineNoWidth}}>
-          {i + 1}
-        </div>
-      );
+      if ( this.state.lineToMemory[i] ) {
+        var parsedMachineCodeString = Emulator.writeHex( this.state.memory[ this.state.lineToMemory[i][0] ] );
+
+        if ( this.state.lineToMemory[i][1] ) {
+          parsedMachineCodeString += ', ' + Emulator.writeHex( this.state.memory[ this.state.lineToMemory[i][1] ] );
+        }
+
+        result.push(
+          <OverlayTrigger
+            key={'line-number-tooltip' + ( i + 1 )}
+            placement={'right'}
+            overlay={
+              <Tooltip>
+                {parsedMachineCodeString}
+              </Tooltip>
+            }>
+            <div
+              key={'line-number ' + ( i + 1 )} 
+              className='line-number'
+              style={{top:{yOffset}, width:lineNoWidth}}>
+              {i + 1}
+            </div>
+          </OverlayTrigger>
+        );
+
+      } else {
+        // if an empty line in memory, don't create a tooltip
+        result.push(
+          <div
+            key={'line-number ' + ( i + 1 )} 
+            className='line-number'
+            style={{top:{yOffset}, width:lineNoWidth}}>
+            {i + 1}
+          </div>
+        );
+      }
     }
 
     return result;
+  }
+
+  toggleHighlighting = button => {
+    this.setState( { highlightedCodeChunk : !( this.state.highlightedCodeChunk ) } );
+  }
+
+  toggleCodeChunk = button => {
+    this.setState( { showCodeChunk : !( this.state.showCodeChunk ) } );
+    this.setState( { renderCodeChunk : false } );
+  }
+
+// LINE OVERLAY METHODS
+  activeLineOverlay() {
+    if ( !( this.state.halted ) ) {
+      var linesOfCode = this.state.code.split( '\n' ).length;
+      var activeLineInCode = this.state.memoryToLine[ this.state.activeLine ];
+
+      var heightOfOverlay = -( ( linesOfCode - ( activeLineInCode + 1 ) ) * 25 ) + -( 29 );
+
+      var lineNoWidth = 21;
+      var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
+
+      if ( lineNoWidthLength > 2 ) {
+        lineNoWidth = ( ( lineNoWidthLength * 7 ) + 7 );
+      }
+
+      lineNoWidth += 25; //25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
+
+      var wrapper = document.getElementById( 'code-area-wrapper' );
+
+      if ( wrapper !== null ) {
+        var overlayWidth = wrapper.clientWidth - lineNoWidth
+      }
+
+      lineNoWidth += 'px'
+
+      if ( wrapper !== null ) {
+        return(
+          <div style={{width : overlayWidth, marginTop : heightOfOverlay, left : lineNoWidth}} className='line-overlay active'/>
+        );
+      } else {
+        return(
+          <div style={{marginTop : heightOfOverlay, left : lineNoWidth}} className='line-overlay active'/>
+        );
+      }
+    }
+  }
+
+  lastLineOverlay() {
+    if ( this.state.lastLine !== this.state.activeLine ) {
+      // if program has at least been stepped through
+
+      var linesOfCode = this.state.code.split( '\n' ).length;
+      var lastLineInCode = this.state.memoryToLine[ this.state.lastLine ];
+
+      var heightOfOverlay = -( ( linesOfCode - ( lastLineInCode + 1 ) ) * 25 ) + -( 29 );
+
+      var lineNoWidth = 21;
+      var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
+
+      if ( lineNoWidthLength > 2 ) {
+        lineNoWidth = ( ( lineNoWidthLength * 7 ) + 7 );
+      }
+
+      lineNoWidth += 25; //25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
+
+      var wrapper = document.getElementById( 'code-area-wrapper' );
+
+      if ( wrapper !== null ) {
+        var overlayWidth = wrapper.clientWidth - lineNoWidth
+      }
+
+      lineNoWidth += 'px'
+
+      if ( wrapper !== null ) {
+        return(
+          <div style={{width : overlayWidth, marginTop : heightOfOverlay, left : lineNoWidth}} className='line-overlay last'/>
+        );
+      } else {
+        return(
+          <div style={{marginTop : heightOfOverlay, left : lineNoWidth}} className='line-overlay last'/>
+        );
+      }
+    }
+  }
+
+// COLLAPSE CALLBACK METHOD
+  collapseOnEntered = collapse => {
+    this.setState( { renderCodeChunk : true } );
   }
 
 // CHECKING METHOD
@@ -399,6 +522,9 @@ export default class ProgramDebugView extends React.Component {
       var nextLineBreakpoint = false;
       var breakpointsMachineCode = [];
 
+      var memoryToLine = {};
+      var lineToMemory = {};
+
       for ( var it = 0; it < lines.length; it++ ) {
         var trimmed = lines[it].trim();
 
@@ -407,15 +533,22 @@ export default class ProgramDebugView extends React.Component {
         if ( trimmed !== '' && trimmed.split( ';' )[0] !== '' ) {
           parsed = Emulator.parseLineForMachineCode( lines[it], labels );
           if ( parsed ) {
+            var mcLength = machineCode.length;
             if ( nextLineBreakpoint ) {
-              breakpointsMachineCode.push( machineCode.length );
+              breakpointsMachineCode.push( mcLength );
               nextLineBreakpoint = false;
             }
+
+            memoryToLine[mcLength] = it;
+            lineToMemory[it] = [];
+            lineToMemory[it].push( mcLength );
 
             machineCode.push( parsed[0] );
             
             // if two word instruction
             if ( Emulator.isValidNumber( Emulator.readSignedHex( parsed[1] ) ) ) {
+              lineToMemory[it].push( mcLength + 1 );
+
               machineCode.push( parsed[1] );
             }
           }
@@ -424,6 +557,8 @@ export default class ProgramDebugView extends React.Component {
 
       this.setState( { machineCode : machineCode } );
       this.setState( { breakpointsMachineCode : breakpointsMachineCode } );
+      this.setState( { memoryToLine : memoryToLine } );
+      this.setState( { lineToMemory : lineToMemory } );
     } else {
       var keys = Object.keys( check[1] )
       var keysString = '';
@@ -611,11 +746,6 @@ export default class ProgramDebugView extends React.Component {
     this.setState( { inputModalShow : false } );
   }
 
-// HIGHLIGHTING METHODS
-  toggleHighlighting = button => {
-    this.setState( { highlightedCodeChunk : !( this.state.highlightedCodeChunk ) } );
-  }
-
 // RENDER
   render() {
     return(
@@ -673,22 +803,22 @@ export default class ProgramDebugView extends React.Component {
                   placement={'top'}
                   overlay={
                     <Tooltip>
-                      {`Run till next breakpoint`}
+                      {`Step Forward`}
                     </Tooltip>
                   }>
-                  <Button variant='outline-secondary' size='sm' onClick={this.runCode} disabled={this.state.halted}>
-                    <FaPlay/>
+                  <Button variant='outline-secondary' size='sm' onClick={this.stepForward} disabled={this.state.halted}>
+                    <FaStepForward/>
                   </Button>
                 </OverlayTrigger>
                 <OverlayTrigger
                   placement={'top'}
                   overlay={
                     <Tooltip>
-                      {`Step Forward`}
+                      {`Run till next breakpoint`}
                     </Tooltip>
                   }>
-                  <Button variant='outline-secondary' size='sm' onClick={this.stepForward} disabled={this.state.halted}>
-                    <FaStepForward/>
+                  <Button variant='outline-secondary' size='sm' onClick={this.runCode} disabled={this.state.halted}>
+                    <FaPlay/>
                   </Button>
                 </OverlayTrigger>
               </ButtonGroup>
@@ -732,6 +862,19 @@ export default class ProgramDebugView extends React.Component {
                   <FaCheck/>
                 </Button>
               </OverlayTrigger>
+              {' '}
+              <OverlayTrigger
+                key={`hide-code-tooltip`}
+                placement={'top'}
+                overlay={
+                  <Tooltip>
+                    {`Hide the codechunk`}
+                  </Tooltip>
+                }>
+                <Button variant='outline-secondary' size='sm' onClick={this.toggleCodeChunk} active={!(this.state.showCodeChunk)}>
+                  <FaMinus/>
+                </Button>
+              </OverlayTrigger>
             </Col>
           </Row>
           <Row>
@@ -745,11 +888,13 @@ export default class ProgramDebugView extends React.Component {
                 Memory/Output
               </h6>
             </Col>
-            <Col>
-              <h6>
-                Code ( read-only )
-              </h6>
-            </Col>
+            { this.state.showCodeChunk &&
+              <Col>
+                <h6>
+                  Code ( read-only )
+                </h6>
+              </Col>
+            }
           </Row>
           <Row>
             <Col className='runmodal-left-col'>
@@ -771,35 +916,43 @@ export default class ProgramDebugView extends React.Component {
                 {this.outputColumn()}
               </div>
             </Col>
-            <Col>
-              <div id='code-area viewing' className='code-area viewing'> 
-                <div id='code-area-wrapper' className='code-area-wrapper'>
-                  <div id='breakpoint-column' className='breakpoint-column'>
-                    {this.breakpointsColumn(this.state.code)}
+            <Collapse in={this.state.showCodeChunk} onEntered={this.collapseOnEntered}>
+              <Col>
+                <div id='code-area viewing' className='code-area viewing'> 
+                  <div id='code-area-wrapper' className='code-area-wrapper'>
+                    { this.state.showCodeChunk &&
+                      <React.Fragment>
+                        <div id='breakpoint-column' className='breakpoint-column'>
+                          {this.breakpointsColumn(this.state.code)}
+                        </div>
+                        <div className='line-number-column'>
+                          {this.createLineNumberColumn()}
+                        </div>
+                        { this.state.code && this.state.renderCodeChunk &&
+                          <React.Fragment>
+                            { this.state.highlightedCodeChunk ?
+                              <CodeMirror
+                                className=' debug'
+                                mode='sigma16'
+                                value={this.state.code} 
+                                options={{ readOnly : true, lineNumbers : false }}/>
+                            : 
+                              <InputGroup
+                                as='textarea'
+                                className='code-chunk-column viewing'
+                                value={this.state.code}
+                                disabled/>
+                            }
+                            {this.activeLineOverlay()}
+                            {this.lastLineOverlay()}
+                          </React.Fragment>
+                        }
+                      </React.Fragment>
+                    }
                   </div>
-                  <div className='line-number-column'>
-                    {this.createLineNumberColumn()}
-                  </div>
-                  { this.state.code &&
-                    <React.Fragment>
-                      { this.state.highlightedCodeChunk ?
-                        <CodeMirror
-                          className=' debug'
-                          mode='sigma16'
-                          value={this.state.code} 
-                          options={{ readOnly : true, lineNumbers : false }}/>
-                      : 
-                        <InputGroup
-                          as='textarea'
-                          className='code-chunk-column viewing'
-                          value={this.state.code}
-                          disabled/>
-                      }
-                    </React.Fragment>
-                  }
                 </div>
-              </div>
-            </Col>
+              </Col>
+            </Collapse>
           </Row>
         </div>
       </React.Fragment>

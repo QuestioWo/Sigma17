@@ -15,6 +15,7 @@
 .code-area-wrapper {
   width : 100% !important;
   display: table;
+  position: relative;
 }
 
 .ReactCodeMirror.debug {
@@ -35,6 +36,24 @@
 
   overflow-x: auto;
   overflow-y: hidden;
+}
+
+.line-overlay {
+  pointer-events: none;
+  width: 100px;
+  height: 25px;
+  position: absolute;
+  opacity: 25%;
+}
+
+.line-overlay.active {
+  z-index: 2;
+  background: green;
+}
+
+.line-overlay.last {
+  z-index: 3;
+  background: blue;
 }
 
 
