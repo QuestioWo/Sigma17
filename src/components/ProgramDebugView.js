@@ -787,7 +787,7 @@ export default class ProgramDebugView extends React.Component {
                           className=' debug'
                           mode='sigma16'
                           value={this.state.code} 
-                          options={{ readOnly : true, lineNumbers : false, scrollbarStyle: "null" }}/>
+                          options={{ readOnly : true, lineNumbers : false }}/>
                       : 
                         <InputGroup
                           as='textarea'
