@@ -608,9 +608,12 @@ export default class ProgramDebugView extends React.Component {
 
     var outputNew = '';
 
+    var memoryNew = Emulator.setMemory( this.state.machineCode );
+
     this.setState( { registers : registersNew } );
     this.setState( { cpuControl : cpuControlNew } );
     this.setState( { output : outputNew } );
+    this.setState( { memory : memoryNew } );
   }
 
   canRunCode( code, machineCode ) {
@@ -636,7 +639,7 @@ export default class ProgramDebugView extends React.Component {
     if ( !canRun.length ) {
       var localControl = this.state.cpuControl;
       var localRegisters = this.state.registers;
-      var localMemory = Emulator.setMemory( this.state.machineCode );
+      var localMemory = this.state.memory;
       var localInput = this.state.inputRan;
       var localOutput = this.state.output;
 
@@ -688,7 +691,7 @@ export default class ProgramDebugView extends React.Component {
     if ( this.state.machineCode.length !== 0 ) {
       var localControl = this.state.cpuControl;
       var localRegisters = this.state.registers;
-      var localMemory = Emulator.setMemory( this.state.machineCode );
+      var localMemory = this.state.memory;
       var localInput = this.state.inputRan;
       var localOutput = this.state.output;
 
