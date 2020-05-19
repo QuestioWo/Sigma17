@@ -13,7 +13,8 @@ export default class DocumentationView extends React.Component {
 
     this.state = {
       code : '',
-      breakpoints : []
+      breakpoints : [],
+      input : ''
     };
   }
 
@@ -21,9 +22,11 @@ export default class DocumentationView extends React.Component {
     if ( this.props.location.state ) {
       this.setState( { code : this.props.location.state.code } );
       this.setState( { breakpoints : this.props.location.state.breakpoints } );
+      this.setState( { input : this.props.location.state.input } );
     } else if ( this.props.code !== undefined ) {
       this.setState( { code : this.props.code } );
       this.setState( { breakpoints : this.props.breakpoints } );
+      this.setState( { input : this.props.input } );
     }
   }
 
@@ -57,6 +60,15 @@ export default class DocumentationView extends React.Component {
           <Row>
             <Col>
               This web based IDE is not to be used in complete replacement the orignal written by John O'Donnel as it has properties of it which could mean that programs written using this emulator <strong>will not work</strong> with the orignal and could lead to repurcussions because of it.
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <div className="click-editor">
+                <a href="https://github.com/QuestioWo/Sigma17">
+                  View Source Directory on GitHub
+                </a>
+              </div>
             </Col>
           </Row>
         </div>

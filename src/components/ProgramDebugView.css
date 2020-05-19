@@ -1,11 +1,82 @@
-.systeminfo-column-elem .active {
+.systeminfo-column-elem.active {
   color : green;
 }
 
-.systeminfo-column-elem .last {
+.systeminfo-column-elem.last {
   color : blue;
 }
 
-.systeminfo-column-elem .break {
-  color : pink;
+.code-area.viewing {
+  height: 562px;
+  overflow: auto; 
+}
+
+
+.code-area-wrapper {
+  width : 100% !important;
+  display: table;
+  position: relative;
+}
+
+.ReactCodeMirror.debug {
+  width: unset;
+
+  position: relative;
+
+  display: grid;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.code-chunk-column.viewing {
+  height: 100%;
+  display: table-cell;
+  vertical-align: top;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.line-overlay {
+  pointer-events: none;
+  width: 100px;
+  height: 25px;
+  position: absolute;
+  opacity: 25%;
+}
+
+.line-overlay.active {
+  z-index: 2;
+  background: green;
+}
+
+.line-overlay.last {
+  z-index: 3;
+  background: blue;
+}
+
+
+.input-column {
+  width: 100%;
+  height: 56px;
+  border-radius: 7px;
+  box-sizing: border-box;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #eaeef3;
+  background-color: #eaeef3;
+  margin: 15px 0 0;
+}
+
+.input-column .input-area {
+  height: 100%;
+  width: 100%;
+  font-family: 'Fira Code', monospace;
+  resize: none;
+  border-radius: 7px;
+  border-width: 5px;
+  border-color: white;
+  white-space: pre;
+  background: white;
 }

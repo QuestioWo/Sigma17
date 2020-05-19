@@ -75,9 +75,11 @@ export default class ProgramEditorView extends React.PureComponent {
     if ( this.props.location.state ) {
       this.setState( { code : this.props.location.state.code } );
       this.setState( { breakpoints : this.props.location.state.breakpoints } );
+      this.setState( { input : this.props.location.state.input } );
     } else if ( this.props.code !== undefined ) {
       this.setState( { code : this.props.code } );
       this.setState( { breakpoints : this.props.breakpoints } );
+      this.setState( { input : this.props.input } );
     }
   }
 
@@ -617,7 +619,7 @@ export default class ProgramEditorView extends React.PureComponent {
               }
               <Col>
                 { !( this.state.outputZoomed ) &&
-                  <div id='memory-column' className='memory-column'>
+                  <div id='memory-column small' className='memory-column small'>
                     {this.memoryColumn()}
                   </div>
                 }
@@ -640,7 +642,7 @@ export default class ProgramEditorView extends React.PureComponent {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <div className='input-column'>
+            <div className='input-modal-column'>
               <InputGroup
                 as='textarea'
                 className='input-modal-input'
@@ -716,7 +718,7 @@ export default class ProgramEditorView extends React.PureComponent {
               
               <Link to={{
                 pathname : "/debug",
-                state : {code : this.state.code, breakpoints : this.state.breakpoints}
+                state : {code : this.state.code, breakpoints : this.state.breakpoints, input : this.state.input}
                 }}>
                 <OverlayTrigger
                   placement={'top'}
@@ -766,15 +768,12 @@ export default class ProgramEditorView extends React.PureComponent {
                         options={{ lineNumbers : false, scrollbarStyle: "null" }}
                         autoFocus/>
                     : 
-                      <React.Fragment>
-                        
-                        <InputGroup
-                          as='textarea'
-                          className='code-chunk-column'
-                          value={this.state.code}
-                          onChange={this.codeBlockEdit}
-                          autoFocus/>
-                      </React.Fragment>
+                      <InputGroup
+                        as='textarea'
+                        className='code-chunk-column'
+                        value={this.state.code}
+                        onChange={this.codeBlockEdit}
+                        autoFocus/>
                     }
                   </React.Fragment>
                 }

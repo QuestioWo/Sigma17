@@ -1,6 +1,6 @@
 # Sigma17 repository
 
-Sugma17 is a re-write of the orignal emulator written by John O' Donnell. The overall aim of Sugma17 is to re-write the entire web based app but keep apps functionality. This is so that it is easier and more intuitive to code in Sigma16 with the web based app. 
+Sigma17 is a re-write of the original emulator written by John O' Donnell. The overall aim of Sigma17 is to re-write the entire web based app but keep apps functionality. This is so that it is easier and more intuitive to code in Sigma16 with the web based app. 
 
 Sigma16 is a computer architecture designed for research and teaching in computer systems.  This application aims to provide a complete environment for experimenting with the architecture.
 
@@ -59,11 +59,12 @@ This will start the local React.js development server and should open a windown 
 * √ - Add window to show register, memory and I/O
 * √ - Add highlighting of lines being and have been executed in memory
 * √ - Add line by line exectuting ability
-* Change input button on debug page
-* Allow input to be displayed
-* Allow input to persist between pages
-* Addd double click back to output box
-* Show code chunk with highlighting of lines being exectued
+* √ - Change input button on debug page
+* √ - Allow input to be displayed
+* √ - Allow input to persist between pages
+* √ - Add double click back to output box
+* √ - Show code chunk of currently being executed program
+* √ - Display highlighting of lines being exectued in code chunk
 
 5. Clean-Up
 * Write testing framework for/how to set tests out

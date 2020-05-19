@@ -41,20 +41,22 @@ buffer data $0048
   data $0021`;
 
     this.state.breakpoints = [];
+    this.state.input = '';
 
   }
   render() {
     var stateCode = this.state.code;
     var stateBreakpoints = this.state.breakpoints;
+    var stateInput = this.state.input;
 
     return (
       <React.Fragment>
         <HashRouter>
           <Switch>
-            <AppliedRoute exact path="/" component={HomeView} props={{code : stateCode, breakpoints : stateBreakpoints}}/>
-            <AppliedRoute exact path="/documentation" component={DocumentationView} props={{code : stateCode, breakpoints : stateBreakpoints}}/>
-            <AppliedRoute exact path="/editor" component={ProgramEditorView} props={{code : stateCode, breakpoints : stateBreakpoints}}/>
-            <AppliedRoute exact path="/debug" component={ProgramDebugView} props={{code : stateCode, breakpoints : stateBreakpoints}}/>
+            <AppliedRoute exact path="/" component={HomeView} props={{code : stateCode, breakpoints : stateBreakpoints, input : stateInput}}/>
+            <AppliedRoute exact path="/documentation" component={DocumentationView} props={{code : stateCode, breakpoints : stateBreakpoints, input : stateInput}}/>
+            <AppliedRoute exact path="/editor" component={ProgramEditorView} props={{code : stateCode, breakpoints : stateBreakpoints, input : stateInput}}/>
+            <AppliedRoute exact path="/debug" component={ProgramDebugView} props={{code : stateCode, breakpoints : stateBreakpoints, input : stateInput}}/>
           </Switch>
         </HashRouter>
       </React.Fragment>
