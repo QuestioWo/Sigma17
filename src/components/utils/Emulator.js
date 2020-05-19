@@ -829,12 +829,16 @@
         // div
         instructionWords = 1;
 
-        if ( RbValue !== 0 ) {          
+        if ( RbValue !== 0 ) {
           registers[Rd] = Math.floor( RaValue / RbValue );
-          registers[15] = RaValue % RbValue
+          if ( Rd !== 15 ) {
+            registers[15] = RaValue % RbValue
+          }
         } else {
           registers[Rd] = RaValue;
-          registers[15] = 0
+          if ( Rd !== 15 ) {
+            registers[15] = 0
+          }
         }
 
         break;
