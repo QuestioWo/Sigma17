@@ -13,7 +13,8 @@ export default class DocumentationView extends React.Component {
 
     this.state = {
       code : '',
-      breakpoints : []
+      breakpoints : [],
+      input : ''
     };
   }
 
@@ -21,9 +22,11 @@ export default class DocumentationView extends React.Component {
     if ( this.props.location.state ) {
       this.setState( { code : this.props.location.state.code } );
       this.setState( { breakpoints : this.props.location.state.breakpoints } );
+      this.setState( { input : this.props.location.state.input } );
     } else if ( this.props.code !== undefined ) {
       this.setState( { code : this.props.code } );
       this.setState( { breakpoints : this.props.breakpoints } );
+      this.setState( { input : this.props.input } );
     }
   }
 

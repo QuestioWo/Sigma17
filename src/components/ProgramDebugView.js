@@ -3,8 +3,9 @@ import React from 'react';
 import 'codemirror/lib/codemirror.css';
 import './ProgramDebugView.css';
 
-import { Alert, Button, ButtonGroup, Col, InputGroup, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
-import { FaPlay, FaBackward, FaStepForward, FaTimes } from 'react-icons/fa';
+import { Alert, Button, ButtonGroup, Col, InputGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
+import { FaBackward, FaCheck, FaPen, FaPlay, FaStepForward, FaTimes } from 'react-icons/fa';
+import CodeMirror from 'react-codemirror';
 
 import * as Emulator from './utils/Emulator';
 
@@ -19,9 +20,13 @@ export default class ProgramDebugView extends React.Component {
       code : '',
       breakpoints : [],
 
+      highlightedCodeChunk : true,
+
       alertShow : false,
       alertMessage : '',
       alertNature : 'success',
+
+      inputModalShow : false,
 
       machineCode : [],
 
@@ -61,7 +66,9 @@ export default class ProgramDebugView extends React.Component {
 
       breakpointsMachineCode : [],
 
-      halted : false
+      halted : false,
+
+      inputRan : ''
     };
   }
 
@@ -74,12 +81,16 @@ export default class ProgramDebugView extends React.Component {
 
       this.setState( { code : this.props.location.state.code } );
       this.setState( { breakpoints : this.props.location.state.breakpoints } );
+      this.setState( { input : this.props.location.state.input } );
+      this.setState( { inputRan : this.props.location.state.input } );
     } else if ( this.props.code !== undefined ) {
       code = this.props.code;
-      code = this.props.code;
+      breakpoints = this.props.breakpoints;
 
       this.setState( { code : this.props.code } );
       this.setState( { breakpoints : this.props.breakpoints } );
+      this.setState( { input : this.props.input } );
+      this.setState( { inputRan : this.props.input } );
     }
     var machineCode = this.parseCode( code, breakpoints );
 
@@ -87,9 +98,59 @@ export default class ProgramDebugView extends React.Component {
   }
 
 // BREAKPOINTS
+  breakpointsColumn( code ) {
+    var breakpoints = [];
+    var lines = code.split( '\n' );
+
+    var codeAreaWrapper = document.getElementById( 'code-area-wrapper' );
+
+    if ( codeAreaWrapper ) {
+      codeAreaWrapper.style.height = ( 25 * ( lines.length ) ) + 8 + 'px';
+
+      for ( var i = 0; i < lines.length; i++ ) {
+        var yOffset = 25 * ( i + 0.5 );
+        var styleTop = yOffset + 3 +'px';
+
+        var id = 'breakpoint ' + ( i + 1 );
+        var className = 'breakpoint ' + ( i + 1 );
+
+        if ( this.state.breakpoints.includes( i + 1 ) ) {
+          className = className + ' active';
+        }
+        
+        breakpoints.push( 
+          <div 
+            key={id}
+            id={id} 
+            className={className} 
+            style={{top : styleTop}} 
+            onClick={this.breakpointOnClick}/>
+        );
+      }
+      return breakpoints;
+    }
+  }
+
+  breakpointOnClick = breakpoint => {
+    var breakpoints = this.state.breakpoints;
+
+    if ( breakpoint.currentTarget.classList.contains( 'active' ) ) {
+      breakpoint.currentTarget.classList.remove( 'active' );
+      var index = breakpoints.indexOf( Number( breakpoint.currentTarget.id.slice( 'breakpoint '.length, breakpoint.currentTarget.id.length ) ) );
+      breakpoints.splice( index, 1 );
+    } else {
+      breakpoint.currentTarget.classList.add( 'active' );
+      breakpoints.push( Number( breakpoint.currentTarget.id.slice( 'breakpoint '.length, breakpoint.currentTarget.id.length ) ) );
+    }
+
+    this.setState( { breakpoints : breakpoints } );
+    this.parseCode( this.state.code, breakpoints );
+  }
+
   disableBreakpoints = button => {
     this.setState( { breakpoints : [] } );
     this.setState( { breakpointsMachineCode : [] } );
+    this.parseCode( this.state.code, [] );
   }
 
 // REGISTER/MEMORY METHODS
@@ -117,6 +178,19 @@ export default class ProgramDebugView extends React.Component {
 
     return controls;
   }
+  //
+  inputColumn() {
+    return ( 
+      <div style={{height:'100%', width:'100%'}}>
+        <InputGroup 
+          className='input-area'
+          as='textarea'
+          value={this.state.inputRan}
+          //onClick={this.resizeOutput}
+          disabled/>
+      </div>
+    );
+  } 
   //
   registerColumn() {
     var registers = [];
@@ -160,7 +234,7 @@ export default class ProgramDebugView extends React.Component {
           className='output-area'
           as='textarea'
           value={this.state.output}
-          onClick={this.resizeOutput}
+          //onClick={this.resizeOutput}
           disabled/>
       </div>
     );
@@ -218,6 +292,35 @@ export default class ProgramDebugView extends React.Component {
 
   closeAlert = alert => {
     this.setState( { alertShow : false } );
+  }
+
+// CODE CHUNK METHODS
+  createLineNumberColumn() {
+    var linesOfCode = this.state.code.split( '\n' ).length;
+    var result = [];
+
+    var lineNoWidth = '21px';
+
+    var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
+
+    if ( lineNoWidthLength > 2 ) {
+      lineNoWidth = ( ( lineNoWidthLength * 7 ) + 7 ) + 'px';
+    }
+
+    for ( var i = 0; i < linesOfCode; i++ ) {
+      var yOffset = 25 * ( i + 0.5 );
+
+      result.push(
+        <div
+          key={'line-number ' + ( i + 1 )} 
+          className='line-number'
+          style={{top:{yOffset}, width:lineNoWidth}}>
+          {i + 1}
+        </div>
+      );
+    }
+
+    return result;
   }
 
 // CHECKING METHOD
@@ -334,6 +437,7 @@ export default class ProgramDebugView extends React.Component {
       }
 
       this.updateAlert( 'Built unsuccesfully, correct syntax errors at line(s): ' + keysString, 'danger' );
+      this.setState( { halted : true } );
     }
 
     return machineCode;
@@ -397,7 +501,7 @@ export default class ProgramDebugView extends React.Component {
       var localControl = this.state.cpuControl;
       var localRegisters = this.state.registers;
       var localMemory = Emulator.setMemory( this.state.machineCode );
-      var localInput = this.state.input;
+      var localInput = this.state.inputRan;
       var localOutput = this.state.output;
 
       var lastRanLine = this.state.activeLine;
@@ -428,6 +532,7 @@ export default class ProgramDebugView extends React.Component {
       this.setState( { cpuControl : localControl } );
       this.setState( { registers : localRegisters } );
       this.setState( { memory : localMemory } );
+      this.setState( { inputRan : localInput } );
       this.setState( { output : localOutput } );
 
       this.setState( { lastLine : lastRanLine } );
@@ -435,6 +540,7 @@ export default class ProgramDebugView extends React.Component {
       this.setState( { halted : ran['halted'] } );
     } else {
       this.updateAlert( canRun, 'danger' );
+      this.setState( { halted : true } );
     }
   }
 
@@ -443,48 +549,106 @@ export default class ProgramDebugView extends React.Component {
       halted : false
     };
 
-    var localControl = this.state.cpuControl;
-    var localRegisters = this.state.registers;
-    var localMemory = Emulator.setMemory( this.state.machineCode );
-    var localInput = this.state.input;
-    var localOutput = this.state.output;
+    if ( this.state.machineCode.length !== 0 ) {
+      var localControl = this.state.cpuControl;
+      var localRegisters = this.state.registers;
+      var localMemory = Emulator.setMemory( this.state.machineCode );
+      var localInput = this.state.inputRan;
+      var localOutput = this.state.output;
 
-    ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
+      ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
 
-    localControl = ran['control'];
-    localRegisters = ran['registers'];
-    localMemory = ran['memory'];
-    localInput = ran['input'];
-    localOutput = ran['output'];
+      localControl = ran['control'];
+      localRegisters = ran['registers'];
+      localMemory = ran['memory'];
+      localInput = ran['input'];
+      localOutput = ran['output'];
 
-    // if ran out of commands
-    if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
+      // if ran out of commands
+      if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
 
-    this.setState( { cpuControl : localControl } );
-    this.setState( { registers : localRegisters } );
-    this.setState( { memory : localMemory } );
-    this.setState( { output : localOutput } );
+      this.setState( { cpuControl : localControl } );
+      this.setState( { registers : localRegisters } );
+      this.setState( { memory : localMemory } );
+      this.setState( { inputRan : localInput } );
+      this.setState( { output : localOutput } );
 
-    this.setState( { lastLine : this.state.activeLine } );
-    this.setState( { activeLine : localControl['pc'] } );
-    this.setState( { halted : ran['halted'] } );
+      this.setState( { lastLine : this.state.activeLine } );
+      this.setState( { activeLine : localControl['pc'] } );
+      this.setState( { halted : ran['halted'] } );
+    } else {
+      // machine language is blank
+      this.updateAlert( 'Cannot run no code. Try building then running', 'danger' );
+      this.setState( { halted : true } );
+    }
   }
 
   resetDebug = button => {
     this.resetCPUandMemory();
 
     this.setState( { memory : Emulator.setMemory( this.state.machineCode ) } );
+
+    this.setState( { inputRan : this.state.input } );
     
     this.setState( { lastLine : 0 } );
     this.setState( { activeLine : 0 } );
     this.setState( { halted : false } );
   }
 
+// INPUT MODAL METHODS
+  setInput = button => {
+    this.setState( { inputModalShow : true } );
+  }
+
+  inputUpdate = textarea => {
+    this.setState( { input : textarea.target.value } );
+    this.setState( { inputRan : textarea.target.value } );
+
+    this.resetDebug();
+  }
+
+  inputModalClose = modal => {
+    this.setState( { inputModalShow : false } );
+  }
+
+// HIGHLIGHTING METHODS
+  toggleHighlighting = button => {
+    this.setState( { highlightedCodeChunk : !( this.state.highlightedCodeChunk ) } );
+  }
+
 // RENDER
   render() {
     return(
       <React.Fragment>
-        <NavBar state={{code : this.state.code, breakpoints : this.state.breakpoints}}/>
+        <NavBar state={{code : this.state.code, breakpoints : this.state.breakpoints, input : this.state.input}}/>
+
+        <Modal
+          show={this.state.inputModalShow}
+          onHide={this.inputModalClose}
+          dialogClassName="inputmodal"
+          animation={false} >
+          <Modal.Header closeButton>
+            <Modal.Title>
+              Set Input
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className='input-modal-column'>
+              <InputGroup
+                as='textarea'
+                className='input-modal-input'
+                value={this.state.input}
+                onChange={this.inputUpdate}
+                autoFocus/>
+            </div>
+            <div style={{paddingTop : '15px'}}>
+              <Button variant='outline-secondary' onClick={this.inputModalClose} style={{float : 'right'}}>
+                Set Input
+              </Button>
+            </div>
+          </Modal.Body>
+        </Modal>
+
         <div className="mainbody">
           <Alert variant={this.state.alertNature} onClose={this.closeAlert} show={this.state.alertShow} dismissible>
             <p className='alertbody'>
@@ -494,6 +658,17 @@ export default class ProgramDebugView extends React.Component {
           <Row className='buttontoolbar'>
             <Col>
               <ButtonGroup>
+                <OverlayTrigger
+                  placement={'top'}
+                  overlay={
+                    <Tooltip>
+                      {`Set input`}
+                    </Tooltip>
+                  }>
+                  <Button variant='outline-secondary' size='sm' onClick={this.setInput}>
+                    <FaPen/>
+                  </Button>
+                </OverlayTrigger>
                 <OverlayTrigger
                   placement={'top'}
                   overlay={
@@ -543,16 +718,36 @@ export default class ProgramDebugView extends React.Component {
                 </Button>
               </OverlayTrigger>
             </Col>
+            <Col>
+              <OverlayTrigger
+                key={`highlighting-tooltip`}
+                placement={'top'}
+                overlay={
+                  <Tooltip>
+                    {`Toggle highlighting
+                    improves speed if disabled`}
+                  </Tooltip>
+                }>
+                <Button variant='outline-secondary' size='sm' onClick={this.toggleHighlighting} active={this.state.highlightedCodeChunk}>
+                  <FaCheck/>
+                </Button>
+              </OverlayTrigger>
+            </Col>
           </Row>
           <Row>
             <Col>
               <h6>
-                Control/Registers
+                Control/Registers/Input
               </h6>
             </Col>
             <Col>
               <h6>
                 Memory/Output
+              </h6>
+            </Col>
+            <Col>
+              <h6>
+                Code ( read-only )
               </h6>
             </Col>
           </Row>
@@ -564,13 +759,45 @@ export default class ProgramDebugView extends React.Component {
               <div id='register-column' className='register-column'>
                 {this.registerColumn()}
               </div>
+              <div id='input-column' className='input-column'>
+                {this.inputColumn()}
+              </div>
             </Col>
-            <Col>
-              <div id='memory-column' className='memory-column'>
+            <Col style={{borderRight:'2px solid #eaeef3'}}>
+              <div id='memory-column big' className='memory-column big'>
                 {this.memoryColumn()}
               </div>
               <div id='output-column' className='output-column' onDoubleClick={this.resizeOutput}>
                 {this.outputColumn()}
+              </div>
+            </Col>
+            <Col>
+              <div id='code-area viewing' className='code-area viewing'> 
+                <div id='code-area-wrapper' className='code-area-wrapper'>
+                  <div id='breakpoint-column' className='breakpoint-column'>
+                    {this.breakpointsColumn(this.state.code)}
+                  </div>
+                  <div className='line-number-column'>
+                    {this.createLineNumberColumn()}
+                  </div>
+                  { this.state.code &&
+                    <React.Fragment>
+                      { this.state.highlightedCodeChunk ?
+                        <CodeMirror
+                          className=' debug'
+                          mode='sigma16'
+                          value={this.state.code} 
+                          options={{ readOnly : true, lineNumbers : false, scrollbarStyle: "null" }}/>
+                      : 
+                        <InputGroup
+                          as='textarea'
+                          className='code-chunk-column viewing'
+                          value={this.state.code}
+                          disabled/>
+                      }
+                    </React.Fragment>
+                  }
+                </div>
               </div>
             </Col>
           </Row>
