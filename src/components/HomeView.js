@@ -62,6 +62,15 @@ export default class DocumentationView extends React.Component {
               This web based IDE is not to be used in complete replacement the orignal written by John O'Donnel as it has properties of it which could mean that programs written using this emulator <strong>will not work</strong> with the orignal and could lead to repurcussions because of it.
             </Col>
           </Row>
+          <Row>
+            <Col>
+              <div className="click-editor">
+                <a href="https://github.com/QuestioWo/Sigma17">
+                  View Source Directory on GitHub
+                </a>
+              </div>
+            </Col>
+          </Row>
         </div>
       </React.Fragment>
     );
