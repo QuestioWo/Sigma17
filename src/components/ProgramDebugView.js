@@ -74,7 +74,9 @@ export default class ProgramDebugView extends React.Component {
       lineToMemory : {},
 
       showCodeChunk : true,
-      renderCodeChunk : true
+      renderCodeChunk : true,
+
+      outputModalShow : false
     };
   }
 
@@ -189,12 +191,11 @@ export default class ProgramDebugView extends React.Component {
   //
   outputColumn() {
     return ( 
-      <div style={{height:'100%', width:'100%'}}>
+      <div style={{height:'100%', width:'100%'}} onDoubleClick={this.outputModalOpen}>
         <InputGroup 
           className='output-area'
           as='textarea'
           value={this.state.output}
-          //onClick={this.resizeOutput}
           disabled/>
       </div>
     );
@@ -730,7 +731,7 @@ export default class ProgramDebugView extends React.Component {
     this.setState( { halted : false } );
   }
 
-// INPUT MODAL METHODS
+// MODAL METHODS
   setInput = button => {
     this.setState( { inputModalShow : true } );
   }
@@ -744,6 +745,14 @@ export default class ProgramDebugView extends React.Component {
 
   inputModalClose = modal => {
     this.setState( { inputModalShow : false } );
+  }
+
+  outputModalOpen = textarea => {
+    this.setState( { outputModalShow : true } );
+  }
+
+  outputModalClose = modal => {
+    this.setState( { outputModalShow : false } );
   }
 
 // RENDER
@@ -775,6 +784,27 @@ export default class ProgramDebugView extends React.Component {
               <Button variant='outline-secondary' onClick={this.inputModalClose} style={{float : 'right'}}>
                 Set Input
               </Button>
+            </div>
+          </Modal.Body>
+        </Modal>
+
+        <Modal
+          show={this.state.outputModalShow}
+          onHide={this.outputModalClose}
+          dialogClassName="outputmodal"
+          animation={false} >
+          <Modal.Header closeButton>
+            <Modal.Title>
+              Output
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div onDoubleClick={this.outputModalClose} className='output-column' style={{height:'518px', width:'100%'}}>
+              <InputGroup
+                as='textarea'
+                className='output-area'
+                value={this.state.output}
+                disabled/>
             </div>
           </Modal.Body>
         </Modal>

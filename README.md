@@ -62,9 +62,9 @@ This will start the local React.js development server and should open a windown 
 * √ - Change input button on debug page
 * √ - Allow input to be displayed
 * √ - Allow input to persist between pages
-* Add double click back to output box
+* √ - Add double click back to output box
 * √ - Show code chunk of currently being executed program
-* Display highlighting of lines being exectued in code chunk
+* √ - Display highlighting of lines being exectued in code chunk
 
 5. Clean-Up
 * Write testing framework for/how to set tests out
