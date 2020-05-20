@@ -43,7 +43,7 @@
   width: 100px;
   height: 25px;
   position: absolute;
-  opacity: 25%;
+  opacity: 0.25;
 }
 
 .line-overlay.active {
