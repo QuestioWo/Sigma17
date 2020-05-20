@@ -49,6 +49,7 @@ This will start the local React.js development server and should open a windown 
 * √ - Implement all `RX`/`JX`/`KX` functions
 * √ - Implement '`jumpAlias`' functions
 * √ - Implement full function of `trap` instruction
+* Check that R15 updates correctly for each arithmetic `RRR` function.
 * Implement all `EXP` functions
 * √ - Small rewrite to use binary checking instead of string checking to increase performance further
 * √ - Link to webpage
@@ -72,6 +73,7 @@ This will start the local React.js development server and should open a windown 
 * Write documentation that outlines function calls, i.e how to debug as an outsider.
 * √ - Set up `githib.io` page for emulator
 * √ - Write 'Hello, World!' program to be default display
+* Add download/copy buttons for machine code and Sigma16 code versions of the program on the editor.
 
 ## Author
 
