@@ -291,7 +291,7 @@ export default class ProgramDebugView extends React.Component {
     }
 
     this.setState( { breakpoints : breakpoints } );
-    this.parseCode( this.state.code, breakpoints );
+    this.parseForBreakpoints( this.state.code, breakpoints );
   }
 
   disableBreakpoints = button => {
@@ -318,11 +318,15 @@ export default class ProgramDebugView extends React.Component {
       var yOffset = 25 * ( i + 0.5 );
 
       if ( this.state.lineToMemory[i] ) {
-        var parsedMachineCodeString = Emulator.writeHex( this.state.memory[ this.state.lineToMemory[i][0] ] );
+        var parsedMachineCodeStringStart = Emulator.writeHex( this.state.lineToMemory[i][0] );
+        var parsedMachineCodeStringCodes = Emulator.writeHex( this.state.memory[ this.state.lineToMemory[i][0] ] );
 
         if ( this.state.lineToMemory[i][1] ) {
-          parsedMachineCodeString += ', ' + Emulator.writeHex( this.state.memory[ this.state.lineToMemory[i][1] ] );
+          parsedMachineCodeStringStart += ', ' + Emulator.writeHex( this.state.lineToMemory[i][1] );
+          parsedMachineCodeStringCodes += ', ' + Emulator.writeHex( this.state.memory[ this.state.lineToMemory[i][1] ] );
         }
+
+        var parsedMachineCodeString = parsedMachineCodeStringStart + ' | ' + parsedMachineCodeStringCodes;
 
         result.push(
           <OverlayTrigger
@@ -577,6 +581,41 @@ export default class ProgramDebugView extends React.Component {
     }
 
     return machineCode;
+  }
+
+  parseForBreakpoints( code, breakpoints ) {
+    var check = this.checkCode( code );
+
+    if ( check[0] ) {
+      var linesOfCode = code.split( '\n' ).length;
+
+      var breakpointsMachineCode = [];
+
+      for ( var i = 0; i < breakpoints.length; i++ ) {
+        for ( var it = 0; it < linesOfCode; it++ ) {
+          if ( ( it + 1 ) >= breakpoints[i] && this.state.lineToMemory[it] ) {
+            breakpointsMachineCode.push( this.state.lineToMemory[it][0] );
+            break;
+          }
+        }
+      }
+
+      this.setState( { breakpointsMachineCode : breakpointsMachineCode } );
+    } else {
+      var keys = Object.keys( check[1] )
+      var keysString = '';
+
+      for ( var ite = 0; ite < keys.length; ite++ ) {
+        if ( ite !== 0 ) {
+          keysString += ', '
+        }
+
+        keysString += keys[ite];
+      }
+
+      this.updateAlert( 'Built unsuccesfully, correct syntax errors at line(s): ' + keysString, 'danger' );
+      this.setState( { halted : true } );
+    }
   }
 
 // RUNNING METHODS
