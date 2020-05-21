@@ -99,12 +99,12 @@
       jump : 3
     };
     const jumpAliasCommands = { // 4 is jumpc0, 5 is jumpc1
-      jumplt : [ 5, 11 ],
-      jumple : [ 4, 15 ],
-      jumpne : [ 4, 13 ],
-      jumpeq : [ 5, 13 ],
-      jumpge : [ 4, 11 ],
-      jumpgt : [ 5, 15 ]
+      jumplt : [ 5, 4 ],
+      jumple : [ 4, 0 ],
+      jumpne : [ 4, 2 ],
+      jumpeq : [ 5, 2 ],
+      jumpge : [ 4, 4 ],
+      jumpgt : [ 5, 0 ]
     };
     const kxCommands = {
       jumpc0 : 4,
@@ -1139,13 +1139,13 @@
 
       case 0x4 :
         // jumpc0
-        if ( ( registers[15] & Math.pow( 2, Rd ) ) === 0 ) control['pc'] = effectiveADR;
+        if ( ( registers[15] & Math.pow( 2, ( 15 - Rd ) ) ) === 0 ) control['pc'] = effectiveADR;
 
         break;
 
       case 0x5 :
         // jumpc1
-        if ( ( registers[15] & Math.pow( 2, Rd ) ) > 0 ) control['pc'] = effectiveADR;
+        if ( ( registers[15] & Math.pow( 2, ( 15 - Rd ) ) ) > 0 ) control['pc'] = effectiveADR;
 
         break;
 

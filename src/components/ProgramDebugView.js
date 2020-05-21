@@ -413,7 +413,7 @@ export default class ProgramDebugView extends React.Component {
       lineNoWidth = ( lineNoWidth + 25 ) + 'px'; //25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
 
       return(
-        <div style={{marginTop : heightOfOverlay, marginLeft : lineNoWidth}} className='line-overlay active'/>
+        <div style={{marginTop : heightOfOverlay, marginLeft : lineNoWidth}} className='line-overlay last'/>
       );
     }
   }
