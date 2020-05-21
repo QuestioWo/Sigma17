@@ -1206,11 +1206,21 @@
 
       case 0x8 :
         // save
+        var effectiveADR = registers[Rd] + gh;
+
+        for ( var i = e; i <= f; i++ ) {
+          memory[effectiveADR + ( i - e )] = registers[i];
+        }
 
         break;
 
       case 0x9 :
         // restore
+        var effectiveADR = registers[Rd] + gh;
+
+        for ( var i = e; i <= f; i++ ) {
+          registers[i] = memory[effectiveADR + ( i - e )];
+        }
 
         break;
 
