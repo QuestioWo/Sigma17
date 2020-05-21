@@ -40,7 +40,8 @@
 
 .line-overlay {
   pointer-events: none;
-  width: 100px;
+  width: 100%;
+  box-sizing: border-box;
   height: 25px;
   position: absolute;
   opacity: 0.25;

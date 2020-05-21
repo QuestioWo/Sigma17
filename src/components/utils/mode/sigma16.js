@@ -14,7 +14,8 @@
 
     const allCommands = ["add", "sub", "mul", "div", "cmp", "cmplt", "cmpeq", "cmpgt", "inv", "and", "or", "xor", "trap", 
                         "lea", "load", "store", "jump", "jumpc0", "jumpc1", "jumpf", "jumpt", "jal", "testset", "jumplt", "jumple", "jumpne", "jumpeq", "jumpge", "jumpgt",
-                        "data"];
+                        "data",
+                        "rfi", "save", "restore", "getctl", "putctl", "exectute", "push", "pop", "top", "shiftl", "shiftr", "extract", "extracti", "inject", "injecti", "logicw", "logicb", "getbit", "getbiti", "putbit", "putbiti"];
 
     CodeMirror.registerHelper("hintWords", "sigma16", allCommands);
 
