@@ -272,7 +272,7 @@
 // CHECKING METHODS
   function checkRRCommand( rr ) {
     // check that rrr is in the form of rd,ra,rb
-    if ( !( /r((1[0-5])|([0-9])),r((1[0-5])|([0-9]))/.test( rr ) ) ) {
+    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9]))$/.test( rr ) ) ) {
       return 'arguments must be in the form of "Ra,Rb"';
     }
     return true;
@@ -280,7 +280,7 @@
 
   function checkRRRCommand( rrr ) {
     // check that rrr is in the form of rd,ra,rb
-    if ( !( /r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9]))/.test( rrr ) ) ) {
+    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9]))$/.test( rrr ) ) ) {
       return 'arguments must be in the form of "Rd,Ra,Rb"';
     }
     return true;
@@ -288,7 +288,7 @@
 
   function checkJXCommand( jx, labels ) {
     // check that jx is in the form of disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( /((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]/.test( jx ) ) ) {
+    if ( !( /^((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]$/.test( jx ) ) ) {
       return 'arguments must be in the form of "disp[Ra]"';
     }
     var disp = jx.split( '[' )[0];
@@ -304,7 +304,7 @@
 
   function checkKXCommand( kx, labels ) {
     // check that kx is in the form of k,disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( /((\$((\d)|([a-f]))+)|(\d)),((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]/.test( kx ) ) ) {
+    if ( !( /^((\$((\d)|([a-f]))+)|(\d)),((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]$/.test( kx ) ) ) {
       return 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument';
     }
     var splat = kx.split( ',' );
@@ -326,7 +326,7 @@
 
   function checkRXCommand( rx, labels ) {
     // check that rx is in the form of rd,disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( /r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]/.test( rx ) ) ) {
+    if ( !( /^r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]$/.test( rx ) ) ) {
       return 'arguments must be in the form of "Rd,disp[Ra]"';
     }
     var disp = rx.split( ',' )[1].split( '[' )[0];
@@ -355,7 +355,7 @@
 
   function checkRRXexpCommand( rrx ) {
     // check that rrx is in the form of re,rf,disp[rd], where disp can be either hex, or a decimal integer 
-    if ( !( /r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+\[r((1[0-5])|([0-9]))\]/.test( rrx ) ) ) {
+    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+\[r((1[0-5])|([0-9]))\]$/.test( rrx ) ) ) {
       return 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed';
     }
     var disp = rrx.split( ',' )[2].split( '[' )[0];
@@ -369,7 +369,7 @@
 
   function checkRCexpCommand( rc ) {
     // check that rc is in the form of rd,controlRegister, where controlRegister can be pc, ir, or adr
-    if ( !( /r((1[0-5])|([0-9])),((ir)|(pc)|(adr))/.test( rc ) ) ) {
+    if ( !( /^(r((1[0-5])|([0-9])),((ir)|(pc)|(adr)))$/.test( rc ) ) ) {
       return 'arguments must be in the form of "Rd,controlRegisterName"';
     }
 
@@ -378,7 +378,7 @@
 
   function checkRRKexpCommand( rrk ) {
     // check that rrk is in the form of re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 255
-    if ( !( /r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+/.test( rrk ) ) ) {
+    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rrk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,gh", negative integers not allowed';
     }
     var gh = rrk.split( ',' )[2];
@@ -391,7 +391,7 @@
 
   function checkRRKKexpCommand( rrkk ) {
     // check that rrkk is in the form of rd,re,g,h, where g and h can be either hex, or a decimal integer between 0 and 15
-    if ( !( /r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+/.test( rrkk ) ) ) {
+    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rrkk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed';
     }
     var splat = rrkk.split( ',' );
@@ -409,7 +409,7 @@
 
   function checkRRRKKexpCommand( rrrkk ) {
     // check that rrrkk is in the form of rd,re,rf,g,h, where g and h can be either hex, or a decimal integer between 0 and 15
-    if ( !( /r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+/.test( rrrkk ) ) ) {
+    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rrrkk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed';
     }
     var splat = rrrkk.split( ',' );
@@ -427,7 +427,7 @@
 
   function checkRRRKexpCommand( rrrk ) {
     // check that rrrk is in the form of rd,re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 255
-    if ( !( /r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+/.test( rrrk ) ) ) {
+    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rrrk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,Rf,gh", negative integers not allowed';
     }
     var splat = rrrk.split( ',' );
@@ -1186,10 +1186,10 @@
   function processEXPInstruction( control, registers, memory, Rd, Ra, Rb, adr ) {
     var ab = ( Ra * thirdColumn ) + Rb;
 
-    var e = Math.floor( adr / firstColumn );
-    var f = Math.floor( ( adr - ( e * firstColumn ) ) / secondColumn );
+    var Re = Math.floor( adr / firstColumn );
+    var Rf = Math.floor( ( adr - ( Re * firstColumn ) ) / secondColumn );
 
-    var gh = Math.floor( adr - ( f * secondColumn ) - ( e * firstColumn ) );
+    var gh = Math.floor( adr - ( Rf * secondColumn ) - ( Re * firstColumn ) );
 
     var g = Math.floor( gh / thirdColumn );
     var h = Math.floor( ( gh - ( g * thirdColumn ) ) / fourthColumn );
@@ -1199,43 +1199,78 @@
     switch ( ab ) {
       case 0x0 :
         // rfi
-
+        instructionWords = 1;
         // currently nop as no system registers to be affected
 
         break;
 
       case 0x8 :
         // save
+        instructionWords = 2;
         var effectiveADR = registers[Rd] + gh;
 
-        for ( var i = e; i <= f; i++ ) {
-          memory[effectiveADR + ( i - e )] = registers[i];
+        for ( var i = Re; i <= Rf; i++ ) {
+          memory[effectiveADR + ( i - Re )] = registers[i];
         }
 
         break;
 
       case 0x9 :
         // restore
+        instructionWords = 2;
         var effectiveADR = registers[Rd] + gh;
 
-        for ( var i = e; i <= f; i++ ) {
-          registers[i] = memory[effectiveADR + ( i - e )];
+        for ( var it = Re; it <= Rf; it++ ) {
+          registers[it] = memory[effectiveADR + ( it - Re )];
         }
 
         break;
 
       case 0xa :
         // getctl
-        
+        instructionWords = 2;
+        switch ( g ) {
+          case 1 :
+            registers[Rd] = control['pc'];
+            break;
+
+          case 2 :
+            registers[Rd] = control['ir'];
+            break;
+
+          case 3 :
+            registers[Rd] = control['adr'];
+            break;
+
+          default :
+            break;
+        }
         break;
 
       case 0xb :
         // putctl
-        
+        instructionWords = 2;
+        switch ( g ) {
+          case 1 :
+            control['pc'] = registers[Rd];
+            break;
+
+          case 2 :
+            control['ir'] = registers[Rd];
+            break;
+
+          case 3 :
+            control['adr'] = registers[Rd];
+            break;
+
+          default :
+            break;
+        }
         break;
 
       case 0xc :
         // execute
+        instructionWords = 2;
 
         // currently nop as not needed and seems like a hack
 
@@ -1243,76 +1278,91 @@
 
       case 0xd :
         // push
-        
+        instructionWords = 2;
+        // currently nop as have not been implemented in original emulator
         break;
 
       case 0xe :
         // pop
-        
+        instructionWords = 2;
+        // currently nop as have not been implemented in original emulator
         break;
 
       case 0xf :
         // top
-        
+        instructionWords = 2;
+        // currently nop as have not been implemented in original emulator
         break;
 
       case 0x10 :
         // shiftl
+        instructionWords = 2;
         
         break;
 
       case 0x11 :
         // shiftr
+        instructionWords = 2;
         
         break;
 
       case 0x12 :
         // extract
+        instructionWords = 2;
 
         break;
 
       case 0x13 :
         // extracti
+        instructionWords = 2;
 
         break;
 
       case 0x14 :
         // inject
+        instructionWords = 2;
 
         break;
 
       case 0x15 :
         // injecti
+        instructionWords = 2;
 
         break;
 
       case 0x16 :
         // logicw
+        instructionWords = 2;
 
         break;
 
       case 0x17 :
         // logicb
+        instructionWords = 2;
 
         break;
 
       case 0x18 :
         // getbit
+        instructionWords = 2;
         
         break;
 
       case 0x19 :
         // getbiti
+        instructionWords = 2;
         
         break;
 
       case 0x1a :
         // putbit
+        instructionWords = 2;
         
         break;
 
       case 0x1b :
         // putbiti
+        instructionWords = 2;
         
         break;
 
