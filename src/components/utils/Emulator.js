@@ -243,29 +243,14 @@
     return ( num <= 15 && num >= 0 ) ? true : false;
   }
 
-  function readSignedHex8Bit( a ) {
-    a = Number( a );
-    if ( ( a & 0x80 ) > 0) {
-      a = a - 0x100;
-    }
-    return a;
-  }
-
-  function readUnsignedHex8Bit( a ) {
-    if ( a < 0 ) {
-      a = a + 0x100;
-    }
-    return a;
-  }
-
   function isValidNumberGH( numString ) {
     var num = 0;
 
     if ( !isNaN( numString ) ) {
-      num = readUnsignedHex8Bit( parseInt( numString ) );
+      num = parseInt( numString );
     } else if ( numString.startsWith( '$' ) ) {
       numString = numString.slice( 1, numString.length );
-      num = readUnsignedHex8Bit( parseInt( numString, 16 ) );
+      num = parseInt( numString, 16 );
     } else {
       num = 16;
     }
@@ -370,8 +355,8 @@
 
   function checkRRXexpCommand( rrx ) {
     // check that rrx is in the form of re,rf,disp[rd], where disp can be either hex, or a decimal integer 
-    if ( !( /r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(-(\d))|(\d))+\[r((1[0-5])|([0-9]))\]/.test( rrx ) ) ) {
-      return 'arguments must be in the form of "Re,Rf,disp[Rd]"';
+    if ( !( /r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+\[r((1[0-5])|([0-9]))\]/.test( rrx ) ) ) {
+      return 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed';
     }
     var disp = rrx.split( ',' )[2].split( '[' )[0];
 
