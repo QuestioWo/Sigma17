@@ -1379,11 +1379,41 @@
         // inject
         instructionWords = 2;
 
+        // Taken from original Sigma16 emulator, from the emulator.js file
+        const shrdist = 15-h+g; // shift ffff right to get right-adjusted field
+        const shldist = 15-h;   // shift left to put field into position
+
+        var radjustedField = 0xffff >>> shrdist;
+        var maskO = radjustedField << shldist; // 1s in the field
+        var mask = (~maskO) & 0xffff; // mask to clear field in e
+        var x = registers[Rf] & radjustedField; // value to be injected
+
+        // if either bit is on in registers[Re] or in x, shifted to the left to fit in correct gap to be injected into
+        // then bit is on
+        var resultInject = (registers[Re] & mask) | (x << shldist) ;
+
+        registers[Rd] = resultInject;
+
         break;
 
       case 0x15 :
         // injecti
         instructionWords = 2;
+
+        // Taken from original Sigma16 emulator, from the emulator.js file
+        const shrdistI = 15-h+g; // shift ffff right to get right-adjusted field
+        const shldistI = 15-h;   // shift left to put field into position
+
+        var radjustedFieldI = 0xffff >>> shrdistI;
+        var maskOI = radjustedFieldI << shldistI; // 1s in the field
+        var maskI = (~maskOI) & 0xffff; // mask to clear field in e
+        var xI = ( registers[Rf] ^ 0xffff ) & radjustedFieldI; // value to be injected
+
+        // if either bit is on in registers[Re] or in x, shifted to the left to fit in correct gap to be injected into
+        // then bit is on
+        var resultInjectI = (registers[Re] & maskI) | (xI << shldistI) ;
+
+        registers[Rd] = resultInjectI;
 
         break;
 
