@@ -69,7 +69,13 @@
     injecti : 'rrrkkEXP',
     logicb : 'rrrkkEXP',
 
-    logicw : 'rrrkEXP'
+    logicw : 'rrrkEXP',
+
+    andb : 'logicAliasRRRK',
+    orb : 'logicAliasRRRK',
+    xorb : 'logicAliasRRRK',
+
+    invb : 'logicAliasRRK'
   };
   
   const firstColumn = Math.pow( 16, 3 );
@@ -177,11 +183,21 @@
     const rrrkkEXPCommands = {
       inject : 0x14,
       injecti : 0x15,
-      logicb : 0x16
+      logicb : 0x17
     };
 
     const rrrkEXPCommands = {
-      logicw : 0x17
+      logicw : 0x16
+    };
+
+    const logicAliasRRRKCommands = {
+      andb : [ 0x17, 1 ],
+      orb : [ 0x17, 7 ],
+      xorb : [ 0x17, 6 ]
+    };
+
+    const logicAliasRRKCommands = {
+      invb : [ 0x17, 0xc ]
     };
 
 // UTIL FUNCTIONS
@@ -468,20 +484,20 @@
   function checkRRRKexpCommand( rrrk ) {
     // check that rrrk is in the form of rd,re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 255
     if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rrrk ) ) ) {
-      return 'arguments must be in the form of "Rd,Re,Rf,gh", negative integers not allowed';
+      return 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed';
     }
     var splat = rrrk.split( ',' );
-    var gh = splat[3];
+    var g = splat[3];
 
-    if ( ! isValidNumberGH( gh ) ) {
-      return 'gh argument must either be a decimal, a hex value between 0 and 255, negative integers not allowed';
+    if ( ! isValidNumberBit( g ) ) {
+      return 'g argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed';
     }
     return true;
   }
 
   function checkCommands( command, argument, labels ) {
     var check = true;
-    switch ( allCommands[command] ) {      
+    switch ( allCommands[command] ) {
       case 'rr' :
         // first word is an rr command
         if ( argument ) { 
@@ -653,6 +669,24 @@
         }
         break;
 
+      case 'logicAliasRRRK' :
+        // first word is an logicAliasRRRK command i.e andb
+        if ( argument ) {
+          check = checkRRRKexpCommand( argument );
+        } else {
+          check = command + ' must be followed by 3 register and 1 constants in form Rx,Rx,Rx,k';
+        }
+        break;
+
+      case 'logicAliasRRK' :
+        // first word is an logicAliasRRK command i.e inv
+        if ( argument ) {
+          check = checkRRKexpCommand( argument );
+        } else {
+          check = command + ' must be followed by 2 register and 1 constants in form Rx,Rx,k';
+        }
+        break;
+
       default :
         check = 'not a valid command with known command type';
         break;
@@ -805,8 +839,20 @@
 
       case 'rrrkEXP' :
         result['words'] = 2;
-        result['type'] = 'exp8'; // one k field to be held as a 8 bit number, needs to be a exp8
+        result['type'] = 'exp4'; // one k field to be held as a 4 bit number, needs to be a exp4
         result['op'] = rrrkEXPCommands[command];
+        break;
+
+      case 'logicAliasRRRK' :
+        result['words'] = 2;
+        result['type'] = 'exp4'; // one k field to be held as a 4 bit number, needs to be a exp4
+        result['op'] = logicAliasRRRKCommands[command][0];
+        break;
+
+      case 'logicAliasRRK' :
+        result['words'] = 2;
+        result['type'] = 'exp4'; // one k field to be held as a 4 bit number, needs to be a exp4
+        result['op'] = logicAliasRRKCommands[command][0];
         break;
 
       default :
@@ -984,7 +1030,26 @@
         result['e'] = Number( argumentListRRRKexp[1].slice( 1, argumentListRRRKexp[1].length ) );
         result['f'] = Number( argumentListRRRKexp[2].slice( 1, argumentListRRRKexp[2].length ) );
         
-        result['gh'] = readConstant( argumentListRRRKexp[3], labels );
+        result['g'] = readConstant( argumentListRRRKexp[3], labels );
+        break;
+
+      case 'logicAliasRRRK' :
+        var argumentListLogicAliasRRRKexp = argument.split( ',' );
+        result['d'] = Number( argumentListLogicAliasRRRKexp[0].slice( 1, argumentListLogicAliasRRRKexp[0].length ) );
+        result['e'] = Number( argumentListLogicAliasRRRKexp[1].slice( 1, argumentListLogicAliasRRRKexp[1].length ) );
+        result['f'] = Number( argumentListLogicAliasRRRKexp[2].slice( 1, argumentListLogicAliasRRRKexp[2].length ) );
+        
+        result['g'] = logicAliasRRRKCommands[command][1];
+        result['h'] = readConstant( argumentListLogicAliasRRRKexp[3], labels );
+        break;
+
+      case 'logicAliasRRK' :
+        var argumentListLogicAliasRRKexp = argument.split( ',' );
+        result['d'] = Number( argumentListLogicAliasRRKexp[0].slice( 1, argumentListLogicAliasRRKexp[0].length ) );
+        result['e'] = Number( argumentListLogicAliasRRKexp[1].slice( 1, argumentListLogicAliasRRKexp[1].length ) );
+        
+        result['g'] = logicAliasRRKCommands[command][1];
+        result['h'] = readConstant( argumentListLogicAliasRRKexp[2], labels );
         break;
 
       default :
@@ -1503,6 +1568,31 @@
       case 0x16 :
         // logicw
         instructionWords = 2;
+
+        switch ( g ) {
+          case 1 :
+            // and
+            registers[Rd] = registers[Re] & registers[Rf];
+            break;
+
+          case 6 :
+            // xor
+            registers[Rd] = registers[Re] ^ registers[Rf];
+            break;
+
+          case 7 :
+            // or
+            registers[Rd] = registers[Re] | registers[Rf];
+            break;
+
+          case 0xc :
+            // inv 
+            registers[Rd] = registers[Re] ^ 0xffff;
+            break;
+
+          default :
+            break;
+        };
 
         break;
 
