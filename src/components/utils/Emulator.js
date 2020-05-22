@@ -1192,7 +1192,7 @@
     var gh = Math.floor( adr - ( Rf * secondColumn ) - ( Re * firstColumn ) );
 
     var g = Math.floor( gh / thirdColumn );
-    var h = Math.floor( ( gh - ( g * thirdColumn ) ) / fourthColumn );
+    // var h = Math.floor( ( gh - ( g * thirdColumn ) ) / fourthColumn );
 
     var instructionWords = 1;
 
@@ -1207,10 +1207,18 @@
       case 0x8 :
         // save
         instructionWords = 2;
-        var effectiveADR = registers[Rd] + gh;
+        var effectiveADRsave = registers[Rd] + gh;
 
-        for ( var i = Re; i <= Rf; i++ ) {
-          memory[effectiveADR + ( i - Re )] = registers[i];
+        var diffSave = 0;
+        if ( Re > Rf ) {
+          diffSave = Math.abs( Re - ( Rf + 16 ) );
+        } else {
+          diffSave = Math.abs( Re - Rf );
+        }
+
+        for ( var i = Re; i <= ( Re + diffSave ); i++ ) {
+          var regNoSave = i % 16;
+          memory[effectiveADRsave + ( i - Re )] = registers[regNoSave];
         }
 
         break;
@@ -1218,10 +1226,18 @@
       case 0x9 :
         // restore
         instructionWords = 2;
-        var effectiveADR = registers[Rd] + gh;
+        var effectiveADRrestore = registers[Rd] + gh;
 
-        for ( var it = Re; it <= Rf; it++ ) {
-          registers[it] = memory[effectiveADR + ( it - Re )];
+        var diffRestore = 0;
+        if ( Re > Rf ) {
+          diffRestore = Math.abs( Re - ( Rf + 16 ) );
+        } else {
+          diffRestore = Math.abs( Re - Rf );
+        }
+
+        for ( var it = Re; it <= ( Re + diffRestore ); it++ ) {
+          var regNoRestore = it % 16;
+          registers[regNoRestore] = memory[effectiveADRrestore + ( it - Re )];
         }
 
         break;
@@ -1272,7 +1288,7 @@
         // execute
         instructionWords = 2;
 
-        // currently nop as not needed and seems like a hack
+        // currently nop as not needed and not implemented in original emulator
 
         break;
 
@@ -1408,12 +1424,18 @@
 
         if ( ( registers[Rd] & 0x10000 ) > 0 ) {
           registers[Rd] -= 0x10000;
-          registers[15] = 0b00000101 * secondColumn;
+          if ( Rd !== 15 ) {
+            registers[15] = 0b00000101 * secondColumn;
+          }
         } else {
-          registers[15] = 0;
+          if ( Rd !== 15 ) {
+            registers[15] = 0
+          }
         }
         
-        registers[15] += compareRegisters( registers[Rd], registers[0] );
+        if ( Rd !== 15 ) {
+          registers[15] += compareRegisters( registers[Rd], registers[0] );
+        }
 
         break;
 
@@ -1423,15 +1445,21 @@
         
         if ( RaValue < RbValue ) {
           registers[Rd] = ( RaValue + 0x10000 );
-          registers[15] = 0b00000010 * secondColumn;
+          if ( Rd !== 15 ) {
+            registers[15] = 0b00000010 * secondColumn;
+          }
         } else {
           registers[Rd] = RaValue;
-          registers[15] = 0;
+          if ( Rd !== 15 ) {
+            registers[15] = 0;
+          }
         }
 
         registers[Rd] -= RbValue;
-
-        registers[15] += compareRegisters( registers[Rd], registers[0] );
+        
+        if ( Rd !== 15 ) {
+          registers[15] += compareRegisters( registers[Rd], registers[0] );
+        }
 
         break;
 
@@ -1439,12 +1467,17 @@
         // mul
         instructionWords = 1;
         registers[Rd] = RaValue * RbValue;
-        registers[15] = 0;
+        
+        if ( Rd !== 15 ) {
+          registers[15] = 0;
+        }
 
-        if ( ( registers[Rd] >= 0x10000 ) > 0 ) registers[15] = 0b00000010 * secondColumn;
+        if ( ( registers[Rd] >= 0x10000 ) > 0 && Rd !== 15 ) registers[15] = 0b00000010 * secondColumn;
         while ( ( registers[Rd] >= 0x10000 ) > 0 ) { registers[Rd] -= 0x10000; };
         
-        registers[15] += compareRegisters( registers[Rd], registers[0] );
+        if ( Rd !== 15 ) {
+          registers[15] += compareRegisters( registers[Rd], registers[0] );
+        }
 
         break;
 
