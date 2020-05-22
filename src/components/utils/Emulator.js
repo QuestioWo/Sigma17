@@ -54,10 +54,11 @@
 
     shiftl : 'rrkEXP',
     shiftr : 'rrkEXP',
-    getbit : 'rrkEXP',
-    getbiti : 'rrkEXP',
-    putbit : 'rrkEXP',
-    putbiti : 'rrkEXP',
+
+    getbit : 'rkEXP',
+    getbiti : 'rkEXP',
+    putbit : 'rkEXP',
+    putbiti : 'rkEXP',
 
     extract : 'rrkkEXP',
     extracti : 'rrkkEXP',
@@ -153,11 +154,14 @@
     const rrkEXPCommands = {
       shiftl : 0x10,
       shiftr : 0x11,
+    };
+
+    const rkEXPCommands = {
       getbit : 0x18,
       getbiti : 0x19,
       putbit : 0x1a,
       putbiti : 0x1b,
-    };
+    }
 
     const rrkkEXPCommands = {
       extract : 0x12,
@@ -389,6 +393,19 @@
     return true;
   }
 
+  function checkRKexpCommand( rk ) {
+    // check that rrk is in the form of re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 15
+    if ( !( /^r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rk ) ) ) {
+      return 'arguments must be in the form of "Rd,g", negative integers not allowed';
+    }
+    var g = rk.split( ',' )[1];
+
+    if ( ! isValidNumberBit( g ) ) {
+      return 'g argument must either be a decimal, or a hex value with decimal value between 0 and 15';
+    }
+    return true;
+  }
+
   function checkRRKKexpCommand( rrkk ) {
     // check that rrkk is in the form of rd,re,g,h, where g and h can be either hex, or a decimal integer between 0 and 15
     if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rrkk ) ) ) {
@@ -568,6 +585,15 @@
         }
         break;
 
+      case 'rkEXP' :
+        // first word is an rrkEXP command i.e shiftl
+        if ( argument ) {
+          check = checkRKexpCommand( argument );
+        } else {
+          check = command + ' must be followed by a registers and a constant in form Rx,k';
+        }
+        break;
+
       case 'rrkkEXP' :
         // first word is an rrkkEXP command i.e extract
         if ( argument ) {
@@ -721,6 +747,12 @@
         result['op'] = rrkEXPCommands[command];
         break;
 
+      case 'rkEXP' :
+        result['words'] = 2;
+        result['type'] = 'exp4'; // f will be 0 and h will hold k argument as k only goes upto 15
+        result['op'] = rkEXPCommands[command];
+        break;
+
       case 'rrkkEXP' :
         result['words'] = 2;
         result['type'] = 'exp4'; // two k arguments to be held in g and h fields, needs to be a exp4
@@ -872,6 +904,13 @@
         result['e'] = Number( argumentListRRKexp[1].slice( 1, argumentListRRKexp[1].length ) );
         
         result['g'] = readConstant( argumentListRRKexp[2], labels );
+        break;
+
+      case 'rkEXP' :
+        var argumentListRKexp = argument.split( ',' );
+        result['d'] = Number( argumentListRKexp[0].slice( 1, argumentListRKexp[0].length ) );
+        
+        result['g'] = readConstant( argumentListRKexp[1], labels );
         break;
 
       case 'rrkkEXP' :
@@ -1406,12 +1445,12 @@
 
         var radjustedFieldI = 0xffff >>> shrdistI;
         var maskOI = radjustedFieldI << shldistI; // 1s in the field
-        var maskI = (~maskOI) & 0xffff; // mask to clear field in e
+        var maskI = ( ~maskOI ) & 0xffff; // mask to clear field in e
         var xI = ( registers[Rf] ^ 0xffff ) & radjustedFieldI; // value to be injected
 
         // if either bit is on in registers[Re] or in x, shifted to the left to fit in correct gap to be injected into
         // then bit is on
-        var resultInjectI = (registers[Re] & maskI) | (xI << shldistI) ;
+        var resultInjectI = ( registers[Re] & maskI ) | ( xI << shldistI ) ;
 
         registers[Rd] = resultInjectI;
 
@@ -1433,11 +1472,31 @@
         // getbit
         instructionWords = 2;
         
+        // push bit to the furthest left to remove bits before
+        var bit = registers[15] << g;
+        // remove bits before
+        while ( bit >= 0x10000 ) { bit -= 0x10000; };
+
+        // bit shift back left to furthest left position to remove trailing bits and leave either 1 or 0 to return
+        bit = bit >> 15;
+
+        registers[Rd] = bit;
+
         break;
 
       case 0x19 :
         // getbiti
         instructionWords = 2;
+
+        // push bit to the furthest left to remove bits before
+        var bit = registers[15] << g;
+        // remove bits before
+        while ( bit >= 0x10000 ) { bit -= 0x10000; };
+
+        // bit shift back left to furthest left position to remove trailing bits and leave either 1 or 0 to return
+        bit = bit >> 15;
+
+        registers[Rd] = ( bit ^ 0x0001 );
         
         break;
 
