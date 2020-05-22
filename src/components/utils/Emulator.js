@@ -295,6 +295,31 @@
     return x;
   }
 
+  function getBitFromRegister( registerValue, bitNum ) {
+    // push bit to the furthest left to remove bits before
+    var bit = registerValue << bitNum;
+    // remove bits before
+    while ( bit >= 0x10000 ) { bit -= 0x10000; };
+
+    // bit shift back left to furthest left position to remove trailing bits and leave either 1 or 0 to return
+    bit = bit >> 15;
+
+    return bit;
+  }
+
+  function setBitInRegister( registerValue, bitValue, bitNum ) {
+    // very similar to inject code as a very similar command
+    const shrdist = 15; // shift ffff right to get right-adjusted field
+    const shldist = 15-bitNum;   // shift left to put field into position
+
+    var radjustedField = 0xffff >>> shrdist;
+    var maskO = radjustedField << shldist; // 1s in the field
+    var mask = ( ~maskO ) & 0xffff; // mask to clear field in e
+
+    // if either bit is on in registers[15] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
+    return ( ( registerValue & mask ) | ( bitValue << shldist ) );
+  }
+
 // CHECKING METHODS
   function checkRRCommand( rr ) {
     // check that rrr is in the form of rd,ra,rb
@@ -1599,20 +1624,45 @@
       case 0x17 :
         // logicb
         instructionWords = 2;
+        switch ( g ) {
+          case 1 :
+            // andb
+            const bitToSetAnd = getBitFromRegister( registers[Re], h ) & getBitFromRegister( registers[Rf], h );
 
+            registers[Rd] = setBitInRegister( registers[Rd], bitToSetAnd, h );
+            break;
+
+          case 6 :
+            // xorb
+            const bitToSetXor = getBitFromRegister( registers[Re], h ) ^ getBitFromRegister( registers[Rf], h );
+
+            registers[Rd] = setBitInRegister( registers[Rd], bitToSetXor, h );
+            break;
+
+          case 7 :
+            // orb
+            const bitToSetOr = getBitFromRegister( registers[Re], h ) | getBitFromRegister( registers[Rf], h );
+
+            registers[Rd] = setBitInRegister( registers[Rd], bitToSetOr, h );
+            break;
+
+          case 0xc :
+            // invb 
+            const bitToSetInv = ( getBitFromRegister( registers[Re], h ) ^ 1 );
+
+            registers[Rd] = setBitInRegister( registers[Rd], bitToSetInv, h );
+            break;
+
+          default :
+            break;
+        };
         break;
 
       case 0x18 :
         // getbit
         instructionWords = 2;
         
-        // push bit to the furthest left to remove bits before
-        var bit = registers[15] << g;
-        // remove bits before
-        while ( bit >= 0x10000 ) { bit -= 0x10000; };
-
-        // bit shift back left to furthest left position to remove trailing bits and leave either 1 or 0 to return
-        bit = bit >> 15;
+        var bit = getBitFromRegister( registers[15], g );
 
         registers[Rd] = bit;
 
@@ -1622,13 +1672,7 @@
         // getbiti
         instructionWords = 2;
 
-        // push bit to the furthest left to remove bits before
-        var bitI = registers[15] << g;
-        // remove bits before
-        while ( bitI >= 0x10000 ) { bitI -= 0x10000; };
-
-        // bitI shift back left to furthest left position to remove trailing bits and leave either 1 or 0 to return
-        bitI = bitI >> 15;
+        var bitI = getBitFromRegister( registers[15], g );
 
         registers[Rd] = ( bitI ^ 1 );
         
