@@ -1591,9 +1591,7 @@
         var radjustedFieldF = 0xffff >>> shrdistField;
 
         // if either bit is on in registers[Re] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
-        var resultInject = ( radjustedFieldF << shldistField );
-
-        registers[Rd] = resultInject;
+        registers[Rd] = ( radjustedFieldF << shldistField );
         break;
 
       default :
