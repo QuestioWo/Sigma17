@@ -60,6 +60,8 @@
     putbit : 'rkEXP',
     putbiti : 'rkEXP',
 
+    field : 'rkkEXP',
+
     extract : 'rrkkEXP',
     extracti : 'rrkkEXP',
 
@@ -161,7 +163,11 @@
       getbiti : 0x19,
       putbit : 0x1a,
       putbiti : 0x1b,
-    }
+    };
+
+    const rkkEXPCommands = {
+      field : 0x1c
+    };
 
     const rrkkEXPCommands = {
       extract : 0x12,
@@ -394,7 +400,7 @@
   }
 
   function checkRKexpCommand( rk ) {
-    // check that rrk is in the form of re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 15
+    // check that rk is in the form of rd,g, where g can be either hex, or a decimal integer between 0 and 15
     if ( !( /^r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rk ) ) ) {
       return 'arguments must be in the form of "Rd,g", negative integers not allowed';
     }
@@ -402,6 +408,23 @@
 
     if ( ! isValidNumberBit( g ) ) {
       return 'g argument must either be a decimal, or a hex value with decimal value between 0 and 15';
+    }
+    return true;
+  }
+
+  function checkRKKexpCommand( rkk ) {
+    // check that rrk is in the form of rd,g,h where g and h can be either hex, or a decimal integer between 0 and 15
+    if ( !( /^r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rkk ) ) ) {
+      return 'arguments must be in the form of "Rd,g,h", negative integers not allowed';
+    }
+    var g = rkk.split( ',' )[1];
+    var h = rkk.split( ',' )[2];
+
+    if ( ! isValidNumberBit( g ) ) {
+      return 'g argument must either be a decimal, or a hex value with decimal value between 0 and 15';
+    }
+    if ( ! isValidNumberBit( h ) ) {
+      return 'h argument must either be a decimal, or a hex value with decimal value between 0 and 15';
     }
     return true;
   }
@@ -590,7 +613,16 @@
         if ( argument ) {
           check = checkRKexpCommand( argument );
         } else {
-          check = command + ' must be followed by a registers and a constant in form Rx,k';
+          check = command + ' must be followed by a register and a constant in form Rx,k';
+        }
+        break;
+
+      case 'rkkEXP' :
+        // first word is an rrkEXP command i.e shiftl
+        if ( argument ) {
+          check = checkRKKexpCommand( argument );
+        } else {
+          check = command + ' must be followed by a register and 2 constants in form Rx,k1,k2';
         }
         break;
 
@@ -749,8 +781,14 @@
 
       case 'rkEXP' :
         result['words'] = 2;
-        result['type'] = 'exp4'; // f will be 0 and h will hold k argument as k only goes upto 15
+        result['type'] = 'exp4'; // g and h will hold k arguments as k only goes upto 15
         result['op'] = rkEXPCommands[command];
+        break;
+
+      case 'rkkEXP' :
+        result['words'] = 2;
+        result['type'] = 'exp4'; // g and h will hold k arguments as k only goes upto 15
+        result['op'] = rkkEXPCommands[command];
         break;
 
       case 'rrkkEXP' :
@@ -911,6 +949,14 @@
         result['d'] = Number( argumentListRKexp[0].slice( 1, argumentListRKexp[0].length ) );
         
         result['g'] = readConstant( argumentListRKexp[1], labels );
+        break;
+
+      case 'rkkEXP' :
+        var argumentListRKKexp = argument.split( ',' );
+        result['d'] = Number( argumentListRKKexp[0].slice( 1, argumentListRKKexp[0].length ) );
+        
+        result['g'] = readConstant( argumentListRKKexp[1], labels );
+        result['h'] = readConstant( argumentListRKKexp[2], labels );
         break;
 
       case 'rrkkEXP' :
@@ -1532,6 +1578,22 @@
         // if either bit is on in registers[15] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
         registers[15] = ( registers[15] & maskPutI ) | ( xPutI << shldistPutI );
         
+        break;
+
+      case 0x1c :
+        // field
+        instructionWords = 2;
+
+        // Taken from original Sigma16 emulator, from the emulator.js file
+        const shrdistField = 15-h+g; // shift ffff right to get right-adjusted field
+        const shldistField = 15-h;   // shift left to put field into position
+
+        var radjustedFieldF = 0xffff >>> shrdistField;
+
+        // if either bit is on in registers[Re] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
+        var resultInject = ( radjustedFieldF << shldistField );
+
+        registers[Rd] = resultInject;
         break;
 
       default :
