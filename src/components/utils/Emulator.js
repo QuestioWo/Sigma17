@@ -1424,12 +1424,11 @@
 
         var radjustedField = 0xffff >>> shrdist;
         var maskO = radjustedField << shldist; // 1s in the field
-        var mask = (~maskO) & 0xffff; // mask to clear field in e
+        var mask = ( ~maskO ) & 0xffff; // mask to clear field in e
         var x = registers[Rf] & radjustedField; // value to be injected
 
-        // if either bit is on in registers[Re] or in x, shifted to the left to fit in correct gap to be injected into
-        // then bit is on
-        var resultInject = (registers[Re] & mask) | (x << shldist) ;
+        // if either bit is on in registers[Re] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
+        var resultInject = ( registers[Re] & mask ) | ( x << shldist );
 
         registers[Rd] = resultInject;
 
@@ -1448,8 +1447,7 @@
         var maskI = ( ~maskOI ) & 0xffff; // mask to clear field in e
         var xI = ( registers[Rf] ^ 0xffff ) & radjustedFieldI; // value to be injected
 
-        // if either bit is on in registers[Re] or in x, shifted to the left to fit in correct gap to be injected into
-        // then bit is on
+        // if either bit is on in registers[Re] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
         var resultInjectI = ( registers[Re] & maskI ) | ( xI << shldistI ) ;
 
         registers[Rd] = resultInjectI;
@@ -1489,26 +1487,50 @@
         instructionWords = 2;
 
         // push bit to the furthest left to remove bits before
-        var bit = registers[15] << g;
+        var bitI = registers[15] << g;
         // remove bits before
-        while ( bit >= 0x10000 ) { bit -= 0x10000; };
+        while ( bitI >= 0x10000 ) { bitI -= 0x10000; };
 
-        // bit shift back left to furthest left position to remove trailing bits and leave either 1 or 0 to return
-        bit = bit >> 15;
+        // bitI shift back left to furthest left position to remove trailing bits and leave either 1 or 0 to return
+        bitI = bitI >> 15;
 
-        registers[Rd] = ( bit ^ 0x0001 );
+        registers[Rd] = ( bitI ^ 1 );
         
         break;
 
       case 0x1a :
         // putbit
         instructionWords = 2;
+
+        // very similar to inject code as a very similar command
+        const shrdistPut = 15; // shift ffff right to get right-adjusted field
+        const shldistPut = 15-g;   // shift left to put field into position
+
+        var radjustedFieldPut = 0xffff >>> shrdistPut;
+        var maskOPut = radjustedFieldPut << shldistPut; // 1s in the field
+        var maskPut = ( ~maskOPut ) & 0xffff; // mask to clear field in e
+        var xPut = registers[Rd] & radjustedFieldPut; // value to be injected
+
+        // if either bit is on in registers[15] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
+        registers[15] = ( registers[15] & maskPut ) | ( xPut << shldistPut );
         
         break;
 
       case 0x1b :
         // putbiti
         instructionWords = 2;
+        
+        // very similar to inject code as a very similar command
+        const shrdistPutI = 15; // shift ffff right to get right-adjusted field
+        const shldistPutI = 15-g;   // shift left to put field into position
+
+        var radjustedFieldPutI = 0xffff >>> shrdistPutI;
+        var maskOPutI = radjustedFieldPutI << shldistPutI; // 1s in the field
+        var maskPutI = ( ~maskOPutI ) & 0xffff; // mask to clear field in e
+        var xPutI = ( registers[Rd] ^ 0xffff ) & radjustedFieldPutI; // value to be injected
+
+        // if either bit is on in registers[15] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
+        registers[15] = ( registers[15] & maskPutI ) | ( xPutI << shldistPutI );
         
         break;
 
