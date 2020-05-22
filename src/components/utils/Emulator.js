@@ -1192,7 +1192,7 @@
     var gh = Math.floor( adr - ( Rf * secondColumn ) - ( Re * firstColumn ) );
 
     var g = Math.floor( gh / thirdColumn );
-    // var h = Math.floor( ( gh - ( g * thirdColumn ) ) / fourthColumn );
+    var h = Math.floor( ( gh - ( g * thirdColumn ) ) / fourthColumn );
 
     var instructionWords = 1;
 
@@ -1345,13 +1345,34 @@
       case 0x12 :
         // extract
         instructionWords = 2;
+        var resultExtract = 0;
 
+        // shiftl Rd,Re,g
+        resultExtract = registers[Re] << g;
+        while ( resultExtract >= 0x10000 ) { resultExtract -= 0x10000; }
+
+        // shiftr Rd,Rr,15-h+g
+        resultExtract = resultExtract >> ( 15 - h + g );
+
+        registers[Rd] = resultExtract;
         break;
 
       case 0x13 :
         // extracti
         instructionWords = 2;
+        var resultExtractI = 0;
 
+        // inv Rd,Re
+        resultExtractI = ( registers[Re] ^ 0xffff );
+
+        // shiftl Rd,Rd,g
+        resultExtractI = resultExtractI << g;
+        while ( resultExtractI >= 0x10000 ) { resultExtractI -= 0x10000; }
+
+        // shiftr Rd,Rr,15-h+g
+        resultExtractI = resultExtractI >>> ( 15 - h + g );
+
+        registers[Rd] = resultExtractI;
         break;
 
       case 0x14 :
@@ -1555,25 +1576,19 @@
       case 0x9 :
         // and
         instructionWords = 1;
-        RaValue = ( RaValue === 1 );
-        RbValue = ( RbValue === 1 );
-        ( RaValue && RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
+        registers[Rd] = registers[Ra] & registers[Rb];
         break;
 
       case 0xa :
         // or
         instructionWords = 1;
-        RaValue = ( RaValue === 1 );
-        RbValue = ( RbValue === 1 );
-        ( RaValue || RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
+        registers[Rd] = registers[Ra] | registers[Rb];
         break;
 
       case 0xb :
         // xor
         instructionWords = 1;
-        RaValue = ( RaValue === 1 );
-        RbValue = ( RbValue === 1 );
-        ( RaValue ^ RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
+        registers[Rd] = registers[Ra] ^ registers[Rb];
         break;
 
       case 0xc :
