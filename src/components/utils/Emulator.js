@@ -1295,19 +1295,30 @@
       case 0xd :
         // push
         instructionWords = 2;
-        // currently nop as have not been implemented in original emulator
+        if ( registers[Re] < registers[Rf] ) {
+          registers[Re] += 1;
+
+          memory[registers[Re]] = registers[Rd];
+        } else {
+          // stack overflow flag set and nop
+          registers[15] = 0b10000000;
+        }
         break;
 
       case 0xe :
         // pop
         instructionWords = 2;
-        // currently nop as have not been implemented in original emulator
+        if ( registers[Re] <= registers[Rf] ) {
+          registers[Rd] = memory[registers[Re]];
+
+          registers[Re] -= 1;
+        }
         break;
 
       case 0xf :
         // top
         instructionWords = 2;
-        // currently nop as have not been implemented in original emulator
+        registers[Rd] = memory[registers[Re]];
         break;
 
       case 0x10 :
