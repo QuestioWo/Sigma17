@@ -377,14 +377,14 @@
   }
 
   function checkRRKexpCommand( rrk ) {
-    // check that rrk is in the form of re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 255
+    // check that rrk is in the form of re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 15
     if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rrk ) ) ) {
-      return 'arguments must be in the form of "Rd,Re,gh", negative integers not allowed';
+      return 'arguments must be in the form of "Rd,Re,g", negative integers not allowed';
     }
-    var gh = rrk.split( ',' )[2];
+    var g = rrk.split( ',' )[2];
 
-    if ( ! isValidNumberGH( gh ) ) {
-      return 'gh argument must either be a decimal, or a hex value with decimal value between 0 and 255';
+    if ( ! isValidNumberBit( g ) ) {
+      return 'g argument must either be a decimal, or a hex value with decimal value between 0 and 15';
     }
     return true;
   }
@@ -1216,9 +1216,9 @@
           diffSave = Math.abs( Re - Rf );
         }
 
-        for ( var i = Re; i <= ( Re + diffSave ); i++ ) {
-          var regNoSave = i % 16;
-          memory[effectiveADRsave + ( i - Re )] = registers[regNoSave];
+        for ( var iSave = Re; iSave <= ( Re + diffSave ); iSave++ ) {
+          var regNoSave = iSave % 16;
+          memory[effectiveADRsave + ( iSave - Re )] = registers[regNoSave];
         }
 
         break;
@@ -1235,9 +1235,9 @@
           diffRestore = Math.abs( Re - Rf );
         }
 
-        for ( var it = Re; it <= ( Re + diffRestore ); it++ ) {
-          var regNoRestore = it % 16;
-          registers[regNoRestore] = memory[effectiveADRrestore + ( it - Re )];
+        for ( var iRestore = Re; iRestore <= ( Re + diffRestore ); iRestore++ ) {
+          var regNoRestore = iRestore % 16;
+          registers[regNoRestore] = memory[effectiveADRrestore + ( iRestore - Re )];
         }
 
         break;
@@ -1324,13 +1324,22 @@
       case 0x10 :
         // shiftl
         instructionWords = 2;
-        
+        registers[Rd] = registers[Re] << g;
+
+        if ( registers[Rd] >= 0x10000 && Rd !== 15 ) {
+          registers[15] = 0b00000100 * secondColumn;
+
+          while ( registers[Rd] >= 0x10000 ) { registers[Rd] -= 0x10000; };
+        } else if ( Rd !== 15 ) {
+          registers[15] = 0;
+        }
+
         break;
 
       case 0x11 :
         // shiftr
         instructionWords = 2;
-        
+        registers[Rd] = registers[Re] >> g;
         break;
 
       case 0x12 :
@@ -1433,7 +1442,7 @@
         instructionWords = 1;
         registers[Rd] = RaValue + RbValue;
 
-        if ( ( registers[Rd] & 0x10000 ) > 0 ) {
+        if ( registers[Rd] >= 0x10000 ) {
           registers[Rd] -= 0x10000;
           if ( Rd !== 15 ) {
             registers[15] = 0b00000101 * secondColumn;
@@ -1478,13 +1487,13 @@
         // mul
         instructionWords = 1;
         registers[Rd] = RaValue * RbValue;
-        
-        if ( Rd !== 15 ) {
-          registers[15] = 0;
-        }
 
-        if ( ( registers[Rd] >= 0x10000 ) > 0 && Rd !== 15 ) registers[15] = 0b00000010 * secondColumn;
-        while ( ( registers[Rd] >= 0x10000 ) > 0 ) { registers[Rd] -= 0x10000; };
+        if ( registers[Rd] >= 0x10000 && Rd !== 15 ) {
+          registers[15] = 0b00000010 * secondColumn;
+          while ( registers[Rd] >= 0x10000 ) { registers[Rd] -= 0x10000; };
+        } else if ( Rd !== 15 ) {
+          registers[15] = 0
+        }
         
         if ( Rd !== 15 ) {
           registers[15] += compareRegisters( registers[Rd], registers[0] );
