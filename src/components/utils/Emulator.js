@@ -58,6 +58,7 @@
     push : 'rrrEXP',
     pop : 'rrrEXP',
     top : 'rrrEXP',
+    addc : 'rrrEXP',
 
     shiftl : 'rrkEXP',
     shiftr : 'rrkEXP',
@@ -176,7 +177,8 @@
     const rrrEXPCommands = {
       push : 0xd,
       pop : 0xe,
-      top : 0xf
+      top : 0xf,
+      addc : 0x1c
     };
 
     const rrkEXPCommands = {
@@ -1355,6 +1357,8 @@
       flagDict['E'] = 1;
     }
 
+    console.log( flagDict )
+
     return flagDict;
   }
 
@@ -1832,6 +1836,23 @@
         registers[15] = setBitInRegister( registers[15], bitToSetPutI, g );
         break;
 
+      case 0x1c :
+        // addc
+        instructionWords = 2;
+
+        var R15CarryBit = getBitFromRegister( registers[15], 7 );
+        registers[Rd] = registers[Re] + registers[Rf] + R15CarryBit;
+
+        if ( registers[Rd] >= 0x10000 ) {
+          registers[Rd] -= 0x10000;
+          flagDict['V'] = 1;
+          flagDict['C'] = 1;
+        }
+        
+        flagDict = compareRegisters( registers[Rd], registers[0], flagDict );
+        setR15 = true;
+        break;
+
       default :
         instructionWords = 1;
         // unrecognised so nop
@@ -1871,19 +1892,15 @@
     var flagDict = getR15Dict();
     var setR15 = false;
 
-    if ( ( RaValue & 0x8000 ) > 0 ) RaValue = readSignedHex( RaValue );
-    if ( ( RbValue & 0x8000 ) > 0 ) RbValue = readSignedHex( RbValue );
-
     switch ( Op ) {
       case 0x0 :
         // add
         instructionWords = 1;
-        registers[Rd] = RaValue + RbValue;
+        registers[Rd] = registers[Ra] + registers[Rb];
 
         if ( registers[Rd] >= 0x10000 ) {
           registers[Rd] -= 0x10000;
           flagDict['V'] = 1;
-          flagDict['v'] = 1;
           flagDict['C'] = 1;
         }
         
@@ -1898,8 +1915,7 @@
         
         registers[Rd] = RaValue;
 
-        if ( RaValue < RbValue ) {
-          registers[Rd] += 0x10000;
+        if ( readSignedHex( RaValue ) < readSignedHex( RbValue ) ) {
           flagDict['v'] = 1;
         }
 
