@@ -364,6 +364,36 @@
     return ( ( destRegisterValue & mask ) | ( x << shldist ) );
   }
 
+  function getR15Dict() {
+    return {
+      'G' : 0,
+      'g' : 0,
+      'E' : 0,
+      'l' : 0,
+      'L' : 0,
+      'V' : 0,
+      'v' : 0,
+      'C' : 0,
+      'S' : 0
+    };
+  }
+
+  function setR15Flags( flagDict ) {
+    var r15 = 0;
+
+    if ( flagDict['G'] === 1 ) r15 += ( 0b1000000000000000 );
+    if ( flagDict['g'] === 1 ) r15 += ( 0b0100000000000000 );
+    if ( flagDict['E'] === 1 ) r15 += ( 0b0010000000000000 );
+    if ( flagDict['l'] === 1 ) r15 += ( 0b0001000000000000 );
+    if ( flagDict['L'] === 1 ) r15 += ( 0b0000100000000000 );
+    if ( flagDict['V'] === 1 ) r15 += ( 0b0000010000000000 );
+    if ( flagDict['v'] === 1 ) r15 += ( 0b0000001000000000 );
+    if ( flagDict['C'] === 1 ) r15 += ( 0b0000000100000000 );
+    if ( flagDict['S'] === 1 ) r15 += ( 0b0000000010000000 );
+
+    return r15;
+  }
+
 // CHECKING METHODS
   function checkRRCommand( rr ) {
     // check that rrr is in the form of rd,ra,rb
@@ -1301,35 +1331,31 @@
     return memory;
   }
 
-  function compareRegisters( RaValue, RbValue ) {
+  function compareRegisters( RaValue, RbValue, flagDict ) {
     var RaValueSigned = readSignedHex( RaValue );
     var RbValueSigned = readSignedHex( RbValue );
 
-    var result = 0;
     var signedEquals = false;
 
     // signed comparisons
     if ( RaValueSigned > RbValueSigned ) {
-      result += 0b01000000;
+      flagDict['g'] = 1;
     } else if ( RaValueSigned < RbValueSigned ) {
-      result += 0b00010000;
+      flagDict['l'] = 1;
     } else {
       signedEquals = true;
     }
     
     // unsigned comparisons
     if ( RaValue > RbValue ) {
-      result += 0b10000000;
+      flagDict['G'] = 1;
     } else if ( RaValue < RbValue ) {
-      result += 0b00001000;
-    } else {
-      if ( signedEquals ) {
-        result += 0b00100000;
-      }
+      flagDict['L'] = 1;
+    } else if ( signedEquals ) {
+      flagDict['E'] = 1;
     }
 
-    result = result * secondColumn;
-    return result;
+    return flagDict;
   }
 
   function processTRAPInstruction( control, registers, memory, input, output, Rd, Ra, Rb ) {
@@ -1477,6 +1503,9 @@
     var halted = false;
     var jumped = false;
 
+    var flagDict = getR15Dict();
+    var setR15 = true;
+
     var ab = ( Ra * thirdColumn ) + Rb;
 
     var Re = Math.floor( adr / firstColumn );
@@ -1610,7 +1639,8 @@
           memory[registers[Re]] = registers[Rd];
         } else {
           // stack overflow flag set and nop
-          registers[15] = 0b10000000;
+          flagDict['S'] = 1;
+          setR15 = true;
         }
         break;
 
@@ -1636,13 +1666,11 @@
         registers[Rd] = registers[Re] << g;
 
         if ( registers[Rd] >= 0x10000 && Rd !== 15 ) {
-          registers[15] = 0b00000100 * secondColumn;
+          flagDict['V'] = 1;
 
           while ( registers[Rd] >= 0x10000 ) { registers[Rd] -= 0x10000; };
-        } else if ( Rd !== 15 ) {
-          registers[15] = 0;
         }
-
+        setR15 = true;
         break;
 
       case 0x11 :
@@ -1818,7 +1846,9 @@
       'output' : output,
       'instructionWords' : instructionWords,
       'halted' : halted,
-      'jumped' : jumped
+      'jumped' : jumped,
+      'flagDict' : flagDict,
+      'setR15' : setR15
     };
   }
 
@@ -1838,6 +1868,9 @@
     var RaValue = registers[Ra];
     var RbValue = registers[Rb];
 
+    var flagDict = getR15Dict();
+    var setR15 = false;
+
     if ( ( RaValue & 0x8000 ) > 0 ) RaValue = readSignedHex( RaValue );
     if ( ( RbValue & 0x8000 ) > 0 ) RbValue = readSignedHex( RbValue );
 
@@ -1849,18 +1882,13 @@
 
         if ( registers[Rd] >= 0x10000 ) {
           registers[Rd] -= 0x10000;
-          if ( Rd !== 15 ) {
-            registers[15] = 0b00000101 * secondColumn;
-          }
-        } else {
-          if ( Rd !== 15 ) {
-            registers[15] = 0
-          }
+          flagDict['V'] = 1;
+          flagDict['v'] = 1;
+          flagDict['C'] = 1;
         }
         
-        if ( Rd !== 15 ) {
-          registers[15] += compareRegisters( registers[Rd], registers[0] );
-        }
+        flagDict = compareRegisters( registers[Rd], registers[0], flagDict );
+        setR15 = true;
 
         break;
 
@@ -1868,23 +1896,17 @@
         // sub
         instructionWords = 1;
         
+        registers[Rd] = RaValue;
+
         if ( RaValue < RbValue ) {
-          registers[Rd] = ( RaValue + 0x10000 );
-          if ( Rd !== 15 ) {
-            registers[15] = 0b00000010 * secondColumn;
-          }
-        } else {
-          registers[Rd] = RaValue;
-          if ( Rd !== 15 ) {
-            registers[15] = 0;
-          }
+          registers[Rd] += 0x10000;
+          flagDict['v'] = 1;
         }
 
         registers[Rd] -= RbValue;
         
-        if ( Rd !== 15 ) {
-          registers[15] += compareRegisters( registers[Rd], registers[0] );
-        }
+        flagDict = compareRegisters( registers[Rd], registers[0], flagDict );
+        setR15 = true;
 
         break;
 
@@ -1893,16 +1915,13 @@
         instructionWords = 1;
         registers[Rd] = RaValue * RbValue;
 
-        if ( registers[Rd] >= 0x10000 && Rd !== 15 ) {
-          registers[15] = 0b00000010 * secondColumn;
+        if ( registers[Rd] >= 0x10000 ) {
+          flagDict['V'] = 1;
           while ( registers[Rd] >= 0x10000 ) { registers[Rd] -= 0x10000; };
-        } else if ( Rd !== 15 ) {
-          registers[15] = 0
         }
         
-        if ( Rd !== 15 ) {
-          registers[15] += compareRegisters( registers[Rd], registers[0] );
-        }
+        flagDict = compareRegisters( registers[Rd], registers[0], flagDict );
+        setR15 = true;
 
         break;
 
@@ -1922,12 +1941,15 @@
           }
         }
 
+        // no flags being set in r15 as div works differently
+
         break;
 
       case 0x4 :
         // cmp
         instructionWords = 1;
-        registers[15] = compareRegisters( registers[Ra], registers[Rb] );
+        flagDict = compareRegisters( RaValue, RbValue, flagDict );
+        setR15 = true;
 
         break;
 
@@ -2007,6 +2029,8 @@
         instructionWords = processed['instructionWords'];
         halted = processed['halted'];
         jumped = processed['jumped'];
+        flagDict = processed['flagDict'];
+        setR15 = processed['setR15'];
 
         break;
 
@@ -2025,6 +2049,10 @@
         instructionWords = 1;
         halted = true;
         break;
+    }
+
+    if ( Rd !== 15 && setR15 ) {
+      registers[15] = setR15Flags( flagDict );
     }
 
     for ( var it = 0; it < 16; it++ ) {
