@@ -336,6 +336,20 @@
     return ( ( registerValue & mask ) | ( bitValue << shldist ) );
   }
 
+  function setBitInRegisterMultiple( registerValue, bitNum ) {
+    // // Taken from original Sigma16 emulator, from the emulator.js file
+    // const shrdist = 15-h+g; // shift ffff right to get right-adjusted field
+    // const shldist = 15-h;   // shift left to put field into position
+
+    // var radjustedField = 0xffff >>> shrdist;
+    // var maskO = radjustedField << shldist; // 1s in the field
+    // var mask = ( ~maskO ) & 0xffff; // mask to clear field in e
+    // var x = registers[Rf] & radjustedField; // value to be injected
+
+    // // if either bit is on in registers[Re] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
+    // return ( ( registers[Re] & mask ) | ( x << shldist ) );
+  }
+
 // CHECKING METHODS
   function checkRRCommand( rr ) {
     // check that rrr is in the form of rd,ra,rb
@@ -1745,36 +1759,18 @@
         // putbit
         instructionWords = 2;
 
-        // very similar to inject code as a very similar command
-        const shrdistPut = 15; // shift ffff right to get right-adjusted field
-        const shldistPut = 15-g;   // shift left to put field into position
+        const bitToSetPut = getBitFromRegister( registers[Rd], g );
 
-        var radjustedFieldPut = 0xffff >>> shrdistPut;
-        var maskOPut = radjustedFieldPut << shldistPut; // 1s in the field
-        var maskPut = ( ~maskOPut ) & 0xffff; // mask to clear field in e
-        var xPut = registers[Rd] & radjustedFieldPut; // value to be injected
-
-        // if either bit is on in registers[15] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
-        registers[15] = ( registers[15] & maskPut ) | ( xPut << shldistPut );
-        
+        registers[15] = setBitInRegister( registers[15], bitToSetPut, g );
         break;
 
       case 0x1b :
         // putbiti
         instructionWords = 2;
         
-        // very similar to inject code as a very similar command
-        const shrdistPutI = 15; // shift ffff right to get right-adjusted field
-        const shldistPutI = 15-g;   // shift left to put field into position
-
-        var radjustedFieldPutI = 0xffff >>> shrdistPutI;
-        var maskOPutI = radjustedFieldPutI << shldistPutI; // 1s in the field
-        var maskPutI = ( ~maskOPutI ) & 0xffff; // mask to clear field in e
-        var xPutI = ( registers[Rd] ^ 0xffff ) & radjustedFieldPutI; // value to be injected
-
-        // if either bit is on in registers[15] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
-        registers[15] = ( registers[15] & maskPutI ) | ( xPutI << shldistPutI );
+        const bitToSetPutI = ( getBitFromRegister( registers[Rd], g ) ^ 1 );
         
+        registers[15] = setBitInRegister( registers[15], bitToSetPutI, g );
         break;
 
       case 0x1c :
