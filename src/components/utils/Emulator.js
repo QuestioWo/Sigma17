@@ -1894,7 +1894,7 @@
       case 0x0 :
         // add
         instructionWords = 1;
-        registers[Rd] = registers[Ra] + registers[Rb];
+        registers[Rd] = RaValue + RbValue;
 
         if ( registers[Rd] >= 0x10000 ) {
           registers[Rd] -= 0x10000;
