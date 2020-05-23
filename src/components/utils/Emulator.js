@@ -606,7 +606,7 @@
           check = checkRRCommand( argument );
           // does follow requirements, and therefore function returns true
         } else {
-          check = command + ' must be followed by 2 registers in form Ra,Rb';
+          check = command + ' must be followed by 2 registers in form Rx,Rx';
         }
         break;
 
