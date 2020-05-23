@@ -1376,7 +1376,11 @@
 
       case 0x1 :
         // load
-        registers[Rd] = memory[ effectiveADR ];
+        if ( memory[ effectiveADR ] ) {
+          registers[Rd] = memory[ effectiveADR ];
+        } else {
+          registers[Rd] = 0;
+        }
         break;
 
       case 0x2 :
@@ -1489,7 +1493,11 @@
 
         for ( var iRestore = Re; iRestore <= ( Re + diffRestore ); iRestore++ ) {
           var regNoRestore = iRestore % 16;
-          registers[regNoRestore] = memory[effectiveADRrestore + ( iRestore - Re )];
+          if ( memory[effectiveADRrestore + ( iRestore - Re )] ) {
+            registers[regNoRestore] = memory[effectiveADRrestore + ( iRestore - Re )];
+          } else {
+            registers[regNoRestore] = 0;
+          }
         }
 
         break;
@@ -1986,9 +1994,9 @@
     if ( control['pc'] === startpc ) control['pc'] += instructionWords; 
 
     if ( Object.values( registers ).includes( NaN ) || Object.values( registers ).includes( undefined )  ) {
-      console.log( control )
-      console.log( registers )
-      console.log( memory )
+      console.log( control );
+      console.log( registers );
+      console.log( memory );
 
       output += '==== SEVERE SYSTEM ERROR ====';
 
