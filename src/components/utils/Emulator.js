@@ -1357,8 +1357,6 @@
       flagDict['E'] = 1;
     }
 
-    console.log( flagDict )
-
     return flagDict;
   }
 
