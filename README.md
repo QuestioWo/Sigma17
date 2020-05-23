@@ -75,6 +75,7 @@ This will start the local React.js development server and should open a windown 
 * √ - Write 'Hello, World!' program to be default display
 * Add download/copy buttons for machine code and Sigma16 code versions of the program on the editor.
 * Allow unhighlighted code chunk to have tabs used correctly.
+* Make webiste work on Firefox and Safari
 
 ## Author
 
