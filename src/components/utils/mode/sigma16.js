@@ -23,9 +23,9 @@
 
     function tokenBase(stream, state) {
       if ( stream.eatSpace() ) return null;
-      if ( stream.eat( ',' ) ) return 'punctuation';
-      if ( stream.eat( '[' ) ) return 'punctuation';
-      if ( stream.eat( ']' ) ) return 'punctuation';
+      if ( stream.eat( ',' ) ) return null;
+      if ( stream.eat( '[' ) ) return null;
+      if ( stream.eat( ']' ) ) return null;
 
       var ch = stream.next();
       var peek = stream.peek();
