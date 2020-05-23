@@ -1476,7 +1476,7 @@
       case 0x0 :
         // rfi
         instructionWords = 1;
-        // currently nop as no system registers to be affected
+        // currently nop as no interrupt registers to be affected
 
         break;
 
