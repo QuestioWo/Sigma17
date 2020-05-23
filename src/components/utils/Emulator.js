@@ -1022,8 +1022,8 @@
       case 'rrEXP' :
         // copy of 'rr' case with a and b changed to d and e respectively
         var argumentListRRexp = argument.split( ',' );
-        result['d'] = Number( argumentListRRexp[0].slice( 1, argumentListRRexp[0].length ) );
-        result['e'] = Number( argumentListRRexp[1].slice( 1, argumentListRRexp[1].length ) );
+        result['e'] = Number( argumentListRRexp[0].slice( 1, argumentListRRexp[0].length ) );
+        result['f'] = Number( argumentListRRexp[1].slice( 1, argumentListRRexp[1].length ) );
         break;
 
       case 'rrxEXP' :
@@ -1368,6 +1368,8 @@
   function processRXInstruction( control, registers, memory, Rd, Ra, Op, adr ) {
     var effectiveADR = registers[Ra] + adr;
 
+    var jumped = false;
+
     switch ( Op ) {
       case 0x0 :
         // lea
@@ -1391,34 +1393,48 @@
       case 0x3 :
         // jump
         control['pc'] = effectiveADR;
+        jumped = true;
         break;
 
       case 0x4 :
         // jumpc0
-        if ( ( registers[15] & Math.pow( 2, ( 15 - Rd ) ) ) === 0 ) control['pc'] = effectiveADR;
+        if ( ( registers[15] & Math.pow( 2, ( 15 - Rd ) ) ) === 0 ) {
+          control['pc'] = effectiveADR;
+          jumped = true;
+        }
 
         break;
 
       case 0x5 :
         // jumpc1
-        if ( ( registers[15] & Math.pow( 2, ( 15 - Rd ) ) ) > 0 ) control['pc'] = effectiveADR;
+        if ( ( registers[15] & Math.pow( 2, ( 15 - Rd ) ) ) > 0 ) {
+          control['pc'] = effectiveADR;
+          jumped = true;
+        }
 
         break;
 
       case 0x6 :
         // jumpf
-        if ( !( registers[Rd] === 1 ) ) control['pc'] = effectiveADR;
+        if ( !( registers[Rd] === 1 ) ) {
+          control['pc'] = effectiveADR;
+          jumped = true;
+        }
         break;
 
       case 0x7 :
         // jumpt
-        if ( registers[Rd] === 1 ) control['pc'] = effectiveADR;
+        if ( registers[Rd] === 1 ) {
+          control['pc'] = effectiveADR;
+          jumped = true;
+        }
         break;
 
       case 0x8 :
         // jal
         registers[Rd] = control['pc'] + 2;
         control['pc'] = effectiveADR;
+        jumped = true;
         break;
 
       case 0x9 :
@@ -1435,11 +1451,15 @@
     return { 
       'control' : control,
       'registers' : registers, 
-      'memory' : memory
+      'memory' : memory,
+      'jumped' : jumped
     };
   }
 
-  function processEXPInstruction( control, registers, memory, Rd, Ra, Rb, adr ) {
+  function processEXPInstruction( control, registers, memory, input, output, Rd, Ra, Rb, adr ) {
+    var halted = false;
+    var jumped = false;
+
     var ab = ( Ra * thirdColumn ) + Rb;
 
     var Re = Math.floor( adr / firstColumn );
@@ -1548,7 +1568,19 @@
         // execute
         instructionWords = 2;
 
-        // currently nop as not needed and not implemented in original emulator
+        var processed = runFromInstruction( control, registers, memory, input, output, registers[Re], registers[Rf] );
+
+        control = processed['control'];
+        registers = processed['registers'];
+        memory = processed['memory'];
+        input = processed['input'];
+        output = processed['output'];
+        halted = processed['halted'];
+        jumped = processed['jumped'];
+
+        // do not update control registers ir and adr as can make readig executed program confusing
+        // control['ir'] = registers[Re];
+        // control['adr'] = registers[Rf];
 
         break;
 
@@ -1763,6 +1795,8 @@
         break;
 
       default :
+        instructionWords = 1;
+        // unrecognised so nop
         break;
     }
 
@@ -1770,27 +1804,28 @@
       'control' : control,
       'registers' : registers, 
       'memory' : memory,
-      'instructionWords' : instructionWords
+      'input' : input,
+      'output' : output,
+      'instructionWords' : instructionWords,
+      'halted' : halted,
+      'jumped' : jumped
     };
   }
 
-  export function runMemory( control, registers, memory, input, output ) {
+  function runFromInstruction( control, registers, memory, input, output, instructionIr, instructionADR ) {
     var halted = false;
     var processed = {};
 
-    var startpc = control['pc'];
+    var jumped = false;
 
     var instructionWords = 0;
 
-    var instructionIr = memory[startpc];
-    var instructionADR = 0;
+    var Op = Math.floor( instructionIr / firstColumn );
+    var Rd = Math.floor( ( instructionIr - ( Op * firstColumn ) ) / secondColumn );
+    var Ra = Math.floor( ( instructionIr - ( Rd * secondColumn ) - ( Op * firstColumn ) ) / thirdColumn );
+    var Rb = Math.floor( ( instructionIr - ( Ra * thirdColumn ) - ( Rd * secondColumn ) - ( Op * firstColumn ) ) / fourthColumn );
 
-    var Op = Math.floor( memory[startpc] / firstColumn );
-    var Rd = Math.floor( ( memory[startpc] - ( Op * firstColumn ) ) / secondColumn );
-    var Ra = Math.floor( ( memory[startpc] - ( Rd * secondColumn ) - ( Op * firstColumn ) ) / thirdColumn );
-    var Rb = Math.floor( ( memory[startpc] - ( Ra * thirdColumn ) - ( Rd * secondColumn ) - ( Op * firstColumn ) ) / fourthColumn );
-
-    var RaValue = registers[Ra];    
+    var RaValue = registers[Ra];
     var RbValue = registers[Rb];
 
     if ( ( RaValue & 0x8000 ) > 0 ) RaValue = readSignedHex( RaValue );
@@ -1952,24 +1987,27 @@
         break;
 
       case 0xe :
-        instructionADR = memory[control['pc'] + 1];
-        processed = processEXPInstruction( control, registers, memory, Rd, Ra, Rb, instructionADR );
+        processed = processEXPInstruction( control, registers, memory, input, output, Rd, Ra, Rb, instructionADR );
 
         control = processed['control'];
         registers = processed['registers'];
         memory = processed['memory'];
+        input = processed['input'];
+        output = processed['output'];
         instructionWords = processed['instructionWords'];
+        halted = processed['halted'];
+        jumped = processed['jumped'];
 
         break;
 
       case 0xf :
         instructionWords = 2;
-        instructionADR = memory[control['pc'] + 1];
         processed = processRXInstruction( control, registers, memory, Rd, Ra, Rb, instructionADR );
 
         control = processed['control'];
         registers = processed['registers'];
         memory = processed['memory'];
+        jumped = processed['jumped'];
         
         break;
 
@@ -1991,8 +2029,38 @@
     control['ir'] = instructionIr;
     control['adr'] = instructionADR;
 
-    if ( control['pc'] === startpc ) control['pc'] += instructionWords; 
+    return {
+      'control' : control,
+      'registers' : registers,
+      'memory' : memory,
+      'input' : input,
+      'output' : output,
+      'halted' : halted,
+      'instructionWords' : instructionWords,
+      'jumped' : jumped
+    };
+  }
 
+  export function runMemory( control, registers, memory, input, output ) {
+    var instructionIr = memory[control['pc']];
+    var instructionADR = 0;
+    if ( memory[control['pc'] + 1] ) instructionADR = memory[control['pc'] + 1];
+
+    // run the ir with adr
+    var ran = runFromInstruction( control, registers, memory, input, output, instructionIr, instructionADR );
+
+    control = ran['control'];
+    registers = ran['registers'];
+    memory = ran['memory'];
+    input = ran['input'];
+    output = ran['output'];
+    var halted = ran['halted'];
+    var instructionWords = ran['instructionWords'];
+    var jumped = ran['jumped'];
+
+    if ( !jumped ) control['pc'] += instructionWords;
+
+    // checking that happens outwith running that would break the emulator during next execution
     if ( Object.values( registers ).includes( NaN ) || Object.values( registers ).includes( undefined )  ) {
       console.log( control );
       console.log( registers );
