@@ -27,14 +27,21 @@
     jump : 'jx', 
 
     jumpc0 : 'kx', 
-    jumpc1 : 'kx', 
+    jumpc1 : 'kx',
 
-    jumplt : 'jumpAlias', 
-    jumple : 'jumpAlias', 
-    jumpne : 'jumpAlias', 
-    jumpeq : 'jumpAlias', 
-    jumpge : 'jumpAlias', 
+    jumple : 'jumpAlias',
+    jumpne : 'jumpAlias',
+    jumpge : 'jumpAlias',
+    jumpnv : 'jumpAlias',
+    jumpnvu : 'jumpAlias',
+    jumpnco : 'jumpAlias',
+
+    jumplt : 'jumpAlias',
+    jumpeq : 'jumpAlias',
     jumpgt : 'jumpAlias',
+    jumpv : 'jumpAlias',
+    jumpvu : 'jumpAlias',
+    jumpco : 'jumpAlias',
 
     data : 'x',
 
@@ -60,7 +67,7 @@
     putbit : 'rkEXP',
     putbiti : 'rkEXP',
 
-    field : 'rkkEXP',
+    field : 'injectIAlias',
 
     extract : 'rrkkEXP',
     extracti : 'rrkkEXP',
@@ -114,12 +121,19 @@
       jump : 3
     };
     const jumpAliasCommands = { // 4 is jumpc0, 5 is jumpc1
-      jumplt : [ 5, 4 ],
-      jumple : [ 4, 0 ],
+      jumple : [ 4, 1 ],
       jumpne : [ 4, 2 ],
+      jumpge : [ 4, 3 ],
+      jumpv : [ 4, 6 ],
+      jumpvu : [ 4, 5 ],
+      jumpco : [ 4, 7 ],
+
+      jumplt : [ 5, 3 ],
       jumpeq : [ 5, 2 ],
-      jumpge : [ 4, 4 ],
-      jumpgt : [ 5, 0 ]
+      jumpgt : [ 5, 1 ],
+      jumpnv : [ 5, 6 ],
+      jumpnvu : [ 5, 5 ],
+      jumpnco : [ 5, 7 ]
     };
     const kxCommands = {
       jumpc0 : 4,
@@ -177,10 +191,6 @@
       putbiti : 0x1b,
     };
 
-    const rkkEXPCommands = {
-      field : 0x1c
-    };
-
     const rrkkEXPCommands = {
       extract : 0x12,
       extracti : 0x13
@@ -215,6 +225,10 @@
     const logicAliasRRCommands = {
       invnew : [ 0x16, 0xc ]
     };
+
+    const injectIAliasCommands = {
+      field : [ 0x15, 0, 0 ]
+    }
 
 // UTIL FUNCTIONS
   export function readSignedHex( a ) {
@@ -688,15 +702,6 @@
         }
         break;
 
-      case 'rkkEXP' :
-        // first word is an rrkEXP command i.e shiftl
-        if ( argument ) {
-          check = checkRKKexpCommand( argument );
-        } else {
-          check = command + ' must be followed by a register and 2 constants in form Rx,k1,k2';
-        }
-        break;
-
       case 'rrkkEXP' :
         // first word is an rrkkEXP command i.e extract
         if ( argument ) {
@@ -757,6 +762,15 @@
           check = checkRRCommand( argument );
         } else {
           check = command + ' must be followed by 2 registers in form Rx,Rx';
+        }
+        break;
+
+      case 'injectIAlias' :
+        // first word is an rrkEXP command i.e shiftl
+        if ( argument ) {
+          check = checkRKKexpCommand( argument );
+        } else {
+          check = command + ' must be followed by a register and 2 constants in form Rx,k1,k2';
         }
         break;
 
@@ -892,12 +906,6 @@
         result['op'] = rkEXPCommands[command];
         break;
 
-      case 'rkkEXP' :
-        result['words'] = 2;
-        result['type'] = 'exp4'; // g and h will hold k arguments as k only goes upto 15
-        result['op'] = rkkEXPCommands[command];
-        break;
-
       case 'rrkkEXP' :
         result['words'] = 2;
         result['type'] = 'exp4'; // two k arguments to be held in g and h fields, needs to be a exp4
@@ -938,6 +946,12 @@
         result['words'] = 2;
         result['type'] = 'exp4'; // does matter as logic type is set in g field
         result['op'] = logicAliasRRCommands[command][0];
+        break;
+
+      case 'injectIAlias' :
+        result['words'] = 2;
+        result['type'] = 'exp4'; // does matter as bitStart and bitEnd are set in g and h fields as 4 bit numbers
+        result['op'] = injectIAliasCommands[command][0];
         break;
 
       default :
@@ -1082,14 +1096,6 @@
         result['g'] = readConstant( argumentListRKexp[1], labels );
         break;
 
-      case 'rkkEXP' :
-        var argumentListRKKexp = argument.split( ',' );
-        result['d'] = Number( argumentListRKKexp[0].slice( 1, argumentListRKKexp[0].length ) );
-        
-        result['g'] = readConstant( argumentListRKKexp[1], labels );
-        result['h'] = readConstant( argumentListRKKexp[2], labels );
-        break;
-
       case 'rrkkEXP' :
         var argumentListRRKKexp = argument.split( ',' );
         result['d'] = Number( argumentListRRKKexp[0].slice( 1, argumentListRRKKexp[0].length ) );
@@ -1152,6 +1158,17 @@
         result['e'] = Number( argumentListLogicAliasRRexp[1].slice( 1, argumentListLogicAliasRRexp[1].length ) );
         
         result['g'] = logicAliasRRCommands[command][1];
+        break;
+
+      case 'injectIAlias' :
+        var argumentListInjectIAliasRKKexp = argument.split( ',' );
+        result['d'] = Number( argumentListInjectIAliasRKKexp[0].slice( 1, argumentListInjectIAliasRKKexp[0].length ) );
+        
+        result['e'] = injectIAliasCommands[command][1];
+        result['f'] = injectIAliasCommands[command][2];
+        
+        result['g'] = readConstant( argumentListInjectIAliasRKKexp[1], labels );
+        result['h'] = readConstant( argumentListInjectIAliasRKKexp[2], labels );
         break;
 
       default :
@@ -1785,13 +1802,6 @@
         const bitToSetPutI = ( getBitFromRegister( registers[Rd], g ) ^ 1 );
         
         registers[15] = setBitInRegister( registers[15], bitToSetPutI, g );
-        break;
-
-      case 0x1c :
-        // field
-        instructionWords = 2;
-
-        registers[Rd] = setBitInRegisterMultiple( 0, 0xffff, h, g );
         break;
 
       default :
