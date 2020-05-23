@@ -50,7 +50,7 @@ This will start the local React.js development server and should open a windown 
 * √ - Implement '`jumpAlias`' functions
 * √ - Implement full function of `trap` instruction
 * Check that R15 updates correctly for each arithmetic `RRR` function.
-* Implement all `EXP` functions
+* √ - Implement all `EXP` functions ( except rfi as no interrupt registers )
 * √ - Small rewrite to use binary checking instead of string checking to increase performance further
 * √ - Link to webpage
 
