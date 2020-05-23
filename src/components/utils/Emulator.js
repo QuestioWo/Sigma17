@@ -75,7 +75,13 @@
     orb : 'logicAliasRRRK',
     xorb : 'logicAliasRRRK',
 
-    invb : 'logicAliasRRK'
+    invb : 'logicAliasRRK',
+
+    andnew : 'logicAliasRRR',
+    ornew : 'logicAliasRRR',
+    xornew : 'logicAliasRRR',
+
+    invnew : 'logicAliasRR'
   };
   
   const firstColumn = Math.pow( 16, 3 );
@@ -198,6 +204,16 @@
 
     const logicAliasRRKCommands = {
       invb : [ 0x17, 0xc ]
+    };
+
+    const logicAliasRRRCommands = {
+      andnew : [ 0x16, 1 ],
+      ornew : [ 0x16, 7 ],
+      xornew : [ 0x16, 6 ]
+    };
+
+    const logicAliasRRCommands = {
+      invnew : [ 0x16, 0xc ]
     };
 
 // UTIL FUNCTIONS
@@ -681,7 +697,7 @@
         if ( argument ) {
           check = checkRRRKKexpCommand( argument );
         } else {
-          check = command + ' must be followed by 3 register and 2 constants in form Rx,Rx,Rx,k1,k2';
+          check = command + ' must be followed by 3 registers and 2 constants in form Rx,Rx,Rx,k1,k2';
         }
         break;
 
@@ -690,7 +706,7 @@
         if ( argument ) {
           check = checkRRRKexpCommand( argument );
         } else {
-          check = command + ' must be followed by 3 register and 1 constants in form Rx,Rx,Rx,k';
+          check = command + ' must be followed by 3 registers and 1 constants in form Rx,Rx,Rx,k';
         }
         break;
 
@@ -699,16 +715,34 @@
         if ( argument ) {
           check = checkRRRKexpCommand( argument );
         } else {
-          check = command + ' must be followed by 3 register and 1 constants in form Rx,Rx,Rx,k';
+          check = command + ' must be followed by 3 registers and 1 constants in form Rx,Rx,Rx,k';
         }
         break;
 
       case 'logicAliasRRK' :
-        // first word is an logicAliasRRK command i.e inv
+        // first word is an logicAliasRRK command i.e invb
         if ( argument ) {
           check = checkRRKexpCommand( argument );
         } else {
-          check = command + ' must be followed by 2 register and 1 constants in form Rx,Rx,k';
+          check = command + ' must be followed by 2 registers and a constant in form Rx,Rx,k';
+        }
+        break;
+
+      case 'logicAliasRRR' :
+        // first word is an logicAliasRRR command i.e andnew
+        if ( argument ) {
+          check = checkRRRCommand( argument );
+        } else {
+          check = command + ' must be followed by 3 registers in form Rx,Rx,Rx';
+        }
+        break;
+
+      case 'logicAliasRR' :
+        // first word is an logicAliasRR command i.e invnew
+        if ( argument ) {
+          check = checkRRCommand( argument );
+        } else {
+          check = command + ' must be followed by 2 registers in form Rx,Rx';
         }
         break;
 
@@ -870,14 +904,26 @@
 
       case 'logicAliasRRRK' :
         result['words'] = 2;
-        result['type'] = 'exp4'; // one k field to be held as a 4 bit number, needs to be a exp4
+        result['type'] = 'exp4'; // one k field to be held as a 4 bit number and one constant held in g as instruction type, needs to be a exp4
         result['op'] = logicAliasRRRKCommands[command][0];
         break;
 
       case 'logicAliasRRK' :
         result['words'] = 2;
-        result['type'] = 'exp4'; // one k field to be held as a 4 bit number, needs to be a exp4
+        result['type'] = 'exp4'; // one k field to be held as a 4 bit number and one constant held in g as instruction type, needs to be a exp4
         result['op'] = logicAliasRRKCommands[command][0];
+        break;
+
+      case 'logicAliasRRR' :
+        result['words'] = 2;
+        result['type'] = 'exp4'; // does matter as logic type is set in g field
+        result['op'] = logicAliasRRRCommands[command][0];
+        break;
+
+      case 'logicAliasRR' :
+        result['words'] = 2;
+        result['type'] = 'exp4'; // does matter as logic type is set in g field
+        result['op'] = logicAliasRRCommands[command][0];
         break;
 
       default :
@@ -1075,6 +1121,23 @@
         
         result['g'] = logicAliasRRKCommands[command][1];
         result['h'] = readConstant( argumentListLogicAliasRRKexp[2], labels );
+        break;
+
+      case 'logicAliasRRR' :
+        var argumentListLogicAliasRRRexp = argument.split( ',' );
+        result['d'] = Number( argumentListLogicAliasRRRexp[0].slice( 1, argumentListLogicAliasRRRexp[0].length ) );
+        result['e'] = Number( argumentListLogicAliasRRRexp[1].slice( 1, argumentListLogicAliasRRRexp[1].length ) );
+        result['f'] = Number( argumentListLogicAliasRRRexp[2].slice( 1, argumentListLogicAliasRRRexp[2].length ) );
+        
+        result['g'] = logicAliasRRRCommands[command][1];
+        break;
+
+      case 'logicAliasRR' :
+        var argumentListLogicAliasRRexp = argument.split( ',' );
+        result['d'] = Number( argumentListLogicAliasRRexp[0].slice( 1, argumentListLogicAliasRRexp[0].length ) );
+        result['e'] = Number( argumentListLogicAliasRRexp[1].slice( 1, argumentListLogicAliasRRexp[1].length ) );
+        
+        result['g'] = logicAliasRRCommands[command][1];
         break;
 
       default :
