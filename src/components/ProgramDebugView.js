@@ -386,25 +386,11 @@ export default class ProgramDebugView extends React.Component {
         lineNoWidth = ( ( lineNoWidthLength * 7 ) + 7 );
       }
 
-      lineNoWidth += 25; //25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
-
-      var wrapper = document.getElementById( 'code-area-wrapper' );
-
-      if ( wrapper !== null ) {
-        var overlayWidth = wrapper.clientWidth - lineNoWidth
-      }
-
-      lineNoWidth += 'px'
-
-      if ( wrapper !== null ) {
-        return(
-          <div style={{width : overlayWidth, marginTop : heightOfOverlay, left : lineNoWidth}} className='line-overlay active'/>
-        );
-      } else {
-        return(
-          <div style={{marginTop : heightOfOverlay, left : lineNoWidth}} className='line-overlay active'/>
-        );
-      }
+      lineNoWidth = ( lineNoWidth + 25 ) + 'px'; //25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
+      
+      return(
+        <div style={{marginTop : heightOfOverlay, marginLeft : lineNoWidth}} className='line-overlay active'/>
+      );
     }
   }
 
@@ -424,25 +410,11 @@ export default class ProgramDebugView extends React.Component {
         lineNoWidth = ( ( lineNoWidthLength * 7 ) + 7 );
       }
 
-      lineNoWidth += 25; //25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
+      lineNoWidth = ( lineNoWidth + 25 ) + 'px'; //25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
 
-      var wrapper = document.getElementById( 'code-area-wrapper' );
-
-      if ( wrapper !== null ) {
-        var overlayWidth = wrapper.clientWidth - lineNoWidth
-      }
-
-      lineNoWidth += 'px'
-
-      if ( wrapper !== null ) {
-        return(
-          <div style={{width : overlayWidth, marginTop : heightOfOverlay, left : lineNoWidth}} className='line-overlay last'/>
-        );
-      } else {
-        return(
-          <div style={{marginTop : heightOfOverlay, left : lineNoWidth}} className='line-overlay last'/>
-        );
-      }
+      return(
+        <div style={{marginTop : heightOfOverlay, marginLeft : lineNoWidth}} className='line-overlay last'/>
+      );
     }
   }
 

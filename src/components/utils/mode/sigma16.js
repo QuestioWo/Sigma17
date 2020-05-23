@@ -14,7 +14,8 @@
 
     const allCommands = ["add", "sub", "mul", "div", "cmp", "cmplt", "cmpeq", "cmpgt", "inv", "and", "or", "xor", "trap", 
                         "lea", "load", "store", "jump", "jumpc0", "jumpc1", "jumpf", "jumpt", "jal", "testset", "jumplt", "jumple", "jumpne", "jumpeq", "jumpge", "jumpgt",
-                        "data"];
+                        "data",
+                        "rfi", "save", "restore", "getctl", "putctl", "execute", "push", "pop", "top", "shiftl", "shiftr", "extract", "extracti", "inject", "injecti", "logicw", "logicb", "getbit", "getbiti", "putbit", "putbiti", "field", "andb", "orb", "xorb", "invb", "andnew", "ornew", "xornew", "invnew", "addc"];
 
     CodeMirror.registerHelper("hintWords", "sigma16", allCommands);
 
@@ -22,9 +23,9 @@
 
     function tokenBase(stream, state) {
       if ( stream.eatSpace() ) return null;
-      if ( stream.eat( ',' ) ) return 'punctuation';
-      if ( stream.eat( '[' ) ) return 'punctuation';
-      if ( stream.eat( ']' ) ) return 'punctuation';
+      if ( stream.eat( ',' ) ) return null;
+      if ( stream.eat( '[' ) ) return null;
+      if ( stream.eat( ']' ) ) return null;
 
       var ch = stream.next();
       var peek = stream.peek();
