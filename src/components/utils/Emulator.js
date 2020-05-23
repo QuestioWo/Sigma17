@@ -1751,14 +1751,7 @@
         // field
         instructionWords = 2;
 
-        // Taken from original Sigma16 emulator, from the emulator.js file
-        const shrdistField = 15-h+g; // shift ffff right to get right-adjusted field
-        const shldistField = 15-h;   // shift left to put field into position
-
-        var radjustedFieldF = 0xffff >>> shrdistField;
-
-        // if either bit is on in registers[Re] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
-        registers[Rd] = ( radjustedFieldF << shldistField );
+        registers[Rd] = setBitInRegisterMultiple( 0, 0xffff, h, g );
         break;
 
       default :
