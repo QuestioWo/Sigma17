@@ -196,6 +196,7 @@ export default class ProgramDebugView extends React.Component {
           className='output-area'
           as='textarea'
           value={this.state.output}
+          onDoubleClick={this.outputModalOpen}
           disabled/>
       </div>
     );
@@ -255,7 +256,7 @@ export default class ProgramDebugView extends React.Component {
       codeAreaWrapper.style.height = ( 25 * ( lines.length ) ) + 8 + 'px';
 
       for ( var i = 0; i < lines.length; i++ ) {
-        var yOffset = 25 * ( i + 0.5 );
+        var yOffset = 25 * ( i + 0.75 );
         var styleTop = yOffset + 3 +'px';
 
         var id = 'breakpoint ' + ( i + 1 );
@@ -360,6 +361,16 @@ export default class ProgramDebugView extends React.Component {
     }
 
     return result;
+  }
+  //
+  noHighlightCodeChunk() {
+    return(
+      <div style={{display:'grid'}}>
+        <pre className="code-chunk-column viewing">
+        {this.state.code}
+        </pre>
+      </div>
+    );
   }
 
   toggleHighlighting = button => {
@@ -981,11 +992,15 @@ export default class ProgramDebugView extends React.Component {
                                 value={this.state.code} 
                                 options={{ readOnly : true, lineNumbers : false }}/>
                             : 
-                              <InputGroup
-                                as='textarea'
-                                className='code-chunk-column viewing'
-                                value={this.state.code}
-                                disabled/>
+                              <React.Fragment>
+                                {this.noHighlightCodeChunk()}
+                                {/**<InputGroup
+                                  as='textarea'
+                                  className='code-chunk-column viewing'
+                                  value={this.state.code}
+                                  disabled/>
+                                */}
+                              </React.Fragment>
                             }
                             {this.activeLineOverlay()}
                             {this.lastLineOverlay()}
