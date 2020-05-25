@@ -42,14 +42,16 @@ p.alertbody {
 
 
 .breakpoint-column {
-  position: relative;
-  width: 16px;
+  position: absolute;
+  width: 15px;
   height: 100%;
   font-family: inherit;
   font-weight: inherit;
   background: #eaeef3;
-  border-right: 1px solid rgb(221, 221, 221);
   float: left;
+  display: block;
+  z-index: 2;
+  margin-top: -5px;
 }
 
 .breakpoint-column .breakpoint {
@@ -102,8 +104,10 @@ p.alertbody {
   line-height: inherit;
   padding-top: 4px;
   color: rgb(153, 153, 153);
+  border-left: 1px solid rgb(221, 221, 221);
   border-right: 1px solid rgb(221, 221, 221);
   box-sizing: border-box;
+  margin-left: 15px;
 }
 
 .line-number-column .line-number {
@@ -114,9 +118,9 @@ p.alertbody {
 
 .code-chunk-column {
   border-color: white;
-  padding-top: 3px;
-  padding-left: 3px;
-  padding-right: 3px;
+  padding-top: 4px;
+  padding-left: 4px;
+  padding-right: 4px;
   padding-bottom: 4px;
   resize: none;
   outline: none;
@@ -130,6 +134,8 @@ p.alertbody {
 
   overflow-x: auto;
   overflow-y: hidden;
+
+  border: 0px;
 }
 
 
@@ -154,6 +160,8 @@ p.alertbody {
   border-color: white;
   white-space: pre;
   outline: none;
+  color: black;
+  border-style: solid;
 }
 
 
@@ -213,6 +221,8 @@ p.alertbody {
   border-color: white;
   white-space: pre;
   background: white;
+  color: black;
+  border-style: solid;
 }
 
 .memory-column.big {

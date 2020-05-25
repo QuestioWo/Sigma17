@@ -95,7 +95,7 @@ export default class ProgramEditorView extends React.PureComponent {
       codeArea.style.height = ( 25 * ( lines.length ) ) + 18 + 'px';
 
       for ( var i = 0; i < lines.length; i++ ) {
-        var yOffset = 25 * ( i + 0.5 );
+        var yOffset = 25 * ( i + 0.75 );
         var styleTop = yOffset + 3 +'px';
 
         var id = 'breakpoint ' + ( i + 1 );
