@@ -47,6 +47,11 @@ export default class DocumentationView extends React.Component {
           </Row>
           <Row>
             <Col>
+              Currently, this emulator and IDE runs <strong>fully functional</strong> on <strong>Google Chrome</strong> and <strong>Safari</strong>. Minor features - limited to double clicking to resize outputs - are unavailable on <strong>Firefox</strong> and <strong>Edge</strong>, however the core of the website - breakpoints, emulation, editting and running - are unaffected and the website will still look and operate correctly.
+            </Col>
+          </Row>
+          <Row>
+            <Col>
               <div className="click-editor">
                 <Link to={{
                   pathname : "/editor",
