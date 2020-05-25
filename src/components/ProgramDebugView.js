@@ -102,7 +102,7 @@ export default class ProgramDebugView extends React.Component {
     }
     var machineCode = this.parseCode( code, breakpoints );
 
-    this.setState( { memory : Emulator.setMemory( machineCode ) } )
+    this.setState( { memory : Emulator.setMemory( machineCode ) } );
   }
 
 // ALERT METHODS
@@ -472,8 +472,6 @@ export default class ProgramDebugView extends React.Component {
       }
     }
 
-    this.setState( { lineError : lineErrorCopy } );
-
     return [ranSuccessfully, lineErrorCopy];
   }
 
@@ -548,12 +546,12 @@ export default class ProgramDebugView extends React.Component {
       this.setState( { memoryToLine : memoryToLine } );
       this.setState( { lineToMemory : lineToMemory } );
     } else {
-      var keys = Object.keys( check[1] )
+      var keys = Object.keys( check[1] );
       var keysString = '';
 
       for ( var ite = 0; ite < keys.length; ite++ ) {
         if ( ite !== 0 ) {
-          keysString += ', '
+          keysString += ', ';
         }
 
         keysString += keys[ite];
@@ -964,7 +962,7 @@ export default class ProgramDebugView extends React.Component {
               </div>
             </Col>
             <Col style={{borderRight:'2px solid #eaeef3'}}>
-              <div id='memory-column big' className='memory-column big'>
+              <div id='memory-column-big' className='memory-column big'>
                 {this.memoryColumn()}
               </div>
               <div id='output-column' className='output-column' onDoubleClick={this.resizeOutput}>
@@ -973,7 +971,7 @@ export default class ProgramDebugView extends React.Component {
             </Col>
             <Collapse in={this.state.showCodeChunk} onEntered={this.collapseOnEntered}>
               <Col>
-                <div id='code-area viewing' className='code-area viewing'> 
+                <div id='code-area-viewing' className='code-area viewing'> 
                   <div id='code-area-wrapper' className='code-area-wrapper'>
                     { this.state.showCodeChunk &&
                       <React.Fragment>

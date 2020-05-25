@@ -391,12 +391,12 @@ export default class ProgramEditorView extends React.PureComponent {
 
       this.updateAlert( 'Built successfully', 'success' );
     } else {
-      var keys = Object.keys( check[1] )
+      var keys = Object.keys( check[1] );
       var keysString = '';
 
       for ( var ite = 0; ite < keys.length; ite++ ) {
         if ( ite !== 0 ) {
-          keysString += ', '
+          keysString += ', ';
         }
 
         keysString += keys[ite];
@@ -459,7 +459,7 @@ export default class ProgramEditorView extends React.PureComponent {
   runCode = button => {
     // implicit build if needed
     var machineCode = [];
-    if ( this.machineCodeUpdated ) {
+    if ( this.state.machineCodeUpdated ) {
       machineCode = this.state.machineCode;
     } else {
       machineCode = this.parseCode();
@@ -619,7 +619,7 @@ export default class ProgramEditorView extends React.PureComponent {
               }
               <Col>
                 { !( this.state.outputZoomed ) &&
-                  <div id='memory-column small' className='memory-column small'>
+                  <div id='memory-column-small' className='memory-column small'>
                     {this.memoryColumn()}
                   </div>
                 }

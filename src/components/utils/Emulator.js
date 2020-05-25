@@ -158,7 +158,7 @@
   // EXP
     const noEXPCommands = {
       rfi : 0
-    }
+    };
 
     const rrEXPCommands = {
       execute : 0xc
@@ -230,7 +230,7 @@
 
     const injectIAliasCommands = {
       field : [ 0x15, 0, 0 ]
-    }
+    };
 
 // UTIL FUNCTIONS
   export function readSignedHex( a ) {
@@ -1239,13 +1239,13 @@
       case 'exp4' :
         machineCode += 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn;
         
-        machineCodeSecond = argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['g']*thirdColumn + argumentInfo['h']*fourthColumn
+        machineCodeSecond = argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['g']*thirdColumn + argumentInfo['h']*fourthColumn;
         break;
 
       case 'exp8' :
         machineCode += 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn;
         
-        machineCodeSecond = argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['gh']*fourthColumn
+        machineCodeSecond = argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['gh']*fourthColumn;
         break;
 
       default :
@@ -1946,12 +1946,12 @@
         if ( RbValue !== 0 ) {
           registers[Rd] = Math.floor( RaValue / RbValue );
           if ( Rd !== 15 ) {
-            registers[15] = RaValue % RbValue
+            registers[15] = RaValue % RbValue;
           }
         } else {
           registers[Rd] = RaValue;
           if ( Rd !== 15 ) {
-            registers[15] = 0
+            registers[15] = 0;
           }
         }
 
@@ -2020,7 +2020,7 @@
       case 0xd :
         // trap
         instructionWords = 1;
-        processed = processTRAPInstruction( control, registers, memory, input, output, Rd, Ra, Rb, instructionADR );
+        processed = processTRAPInstruction( control, registers, memory, input, output, Rd, Ra, Rb );
 
         control = processed['control'];
         registers = processed['registers'];

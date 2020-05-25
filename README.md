@@ -1,5 +1,7 @@
 # Sigma17 repository
 
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/QuestioWo/Sigma17.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/QuestioWo/Sigma17/context:javascript)
+
 Sigma17 is a re-write of the original emulator written by John O' Donnell. The overall aim of Sigma17 is to re-write the entire web based app but keep apps functionality. This is so that it is easier and more intuitive to code in Sigma16 with the web based app. 
 
 Sigma16 is a computer architecture designed for research and teaching in computer systems.  This application aims to provide a complete environment for experimenting with the architecture.
@@ -16,15 +18,19 @@ Visit [the website](https://questiowo.github.io/Sigma17).
 
 ### Run with npm locally in browser
 
-The following software needs to be installed in order to build the executable using electron
+The following software needs to be installed in order to build the local server :
 
+```
     node.js
     npm
+```
 
 After these are installed, to compile the program, execute the following commands in the repository directory:
 
+```shell
     npm install
     npm start
+```
 
 This will start the local React.js development server and should open a windown in your default browser to `localhost:3000`, in which the webiste can be used as normal.
 
