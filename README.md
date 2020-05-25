@@ -20,16 +20,14 @@ Visit [the website](https://questiowo.github.io/Sigma17).
 
 The following software needs to be installed in order to build the local server :
 
-```
-    node.js
-    npm
-```
+* `node.js`
+* `npm`
 
 After these are installed, to compile the program, execute the following commands in the repository directory:
 
 ```shell
-    npm install
-    npm start
+npm install
+npm start
 ```
 
 This will start the local React.js development server and should open a windown in your default browser to `localhost:3000`, in which the webiste can be used as normal.
