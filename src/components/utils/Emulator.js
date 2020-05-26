@@ -10,7 +10,6 @@
     and : 'rrr', 
     or : 'rrr', 
     xor : 'rrr',
-    nop : 'rrr',
     trap : 'rrr',
 
     cmp : 'rr', 
@@ -113,7 +112,6 @@
       and : 9,
       or : 0xa,
       xor : 0xb,
-      nop : 0xc,
       trap : 0xd
     };
 
@@ -235,17 +233,23 @@
 // UTIL FUNCTIONS
   export function readSignedHex( a ) {
     a = Number( a );
-    if ( ( a & 0x8000 ) > 0) {
-      a = a - 0x10000;
+    if ( a < 65536 && a >= -32768 ) {
+      if ( ( a & 0x8000 ) > 0) {
+        a = a - 0x10000;
+      }
+      return a;
     }
-    return a;
+    return 65536;
   }
 
   export function readUnsignedHex( a ) {
-    if ( a < 0 ) {
-      a = a + 0x10000;
+    if ( a < 65536 && a >= -32768 ) {
+      if ( a < 0 ) {
+        a = a + 0x10000;
+      }
+      return a;
     }
-    return a;
+    return 65536;
   }
 
   function readConstant( argument, labels ) {
@@ -275,15 +279,15 @@
     var num = 0;
 
     if ( !isNaN( numString ) ) {
-      num = parseInt( numString );
+      num = readUnsignedHex( parseInt( numString ) );
     } else if ( numString.startsWith( '$' ) ) {
       numString = numString.slice( 1, numString.length );
-      num = readSignedHex( parseInt( numString, 16 ) );
+      num = readUnsignedHex( parseInt( numString, 16 ) );
     } else {
       num = 65536;
     }
 
-    return ( num < 32768 && num >= -32768 ) ? true : false;
+    return ( num < 65536 && num >= 0 ) ? true : false;
   }
 
   function isValidNumberBit( numString ) {
@@ -399,7 +403,7 @@
 // CHECKING METHODS
   function checkRRCommand( rr ) {
     // check that rrr is in the form of rd,ra,rb
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9]))$/.test( rr ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9]))$/.test( rr ) ) ) {
       return 'arguments must be in the form of "Ra,Rb"';
     }
     return true;
@@ -407,7 +411,7 @@
 
   function checkRRRCommand( rrr ) {
     // check that rrr is in the form of rd,ra,rb
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9]))$/.test( rrr ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9]))$/.test( rrr ) ) ) {
       return 'arguments must be in the form of "Rd,Ra,Rb"';
     }
     return true;
@@ -415,7 +419,7 @@
 
   function checkJXCommand( jx, labels ) {
     // check that jx is in the form of disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( /^((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]$/.test( jx ) ) ) {
+    if ( !( /^((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[[rR]((1[0-5])|([0-9]))\]$/.test( jx ) ) ) {
       return 'arguments must be in the form of "disp[Ra]"';
     }
     var disp = jx.split( '[' )[0];
@@ -431,7 +435,7 @@
 
   function checkKXCommand( kx, labels ) {
     // check that kx is in the form of k,disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( /^((\$((\d)|([a-f]))+)|(\d)),((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]$/.test( kx ) ) ) {
+    if ( !( /^((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[[rR]((1[0-5])|([0-9]))\]$/.test( kx ) ) ) {
       return 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument';
     }
     var splat = kx.split( ',' );
@@ -453,7 +457,7 @@
 
   function checkRXCommand( rx, labels ) {
     // check that rx is in the form of rd,disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( /^r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]$/.test( rx ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[[rR]((1[0-5])|([0-9]))\]$/.test( rx ) ) ) {
       return 'arguments must be in the form of "Rd,disp[Ra]"';
     }
     var disp = rx.split( ',' )[1].split( '[' )[0];
@@ -469,8 +473,12 @@
 
   function checkXCommand( x ) {
     // check that x is a number, either hex or decimal
+    if ( !( /^((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+$/.test( x ) ) ) {
+      return 'arguments must be in the form of "constant" up to 65535 and down to -32768';
+    }
+
     if ( !( isValidNumber( x ) ) ) {
-      return 'data must be followed by either a decimal or hex number <= 65535';
+      return 'data must be followed by either a decimal or hex number <= 65535 and >=-32768';
     }
     return true;
   }
@@ -482,7 +490,7 @@
 
   function checkRRXexpCommand( rrx ) {
     // check that rrx is in the form of re,rf,disp[rd], where disp can be either hex, or a decimal integer 
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+\[r((1[0-5])|([0-9]))\]$/.test( rrx ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+\[[rR]((1[0-5])|([0-9]))\]$/.test( rrx ) ) ) {
       return 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed';
     }
     var disp = rrx.split( ',' )[2].split( '[' )[0];
@@ -496,7 +504,7 @@
 
   function checkRCexpCommand( rc ) {
     // check that rc is in the form of rd,controlRegister, where controlRegister can be pc, ir, or adr
-    if ( !( /^(r((1[0-5])|([0-9])),((ir)|(pc)|(adr)))$/.test( rc ) ) ) {
+    if ( !( /^([rR]((1[0-5])|([0-9])),((ir)|(pc)|(adr)))$/.test( rc ) ) ) {
       return 'arguments must be in the form of "Rd,controlRegisterName"';
     }
 
@@ -505,50 +513,50 @@
 
   function checkRRKexpCommand( rrk ) {
     // check that rrk is in the form of re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 15
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rrk ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rrk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,g", negative integers not allowed';
     }
     var g = rrk.split( ',' )[2];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, or a hex value with decimal value between 0 and 15';
+      return 'g argument must either be a decimal, or a hex value between 0 and 15';
     }
     return true;
   }
 
   function checkRKexpCommand( rk ) {
     // check that rk is in the form of rd,g, where g can be either hex, or a decimal integer between 0 and 15
-    if ( !( /^r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rk ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rk ) ) ) {
       return 'arguments must be in the form of "Rd,g", negative integers not allowed';
     }
     var g = rk.split( ',' )[1];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, or a hex value with decimal value between 0 and 15';
+      return 'g argument must either be a decimal, or a hex value between 0 and 15';
     }
     return true;
   }
 
   function checkRKKexpCommand( rkk ) {
     // check that rrk is in the form of rd,g,h where g and h can be either hex, or a decimal integer between 0 and 15
-    if ( !( /^r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rkk ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rkk ) ) ) {
       return 'arguments must be in the form of "Rd,g,h", negative integers not allowed';
     }
     var g = rkk.split( ',' )[1];
     var h = rkk.split( ',' )[2];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, or a hex value with decimal value between 0 and 15';
+      return 'g argument must either be a decimal, or a hex value between 0 and 15';
     }
     if ( ! isValidNumberBit( h ) ) {
-      return 'h argument must either be a decimal, or a hex value with decimal value between 0 and 15';
+      return 'h argument must either be a decimal, or a hex value between 0 and 15';
     }
     return true;
   }
 
   function checkRRKKexpCommand( rrkk ) {
     // check that rrkk is in the form of rd,re,g,h, where g and h can be either hex, or a decimal integer between 0 and 15
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rrkk ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rrkk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed';
     }
     var splat = rrkk.split( ',' );
@@ -556,17 +564,17 @@
     var h = splat[3];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed';
+      return 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
     }
     if ( ! isValidNumberBit( h ) ) {
-      return 'h argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed';
+      return 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
     }
     return true;
   }
 
   function checkRRRKKexpCommand( rrrkk ) {
     // check that rrrkk is in the form of rd,re,rf,g,h, where g and h can be either hex, or a decimal integer between 0 and 15
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rrrkk ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rrrkk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed';
     }
     var splat = rrrkk.split( ',' );
@@ -574,24 +582,24 @@
     var h = splat[4];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed';
+      return 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
     }
     if ( ! isValidNumberBit( h ) ) {
-      return 'h argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed';
+      return 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
     }
     return true;
   }
 
   function checkRRRKexpCommand( rrrk ) {
     // check that rrrk is in the form of rd,re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 255
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rrrk ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rrrk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed';
     }
     var splat = rrrk.split( ',' );
     var g = splat[3];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed';
+      return 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
     }
     return true;
   }
@@ -757,7 +765,7 @@
         if ( argument ) {
           check = checkRRRKexpCommand( argument );
         } else {
-          check = command + ' must be followed by 3 registers and 1 constants in form Rx,Rx,Rx,k';
+          check = command + ' must be followed by 3 registers and a constant in form Rx,Rx,Rx,k';
         }
         break;
 
@@ -766,7 +774,7 @@
         if ( argument ) {
           check = checkRRRKexpCommand( argument );
         } else {
-          check = command + ' must be followed by 3 registers and 1 constants in form Rx,Rx,Rx,k';
+          check = command + ' must be followed by 3 registers and a constant in form Rx,Rx,Rx,k';
         }
         break;
 
@@ -835,8 +843,6 @@
             }
           }
           // just a label, therefore allowed and function returns true
-        } else {
-          error = 'first element of an instruction must be either a label or a command';
         }
       }
     }
