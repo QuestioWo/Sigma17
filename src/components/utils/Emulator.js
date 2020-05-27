@@ -123,16 +123,16 @@
       jumple : [ 4, 1 ],
       jumpne : [ 4, 2 ],
       jumpge : [ 4, 3 ],
-      jumpv : [ 4, 6 ],
-      jumpvu : [ 4, 5 ],
-      jumpco : [ 4, 7 ],
+      jumpnv : [ 4, 6 ],
+      jumpnvu : [ 4, 5 ],
+      jumpnco : [ 4, 7 ],
 
       jumplt : [ 5, 3 ],
       jumpeq : [ 5, 2 ],
       jumpgt : [ 5, 1 ],
-      jumpnv : [ 5, 6 ],
-      jumpnvu : [ 5, 5 ],
-      jumpnco : [ 5, 7 ]
+      jumpv : [ 5, 6 ],
+      jumpvu : [ 5, 5 ],
+      jumpco : [ 5, 7 ]
     };
     const kxCommands = {
       jumpc0 : 4,

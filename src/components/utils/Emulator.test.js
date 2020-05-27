@@ -92,97 +92,6 @@ const testLabels = {
   } );
 
 // CHECK METHODS
-  const checkAllCommands = {
-    // add : 'rrr', 
-    // sub : 'rrr', 
-    // mul : 'rrr', 
-    // div : 'rrr', 
-    // cmplt : 'rrr', 
-    // cmpeq : 'rrr', 
-    // cmpgt : 'rrr', 
-    // and : 'rrr', 
-    // or : 'rrr', 
-    // xor : 'rrr',
-    // trap : 'rrr',
-
-    // cmp : 'rr', 
-    // inv : 'rr',
-
-    // lea : 'rx', 
-    // load : 'rx', 
-    // store : 'rx', 
-    // jumpf : 'rx', 
-    // jumpt : 'rx', 
-    // jal : 'rx', 
-    // testset : 'rx',
-
-    // jump : 'jx', 
-
-    // jumpc0 : 'kx', 
-    // jumpc1 : 'kx',
-
-    // jumple : 'jumpAlias',
-    // jumpne : 'jumpAlias',
-    // jumpge : 'jumpAlias',
-    // jumpnv : 'jumpAlias',
-    // jumpnvu : 'jumpAlias',
-    // jumpnco : 'jumpAlias',
-
-    // jumplt : 'jumpAlias',
-    // jumpeq : 'jumpAlias',
-    // jumpgt : 'jumpAlias',
-    // jumpv : 'jumpAlias',
-    // jumpvu : 'jumpAlias',
-    // jumpco : 'jumpAlias',
-
-    // data : 'x',
-
-    // rfi : 'noEXP',
-
-    // execute : 'rrEXP',
-
-    // save : 'rrxEXP',
-    // restore : 'rrxEXP',
-
-    // getctl : 'rcEXP',
-    // putctl : 'rcEXP',
-
-    // push : 'rrrEXP',
-    // pop : 'rrrEXP',
-    // top : 'rrrEXP',
-    // addc : 'rrrEXP',
-
-    // shiftl : 'rrkEXP',
-    // shiftr : 'rrkEXP',
-
-    // getbit : 'rkEXP',
-    // getbiti : 'rkEXP',
-    // putbit : 'rkEXP',
-    // putbiti : 'rkEXP',
-
-    // field : 'injectIAlias',
-
-    // extract : 'rrkkEXP',
-    // extracti : 'rrkkEXP',
-
-    // inject : 'rrrkkEXP',
-    // injecti : 'rrrkkEXP',
-    // logicb : 'rrrkkEXP',
-
-    // logicw : 'rrrkEXP',
-
-    // andb : 'logicAliasRRRK',
-    // orb : 'logicAliasRRRK',
-    // xorb : 'logicAliasRRRK',
-
-    // invb : 'logicAliasRRK',
-
-    // andnew : 'logicAliasRRR',
-    // ornew : 'logicAliasRRR',
-    // xornew : 'logicAliasRRR',
-
-    // invnew : 'logicAliasRR'
-  };
   // recognise
     test( 'CHECK recognise-all-commands correct', () => {
       // RR
@@ -1057,6 +966,656 @@ const testLabels = {
       
       expect( Emulator.checkLine( '     invnew' ) ).toBe( 'invnew must be followed by 2 registers in form Rx,Rx' );
     } );
+
+// PARSE METHODS
+  // label recognition
+    test( 'PARSE label recognise', () => {
+      expect( Emulator.parseLineForLabels( 'label data 3' ) ).toStrictEqual( { 'label' : 'label', 'justLabel' : false, 'instructionWords' : 1 } );
+      expect( Emulator.parseLineForLabels( 'label load r1,label2[r0]' ) ).toStrictEqual( { 'label' : 'label', 'justLabel' : false, 'instructionWords' : 2 } );
+      expect( Emulator.parseLineForLabels( 'label' ) ).toStrictEqual( {'label' : 'label', 'justLabel' : true, 'instructionWords' : 1} );
+      expect( Emulator.parseLineForLabels( 'label ' ) ).toStrictEqual( {'label' : 'label', 'justLabel' : true, 'instructionWords' : 1} );
+    } );
+
+  // RR
+    // INV
+      test( 'PARSE RR inv', () => {
+        expect( Emulator.parseLineForMachineCode( 'inv r1,r2', testLabels ) ).toStrictEqual( [ 0x8112, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'inv R1,R2', testLabels ) ).toStrictEqual( [ 0x8112, 65536 ] );
+      } );
+
+    // CMP
+      test( 'PARSE RR cmp', () => {
+        expect( Emulator.parseLineForMachineCode( 'cmp r1,r2', testLabels ) ).toStrictEqual( [ 0x4112, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'cmp R1,R2', testLabels ) ).toStrictEqual( [ 0x4112, 65536 ] );
+      } );
+
+  // RRR
+    // ADD
+      test( 'PARSE RRR add', () => {
+        expect( Emulator.parseLineForMachineCode( 'add r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x0123, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'add R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x0123, 65536 ] );
+      } );
+
+    // SUB
+      test( 'PARSE RRR sub', () => {
+        expect( Emulator.parseLineForMachineCode( 'sub r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x1123, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'sub R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x1123, 65536 ] );
+      } );
+
+    // MUL
+      test( 'PARSE RRR mul', () => {
+        expect( Emulator.parseLineForMachineCode( 'mul r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x2123, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'mul R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x2123, 65536 ] );
+      } );
+
+    // DIV
+      test( 'PARSE RRR div', () => {
+        expect( Emulator.parseLineForMachineCode( 'div r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x3123, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'div R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x3123, 65536 ] );
+      } );
+
+    // CMPLT
+      test( 'PARSE RRR cmplt', () => {
+        expect( Emulator.parseLineForMachineCode( 'cmplt r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x5123, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'cmplt R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x5123, 65536 ] );
+      } );
+
+    // CMPEQ
+      test( 'PARSE RRR cmpeq', () => {
+        expect( Emulator.parseLineForMachineCode( 'cmpeq r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x6123, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'cmpeq R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x6123, 65536 ] );
+      } );
+
+    // CMPGT
+      test( 'PARSE RRR cmpgt', () => {
+        expect( Emulator.parseLineForMachineCode( 'cmpgt r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x7123, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'cmpgt R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x7123, 65536 ] );
+      } );
+
+    // AND
+      test( 'PARSE RRR and', () => {
+        expect( Emulator.parseLineForMachineCode( 'and r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x9123, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'and R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x9123, 65536 ] );
+      } );
+
+    // OR
+      test( 'PARSE RRR or', () => {
+        expect( Emulator.parseLineForMachineCode( 'or r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xa123, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'or R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xa123, 65536 ] );
+      } );
+
+    // XOR
+      test( 'PARSE RRR xor', () => {
+        expect( Emulator.parseLineForMachineCode( 'xor r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xb123, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'xor R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xb123, 65536 ] );
+      } );
+
+    // TRAP
+      test( 'PARSE RRR trap', () => {
+        expect( Emulator.parseLineForMachineCode( 'trap r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xd123, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'trap R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xd123, 65536 ] );
+      } );
+
+  // RX
+    // LEA
+      test( 'PARSE RX lea', () => {
+        expect( Emulator.parseLineForMachineCode( 'lea r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf100, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'lea R1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf100, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'lea r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf100, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'lea R14,test[R2]', testLabels ) ).toStrictEqual( [ 0xfe20, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'lea r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf100, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'lea r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf100, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'lea r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf100, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'lea r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf100, 0x0100 ] );
+      } );
+
+    // LOAD
+      test( 'PARSE RX load', () => {
+        expect( Emulator.parseLineForMachineCode( 'load r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf101, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'load R1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf101, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'load r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf101, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'load R14,test[R2]', testLabels ) ).toStrictEqual( [ 0xfe21, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'load r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf101, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'load r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf101, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'load r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf101, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'load r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf101, 0x0100 ] );
+      } );
+
+    // STORE
+      test( 'PARSE RX store', () => {
+        expect( Emulator.parseLineForMachineCode( 'store r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf102, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'store R1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf102, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'store r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf102, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'store R14,test[R2]', testLabels ) ).toStrictEqual( [ 0xfe22, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'store r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf102, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'store r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf102, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'store r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf102, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'store r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf102, 0x0100 ] );
+      } );
+
+    // JUMPF
+      test( 'PARSE RX jumpf', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpf r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf106, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpf R1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf106, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpf r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf106, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpf R14,test[R2]', testLabels ) ).toStrictEqual( [ 0xfe26, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpf r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf106, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpf r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf106, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpf r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf106, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpf r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf106, 0x0100 ] );
+      } );
+
+    // JUMPT
+      test( 'PARSE RX jumpt', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpt r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf107, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpt R1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf107, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpt r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf107, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpt R14,test[R2]', testLabels ) ).toStrictEqual( [ 0xfe27, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpt r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf107, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpt r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf107, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpt r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf107, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpt r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf107, 0x0100 ] );
+      } );
+
+    // JAL
+      test( 'PARSE RX jal', () => {
+        expect( Emulator.parseLineForMachineCode( 'jal r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf108, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jal R1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf108, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jal r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf108, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jal R14,test[R2]', testLabels ) ).toStrictEqual( [ 0xfe28, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jal r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf108, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jal r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf108, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jal r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf108, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jal r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf108, 0x0100 ] );
+      } );
+
+    // TESTSET
+      test( 'PARSE RX testset', () => {
+        expect( Emulator.parseLineForMachineCode( 'testset r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf109, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'testset R1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf109, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'testset r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf109, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'testset R14,test[R2]', testLabels ) ).toStrictEqual( [ 0xfe29, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'testset r1,test[r0]', testLabels ) ).toStrictEqual( [ 0xf109, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'testset r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf109, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'testset r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf109, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'testset r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf109, 0x0100 ] );
+      } );
+
+  // JX
+    // JUMP
+      test( 'PARSE JX jump', () => {
+        expect( Emulator.parseLineForMachineCode( 'jump test[r0]', testLabels ) ).toStrictEqual( [ 0xf003, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jump test[R2]', testLabels ) ).toStrictEqual( [ 0xf023, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jump test[r0]', testLabels ) ).toStrictEqual( [ 0xf003, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jump 100[r0]', testLabels ) ).toStrictEqual( [ 0xf003, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jump -100[r0]', testLabels ) ).toStrictEqual( [ 0xf003, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jump $100[r0]', testLabels ) ).toStrictEqual( [ 0xf003, 0x0100 ] );
+      } );
+
+  // KX
+    // JUMPC0
+      test( 'PARSE KX jumpc0', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpc0 0,test[r0]', testLabels ) ).toStrictEqual( [ 0xf004, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpc0 0,test[R2]', testLabels ) ).toStrictEqual( [ 0xf024, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpc0 1,test[R2]', testLabels ) ).toStrictEqual( [ 0xf124, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpc0 $f,test[R2]', testLabels ) ).toStrictEqual( [ 0xff24, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpc0 0,test[r0]', testLabels ) ).toStrictEqual( [ 0xf004, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpc0 0,100[r0]', testLabels ) ).toStrictEqual( [ 0xf004, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpc0 0,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf004, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpc0 0,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf004, 0x0100 ] );
+      } );
+
+    // JUMPC1
+      test( 'PARSE KX jumpc1', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpc1 0,test[r0]', testLabels ) ).toStrictEqual( [ 0xf005, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpc1 0,test[R2]', testLabels ) ).toStrictEqual( [ 0xf025, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpc1 1,test[R2]', testLabels ) ).toStrictEqual( [ 0xf125, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpc1 $f,test[R2]', testLabels ) ).toStrictEqual( [ 0xff25, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpc1 0,test[r0]', testLabels ) ).toStrictEqual( [ 0xf005, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpc1 0,100[r0]', testLabels ) ).toStrictEqual( [ 0xf005, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpc1 0,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf005, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpc1 0,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf005, 0x0100 ] );
+      } );
+
+  // JUMPALIAS
+    // JUMPLE
+      test( 'PARSE JUMPALIAS jumple', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumple test[r0]', testLabels ) ).toStrictEqual( [ 0xf104, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumple test[R2]', testLabels ) ).toStrictEqual( [ 0xf124, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumple test[r0]', testLabels ) ).toStrictEqual( [ 0xf104, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumple 100[r0]', testLabels ) ).toStrictEqual( [ 0xf104, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumple -100[r0]', testLabels ) ).toStrictEqual( [ 0xf104, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumple $100[r0]', testLabels ) ).toStrictEqual( [ 0xf104, 0x0100 ] );
+      } );
+
+    // JUMPNE
+      test( 'PARSE JUMPALIAS jumpne', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpne test[r0]', testLabels ) ).toStrictEqual( [ 0xf204, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpne test[R2]', testLabels ) ).toStrictEqual( [ 0xf224, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpne test[r0]', testLabels ) ).toStrictEqual( [ 0xf204, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpne 100[r0]', testLabels ) ).toStrictEqual( [ 0xf204, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpne -100[r0]', testLabels ) ).toStrictEqual( [ 0xf204, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpne $100[r0]', testLabels ) ).toStrictEqual( [ 0xf204, 0x0100 ] );
+      } );
+
+    // JUMPGE
+      test( 'PARSE JUMPALIAS jumpge', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpge test[r0]', testLabels ) ).toStrictEqual( [ 0xf304, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpge test[R2]', testLabels ) ).toStrictEqual( [ 0xf324, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpge test[r0]', testLabels ) ).toStrictEqual( [ 0xf304, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpge 100[r0]', testLabels ) ).toStrictEqual( [ 0xf304, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpge -100[r0]', testLabels ) ).toStrictEqual( [ 0xf304, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpge $100[r0]', testLabels ) ).toStrictEqual( [ 0xf304, 0x0100 ] );
+      } );
+
+    // JUMPNV
+      test( 'PARSE JUMPALIAS jumpnv', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpnv test[r0]', testLabels ) ).toStrictEqual( [ 0xf604, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpnv test[R2]', testLabels ) ).toStrictEqual( [ 0xf624, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpnv test[r0]', testLabels ) ).toStrictEqual( [ 0xf604, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpnv 100[r0]', testLabels ) ).toStrictEqual( [ 0xf604, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpnv -100[r0]', testLabels ) ).toStrictEqual( [ 0xf604, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpnv $100[r0]', testLabels ) ).toStrictEqual( [ 0xf604, 0x0100 ] );
+      } );
+
+    // JUMPNVU
+      test( 'PARSE JUMPALIAS jumpnvu', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpnvu test[r0]', testLabels ) ).toStrictEqual( [ 0xf504, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpnvu test[R2]', testLabels ) ).toStrictEqual( [ 0xf524, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpnvu test[r0]', testLabels ) ).toStrictEqual( [ 0xf504, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpnvu 100[r0]', testLabels ) ).toStrictEqual( [ 0xf504, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpnvu -100[r0]', testLabels ) ).toStrictEqual( [ 0xf504, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpnvu $100[r0]', testLabels ) ).toStrictEqual( [ 0xf504, 0x0100 ] );
+      } );
+
+    // JUMPNCO
+      test( 'PARSE JUMPALIAS jumpnco', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpnco test[r0]', testLabels ) ).toStrictEqual( [ 0xf704, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpnco test[R2]', testLabels ) ).toStrictEqual( [ 0xf724, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpnco test[r0]', testLabels ) ).toStrictEqual( [ 0xf704, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpnco 100[r0]', testLabels ) ).toStrictEqual( [ 0xf704, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpnco -100[r0]', testLabels ) ).toStrictEqual( [ 0xf704, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpnco $100[r0]', testLabels ) ).toStrictEqual( [ 0xf704, 0x0100 ] );
+      } );
+
+    // JUMPLT
+      test( 'PARSE JUMPALIAS jumplt', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumplt test[r0]', testLabels ) ).toStrictEqual( [ 0xf305, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumplt test[R2]', testLabels ) ).toStrictEqual( [ 0xf325, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumplt test[r0]', testLabels ) ).toStrictEqual( [ 0xf305, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumplt 100[r0]', testLabels ) ).toStrictEqual( [ 0xf305, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumplt -100[r0]', testLabels ) ).toStrictEqual( [ 0xf305, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumplt $100[r0]', testLabels ) ).toStrictEqual( [ 0xf305, 0x0100 ] );
+      } );
+
+    // JUMPEQ
+      test( 'PARSE JUMPALIAS jumpeq', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpeq test[r0]', testLabels ) ).toStrictEqual( [ 0xf205, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpeq test[R2]', testLabels ) ).toStrictEqual( [ 0xf225, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpeq test[r0]', testLabels ) ).toStrictEqual( [ 0xf205, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpeq 100[r0]', testLabels ) ).toStrictEqual( [ 0xf205, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpeq -100[r0]', testLabels ) ).toStrictEqual( [ 0xf205, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpeq $100[r0]', testLabels ) ).toStrictEqual( [ 0xf205, 0x0100 ] );
+      } );
+
+    // JUMPGT
+      test( 'PARSE JUMPALIAS jumpgt', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpgt test[r0]', testLabels ) ).toStrictEqual( [ 0xf105, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpgt test[R2]', testLabels ) ).toStrictEqual( [ 0xf125, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpgt test[r0]', testLabels ) ).toStrictEqual( [ 0xf105, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpgt 100[r0]', testLabels ) ).toStrictEqual( [ 0xf105, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpgt -100[r0]', testLabels ) ).toStrictEqual( [ 0xf105, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpgt $100[r0]', testLabels ) ).toStrictEqual( [ 0xf105, 0x0100 ] );
+      } );
+
+    // JUMPV
+      test( 'PARSE JUMPALIAS jumpv', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpv test[r0]', testLabels ) ).toStrictEqual( [ 0xf605, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpv test[R2]', testLabels ) ).toStrictEqual( [ 0xf625, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpv test[r0]', testLabels ) ).toStrictEqual( [ 0xf605, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpv 100[r0]', testLabels ) ).toStrictEqual( [ 0xf605, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpv -100[r0]', testLabels ) ).toStrictEqual( [ 0xf605, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpv $100[r0]', testLabels ) ).toStrictEqual( [ 0xf605, 0x0100 ] );
+      } );
+
+    // JUMPVU
+      test( 'PARSE JUMPALIAS jumpvu', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpvu test[r0]', testLabels ) ).toStrictEqual( [ 0xf505, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpvu test[R2]', testLabels ) ).toStrictEqual( [ 0xf525, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpvu test[r0]', testLabels ) ).toStrictEqual( [ 0xf505, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpvu 100[r0]', testLabels ) ).toStrictEqual( [ 0xf505, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpvu -100[r0]', testLabels ) ).toStrictEqual( [ 0xf505, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpvu $100[r0]', testLabels ) ).toStrictEqual( [ 0xf505, 0x0100 ] );
+      } );
+
+    // JUMPCO
+      test( 'PARSE JUMPALIAS jumpco', () => {
+        expect( Emulator.parseLineForMachineCode( 'jumpco test[r0]', testLabels ) ).toStrictEqual( [ 0xf705, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpco test[R2]', testLabels ) ).toStrictEqual( [ 0xf725, testLabels['test'] ] );
+
+        expect( Emulator.parseLineForMachineCode( 'jumpco test[r0]', testLabels ) ).toStrictEqual( [ 0xf705, testLabels['test'] ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpco 100[r0]', testLabels ) ).toStrictEqual( [ 0xf705, 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpco -100[r0]', testLabels ) ).toStrictEqual( [ 0xf705, 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'jumpco $100[r0]', testLabels ) ).toStrictEqual( [ 0xf705, 0x0100 ] );
+      } );
+
+  // X
+    test( 'PARSE X data', () => {
+      expect( Emulator.parseLineForMachineCode( 'data 100', testLabels ) ).toStrictEqual( [ 100, 65536 ] );
+      expect( Emulator.parseLineForMachineCode( 'data -100', testLabels ) ).toStrictEqual( [ 0xff9c, 65536 ] );
+      expect( Emulator.parseLineForMachineCode( 'data $100', testLabels ) ).toStrictEqual( [ 0x0100, 65536 ] );
+    } );
+
+  // NOEXP
+    // RFI
+      test( 'PARSE NOEXP rfi', () => {
+        expect( Emulator.parseLineForMachineCode( 'rfi' ) ).toStrictEqual( [ 0xe000, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'rfi ' ) ).toStrictEqual( [ 0xe000, 65536 ] );
+      } );
+
+  // RREXP
+    // EXECUTE
+      test( 'PARSE RREXP execute', () => {
+        expect( Emulator.parseLineForMachineCode( 'execute r1,r2', testLabels ) ).toStrictEqual( [ 0xe00c, 0x1200 ] );
+        expect( Emulator.parseLineForMachineCode( 'execute R1,R2', testLabels ) ).toStrictEqual( [ 0xe00c, 0x1200 ] );
+      } );
+
+  // RRXEXP
+    // SAVE
+      test( 'PARSE RXEXP save', () => {
+        expect( Emulator.parseLineForMachineCode( 'save r1,r2,20[r0]', testLabels ) ).toStrictEqual( [ 0xe008, 0x1214 ] );
+        expect( Emulator.parseLineForMachineCode( 'save R1,R2,20[R0]', testLabels ) ).toStrictEqual( [ 0xe008, 0x1214 ] );
+        expect( Emulator.parseLineForMachineCode( 'save R14,R14,20[R2]', testLabels ) ).toStrictEqual( [ 0xe208, 0xee14 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'save r1,r2,$ff[r0]', testLabels ) ).toStrictEqual( [ 0xe008, 0x12ff ] );
+        expect( Emulator.parseLineForMachineCode( 'save r1,r2,100[r0]', testLabels ) ).toStrictEqual( [ 0xe008, 0x1264 ] );
+      } );
+
+    // RESTORE
+      test( 'PARSE RXEXP restore', () => {
+        expect( Emulator.parseLineForMachineCode( 'restore r1,r2,20[r0]', testLabels ) ).toStrictEqual( [ 0xe009, 0x1214 ] );
+        expect( Emulator.parseLineForMachineCode( 'restore R1,R2,20[R0]', testLabels ) ).toStrictEqual( [ 0xe009, 0x1214 ] );
+        expect( Emulator.parseLineForMachineCode( 'restore R14,R14,20[R2]', testLabels ) ).toStrictEqual( [ 0xe209, 0xee14 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'restore r1,r2,$ff[r0]', testLabels ) ).toStrictEqual( [ 0xe009, 0x12ff ] );
+        expect( Emulator.parseLineForMachineCode( 'restore r1,r2,100[r0]', testLabels ) ).toStrictEqual( [ 0xe009, 0x1264 ] );
+      } );
+
+  // RCEXP
+    // GETCTL
+      test( 'PARSE RCEXP getctl', () => {
+        expect( Emulator.parseLineForMachineCode( 'getctl r1,pc' ) ).toStrictEqual( [ 0xe10a, 0x0010 ] );
+        expect( Emulator.parseLineForMachineCode( 'getctl R15,pc' ) ).toStrictEqual( [ 0xef0a, 0x0010 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'getctl r1,pc' ) ).toStrictEqual( [ 0xe10a, 0x0010 ] );
+        expect( Emulator.parseLineForMachineCode( 'getctl r1,ir' ) ).toStrictEqual( [ 0xe10a, 0x0020 ] );
+        expect( Emulator.parseLineForMachineCode( 'getctl r1,adr' ) ).toStrictEqual( [ 0xe10a, 0x0030 ] );
+      } );
+
+    // PUTCTL
+      test( 'PARSE RCEXP putctl', () => {
+        expect( Emulator.parseLineForMachineCode( 'putctl r1,pc' ) ).toStrictEqual( [ 0xe10b, 0x0010 ] );
+        expect( Emulator.parseLineForMachineCode( 'putctl R15,pc' ) ).toStrictEqual( [ 0xef0b, 0x0010 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'putctl r1,pc' ) ).toStrictEqual( [ 0xe10b, 0x0010 ] );
+        expect( Emulator.parseLineForMachineCode( 'putctl r1,ir' ) ).toStrictEqual( [ 0xe10b, 0x0020 ] );
+        expect( Emulator.parseLineForMachineCode( 'putctl r1,adr' ) ).toStrictEqual( [ 0xe10b, 0x0030 ] );
+      } );
+
+  // RRREXP
+    // PUSH
+      test( 'PARSE RRREXP push', () => {
+        expect( Emulator.parseLineForMachineCode( 'push r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xe10d, 0x2300 ] );
+        expect( Emulator.parseLineForMachineCode( 'push R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xe10d, 0x2300 ] );
+      } );
+
+    // POP
+      test( 'PARSE RRREXP pop', () => {
+        expect( Emulator.parseLineForMachineCode( 'pop r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xe10e, 0x2300 ] );
+        expect( Emulator.parseLineForMachineCode( 'pop R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xe10e, 0x2300 ] );
+      } );
+
+    // TOP
+      test( 'PARSE RRREXP top', () => {
+        expect( Emulator.parseLineForMachineCode( 'top r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xe10f, 0x2300 ] );
+        expect( Emulator.parseLineForMachineCode( 'top R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xe10f, 0x2300 ] );
+      } );
+
+    // ADDC
+      test( 'PARSE RRREXP addc', () => {
+        expect( Emulator.parseLineForMachineCode( 'addc r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xe11c, 0x2300 ] );
+        expect( Emulator.parseLineForMachineCode( 'addc R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xe11c, 0x2300 ] );
+      } );
+
+  // RRKEXP
+    // SHIFTL
+      test( 'PARSE RRKEXP shiftl', () => {
+        expect( Emulator.parseLineForMachineCode( 'shiftl r1,r2,0' ) ).toStrictEqual( [ 0xe110, 0x2000 ] );
+        expect( Emulator.parseLineForMachineCode( 'shiftl R1,R15,0' ) ).toStrictEqual( [ 0xe110, 0xf000 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'shiftl r1,r2,5' ) ).toStrictEqual( [ 0xe110, 0x2050 ] );
+        expect( Emulator.parseLineForMachineCode( 'shiftl r1,r2,$f' ) ).toStrictEqual( [ 0xe110, 0x20f0 ] );
+      } );
+
+    // SHIFTR
+      test( 'PARSE RRKEXP shiftr', () => {
+        expect( Emulator.parseLineForMachineCode( 'shiftr r1,r2,0' ) ).toStrictEqual( [ 0xe111, 0x2000 ] );
+        expect( Emulator.parseLineForMachineCode( 'shiftr R1,R15,0' ) ).toStrictEqual( [ 0xe111, 0xf000 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'shiftr r1,r2,5' ) ).toStrictEqual( [ 0xe111, 0x2050 ] );
+        expect( Emulator.parseLineForMachineCode( 'shiftr r1,r2,$f' ) ).toStrictEqual( [ 0xe111, 0x20f0 ] );
+      } );
+
+  // RKEXP
+    // GETBIT
+      test( 'PARSE RKEXP getbit', () => {
+        expect( Emulator.parseLineForMachineCode( 'getbit r1,0' ) ).toStrictEqual( [ 0xe118, 0x0000 ] );
+        expect( Emulator.parseLineForMachineCode( 'getbit R1,0' ) ).toStrictEqual( [ 0xe118, 0x0000 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'getbit r1,5' ) ).toStrictEqual( [ 0xe118, 0x0050 ] );
+        expect( Emulator.parseLineForMachineCode( 'getbit r1,$f' ) ).toStrictEqual( [ 0xe118, 0x00f0 ] );
+      } );
+
+    // GETBITI
+      test( 'PARSE RKEXP getbiti', () => {
+        expect( Emulator.parseLineForMachineCode( 'getbiti r1,0' ) ).toStrictEqual( [ 0xe119, 0x0000 ] );
+        expect( Emulator.parseLineForMachineCode( 'getbiti R1,0' ) ).toStrictEqual( [ 0xe119, 0x0000 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'getbiti r1,5' ) ).toStrictEqual( [ 0xe119, 0x0050 ] );
+        expect( Emulator.parseLineForMachineCode( 'getbiti r1,$f' ) ).toStrictEqual( [ 0xe119, 0x00f0 ] );
+      } );
+
+    // PUTBIT
+      test( 'PARSE RKEXP putbit', () => {
+        expect( Emulator.parseLineForMachineCode( 'putbit r1,0' ) ).toStrictEqual( [ 0xe11a, 0x0000 ] );
+        expect( Emulator.parseLineForMachineCode( 'putbit R1,0' ) ).toStrictEqual( [ 0xe11a, 0x0000 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'putbit r1,5' ) ).toStrictEqual( [ 0xe11a, 0x0050 ] );
+        expect( Emulator.parseLineForMachineCode( 'putbit r1,$f' ) ).toStrictEqual( [ 0xe11a, 0x00f0 ] );
+      } );
+
+    // PUTBITI
+      test( 'PARSE RKEXP putbit', () => {
+        expect( Emulator.parseLineForMachineCode( 'putbiti r1,0' ) ).toStrictEqual( [ 0xe11b, 0x0000 ] );
+        expect( Emulator.parseLineForMachineCode( 'putbiti R1,0' ) ).toStrictEqual( [ 0xe11b, 0x0000 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'putbiti r1,5' ) ).toStrictEqual( [ 0xe11b, 0x0050 ] );
+        expect( Emulator.parseLineForMachineCode( 'putbiti r1,$f' ) ).toStrictEqual( [ 0xe11b, 0x00f0 ] );
+      } );
+
+  // INJECTIALIAS
+    // FIELD
+      test( 'PARSE INJECTIALIAS field', () => {
+        expect( Emulator.parseLineForMachineCode( 'field r1,0,15' ) ).toStrictEqual( [ 0xe115, 0x000f ] );
+        expect( Emulator.parseLineForMachineCode( 'field R15,0,15' ) ).toStrictEqual( [ 0xef15, 0x000f ] );
+
+        expect( Emulator.parseLineForMachineCode( 'field r1,1,15' ) ).toStrictEqual( [ 0xe115, 0x001f ] );
+        expect( Emulator.parseLineForMachineCode( 'field r1,$a,15' ) ).toStrictEqual( [ 0xe115, 0x00af ] );
+
+        expect( Emulator.parseLineForMachineCode( 'field r1,0,$1' ) ).toStrictEqual( [ 0xe115, 0x0001 ] );
+        expect( Emulator.parseLineForMachineCode( 'field r1,0,$f' ) ).toStrictEqual( [ 0xe115, 0x000f ] );
+      } );
+
+  // RRKKEXP
+    // EXTRACT
+      test( 'PARSE RRKKEXP extract', () => {
+        expect( Emulator.parseLineForMachineCode( 'extract r1,r2,0,0' ) ).toStrictEqual( [ 0xe112, 0x2000 ] );
+        expect( Emulator.parseLineForMachineCode( 'extract R1,R15,0,0' ) ).toStrictEqual( [ 0xe112, 0xf000 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'extract r1,r2,5,0' ) ).toStrictEqual( [ 0xe112, 0x2050 ] );
+        expect( Emulator.parseLineForMachineCode( 'extract r1,r2,$f,0' ) ).toStrictEqual( [ 0xe112, 0x20f0 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'extract r1,r2,0,5' ) ).toStrictEqual( [ 0xe112, 0x2005 ] );
+        expect( Emulator.parseLineForMachineCode( 'extract r1,r2,0,$f' ) ).toStrictEqual( [ 0xe112, 0x200f ] );
+      } );
+
+    // EXTRACTI
+      test( 'PARSE RRKKEXP extracti', () => {
+        expect( Emulator.parseLineForMachineCode( 'extracti r1,r2,0,0' ) ).toStrictEqual( [ 0xe113, 0x2000 ] );
+        expect( Emulator.parseLineForMachineCode( 'extracti R1,R15,0,0' ) ).toStrictEqual( [ 0xe113, 0xf000 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'extracti r1,r2,5,0' ) ).toStrictEqual( [ 0xe113, 0x2050 ] );
+        expect( Emulator.parseLineForMachineCode( 'extracti r1,r2,$f,0' ) ).toStrictEqual( [ 0xe113, 0x20f0 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'extracti r1,r2,0,5' ) ).toStrictEqual( [ 0xe113, 0x2005 ] );
+        expect( Emulator.parseLineForMachineCode( 'extracti r1,r2,0,$f' ) ).toStrictEqual( [ 0xe113, 0x200f ] );
+      } );
+
+  // RRRKKEXP
+    // INJECT
+      test( 'PARSE RRRKKEXP inject', () => {
+        expect( Emulator.parseLineForMachineCode( 'inject r1,r2,r3,0,0' ) ).toStrictEqual( [ 0xe114, 0x2300 ] );
+        expect( Emulator.parseLineForMachineCode( 'inject R1,R5,R15,0,0' ) ).toStrictEqual( [ 0xe114, 0x5f00 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'inject r1,r2,r3,5,0' ) ).toStrictEqual( [ 0xe114, 0x2350 ] );
+        expect( Emulator.parseLineForMachineCode( 'inject r1,r2,r3,$f,0' ) ).toStrictEqual( [ 0xe114, 0x23f0 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'inject r1,r2,r3,0,5' ) ).toStrictEqual( [ 0xe114, 0x2305 ] );
+        expect( Emulator.parseLineForMachineCode( 'inject r1,r2,r3,0,$f' ) ).toStrictEqual( [ 0xe114, 0x230f ] );
+      } );
+
+    // INJECTI
+      test( 'PARSE RRRKKEXP injecti', () => {
+        expect( Emulator.parseLineForMachineCode( 'injecti r1,r2,r3,0,0' ) ).toStrictEqual( [ 0xe115, 0x2300 ] );
+        expect( Emulator.parseLineForMachineCode( 'injecti R1,R5,R15,0,0' ) ).toStrictEqual( [ 0xe115, 0x5f00 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'injecti r1,r2,r3,5,0' ) ).toStrictEqual( [ 0xe115, 0x2350 ] );
+        expect( Emulator.parseLineForMachineCode( 'injecti r1,r2,r3,$f,0' ) ).toStrictEqual( [ 0xe115, 0x23f0 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'injecti r1,r2,r3,0,5' ) ).toStrictEqual( [ 0xe115, 0x2305 ] );
+        expect( Emulator.parseLineForMachineCode( 'injecti r1,r2,r3,0,$f' ) ).toStrictEqual( [ 0xe115, 0x230f ] );
+      } );
+
+    // LOGICB
+      test( 'PARSE RRRKKEXP logicb', () => {
+        expect( Emulator.parseLineForMachineCode( 'logicb r1,r2,r3,0,0' ) ).toStrictEqual( [ 0xe117, 0x2300 ] );
+        expect( Emulator.parseLineForMachineCode( 'logicb R1,R5,R15,0,0' ) ).toStrictEqual( [ 0xe117, 0x5f00 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'logicb r1,r2,r3,5,0' ) ).toStrictEqual( [ 0xe117, 0x2350 ] );
+        expect( Emulator.parseLineForMachineCode( 'logicb r1,r2,r3,$f,0' ) ).toStrictEqual( [ 0xe117, 0x23f0 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'logicb r1,r2,r3,0,5' ) ).toStrictEqual( [ 0xe117, 0x2305 ] );
+        expect( Emulator.parseLineForMachineCode( 'logicb r1,r2,r3,0,$f' ) ).toStrictEqual( [ 0xe117, 0x230f ] );
+      } );
+
+  // RRRKEXP
+    // LOGICW
+      test( 'PARSE RRRKEXP logicw', () => {
+        expect( Emulator.parseLineForMachineCode( 'logicw r1,r2,r3,0' ) ).toStrictEqual( [ 0xe116, 0x2300 ] );
+        expect( Emulator.parseLineForMachineCode( 'logicw R1,R5,R15,0' ) ).toStrictEqual( [ 0xe116, 0x5f00 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'logicw r1,r2,r3,5' ) ).toStrictEqual( [ 0xe116, 0x2350 ] );
+        expect( Emulator.parseLineForMachineCode( 'logicw r1,r2,r3,$f' ) ).toStrictEqual( [ 0xe116, 0x23f0 ] );
+      } );
+
+  // LOGICALIASRRRK
+    // ANDB
+      test( 'PARSE LOGICALIASRRRK andb', () => {
+        expect( Emulator.parseLineForMachineCode( 'andb r1,r2,r3,0' ) ).toStrictEqual( [ 0xe117, 0x2310 ] );
+        expect( Emulator.parseLineForMachineCode( 'andb R1,R5,R15,0' ) ).toStrictEqual( [ 0xe117, 0x5f10 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'andb r1,r2,r3,5' ) ).toStrictEqual( [ 0xe117, 0x2315 ] );
+        expect( Emulator.parseLineForMachineCode( 'andb r1,r2,r3,$f' ) ).toStrictEqual( [ 0xe117, 0x231f ] );
+      } );
+
+    // ORB
+      test( 'PARSE LOGICALIASRRRK orb', () => {
+        expect( Emulator.parseLineForMachineCode( 'orb r1,r2,r3,0' ) ).toStrictEqual( [ 0xe117, 0x2370 ] );
+        expect( Emulator.parseLineForMachineCode( 'orb R1,R5,R15,0' ) ).toStrictEqual( [ 0xe117, 0x5f70 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'orb r1,r2,r3,5' ) ).toStrictEqual( [ 0xe117, 0x2375 ] );
+        expect( Emulator.parseLineForMachineCode( 'orb r1,r2,r3,$f' ) ).toStrictEqual( [ 0xe117, 0x237f ] );
+      } );
+
+    // XORB
+      test( 'PARSE LOGICALIASRRRK xorb', () => {
+        expect( Emulator.parseLineForMachineCode( 'xorb r1,r2,r3,0' ) ).toStrictEqual( [ 0xe117, 0x2360 ] );
+        expect( Emulator.parseLineForMachineCode( 'xorb R1,R5,R15,0' ) ).toStrictEqual( [ 0xe117, 0x5f60 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'xorb r1,r2,r3,5' ) ).toStrictEqual( [ 0xe117, 0x2365 ] );
+        expect( Emulator.parseLineForMachineCode( 'xorb r1,r2,r3,$f' ) ).toStrictEqual( [ 0xe117, 0x236f ] );
+      } );
+
+  // LOGICALIASRRK
+    // INVB
+      test( 'PARSE LOGICALIASRRRK invb', () => {
+        expect( Emulator.parseLineForMachineCode( 'invb r1,r2,0' ) ).toStrictEqual( [ 0xe117, 0x20c0 ] );
+        expect( Emulator.parseLineForMachineCode( 'invb R1,R15,0' ) ).toStrictEqual( [ 0xe117, 0xf0c0 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'invb r1,r2,5' ) ).toStrictEqual( [ 0xe117, 0x20c5 ] );
+        expect( Emulator.parseLineForMachineCode( 'invb r1,r2,$f' ) ).toStrictEqual( [ 0xe117, 0x20cf ] );
+      } );
+
+  // LOGICALIASRRR
+    // ANDNEW
+      test( 'PARSE LOGICALIASRRR andnew', () => {
+        expect( Emulator.parseLineForMachineCode( 'andnew r1,r2,r3' ) ).toStrictEqual( [ 0xe116, 0x2310 ] );
+        expect( Emulator.parseLineForMachineCode( 'andnew R1,R5,R15' ) ).toStrictEqual( [ 0xe116, 0x5f10 ] );
+      } );
+
+    // ORNEW
+      test( 'PARSE LOGICALIASRRR ornew', () => {
+        expect( Emulator.parseLineForMachineCode( 'ornew r1,r2,r3' ) ).toStrictEqual( [ 0xe116, 0x2370 ] );
+        expect( Emulator.parseLineForMachineCode( 'ornew R1,R5,R15' ) ).toStrictEqual( [ 0xe116, 0x5f70 ] );
+      } );
+
+    // XORNEW
+      test( 'PARSE LOGICALIASRRR xornew', () => {
+        expect( Emulator.parseLineForMachineCode( 'xornew r1,r2,r3' ) ).toStrictEqual( [ 0xe116, 0x2360 ] );
+        expect( Emulator.parseLineForMachineCode( 'xornew R1,R5,R15' ) ).toStrictEqual( [ 0xe116, 0x5f60 ] );
+      } );
+
+  // LOGICALIASRR
+    // INVNEW
+      test( 'PARSE LOGICALIASRR invnew', () => {
+        expect( Emulator.parseLineForMachineCode( 'invnew r1,r2' ) ).toStrictEqual( [ 0xe116, 0x20c0 ] );
+        expect( Emulator.parseLineForMachineCode( 'invnew R1,R15' ) ).toStrictEqual( [ 0xe116, 0xf0c0 ] );
+      } );
+
+
 
 
 
