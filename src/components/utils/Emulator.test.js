@@ -13,83 +13,87 @@ const testLabels = {
 };
 
 // UTIL FUNCTIONS
-  test( 'UTIL readSignedHex', () => {
-    expect( Emulator.readSignedHex( 0xffff ) ).toBe( -1 );
-    expect( Emulator.readSignedHex( 0x8000 ) ).toBe( -32768 );
-    expect( Emulator.readSignedHex( 0x0000 ) ).toBe( 0 );
-    expect( Emulator.readSignedHex( 0x7fff ) ).toBe( 32767 );
+  // READSIGNEDHEX
+    test( 'UTIL readSignedHex', () => {
+      expect( Emulator.readSignedHex( 0xffff ) ).toBe( -1 );
+      expect( Emulator.readSignedHex( 0x8000 ) ).toBe( -32768 );
+      expect( Emulator.readSignedHex( 0x0000 ) ).toBe( 0 );
+      expect( Emulator.readSignedHex( 0x7fff ) ).toBe( 32767 );
 
-    expect( Emulator.readSignedHex( 0x1234 ) ).toBe( 4660 );
+      expect( Emulator.readSignedHex( 0x1234 ) ).toBe( 4660 );
 
-    expect( Emulator.readSignedHex( 0xedcb ) ).toBe( -4661 );
+      expect( Emulator.readSignedHex( 0xedcb ) ).toBe( -4661 );
 
-    // outputs signed when recieving negatives
-    expect( Emulator.readUnsignedHex( -1 ) ).toBe( 0xffff );
-    expect( Emulator.readUnsignedHex( -32768 ) ).toBe( 0x8000 );
-    expect( Emulator.readUnsignedHex( 0 ) ).toBe( 0x0000 );
-    expect( Emulator.readUnsignedHex( 32767 ) ).toBe( 0x7fff );
+      // outputs signed when recieving negatives
+      expect( Emulator.readUnsignedHex( -1 ) ).toBe( 0xffff );
+      expect( Emulator.readUnsignedHex( -32768 ) ).toBe( 0x8000 );
+      expect( Emulator.readUnsignedHex( 0 ) ).toBe( 0x0000 );
+      expect( Emulator.readUnsignedHex( 32767 ) ).toBe( 0x7fff );
 
-    // out of bounds
-    expect( Emulator.readUnsignedHex( 65536 ) ).toBe( 0x10000 );
-    expect( Emulator.readUnsignedHex( 65537 ) ).toBe( 0x10000 );
-    expect( Emulator.readUnsignedHex( -32769 ) ).toBe( 0x10000 );
-  } );
+      // out of bounds
+      expect( Emulator.readUnsignedHex( 65536 ) ).toBe( 0x10000 );
+      expect( Emulator.readUnsignedHex( 65537 ) ).toBe( 0x10000 );
+      expect( Emulator.readUnsignedHex( -32769 ) ).toBe( 0x10000 );
+    } );
 
-  test( 'UTIL readUnsignedHex', () => {
-    expect( Emulator.readUnsignedHex( 0xffff ) ).toBe( 65535 );
-    expect( Emulator.readUnsignedHex( 0x8000 ) ).toBe( 32768 );
-    expect( Emulator.readUnsignedHex( 0x0000 ) ).toBe( 0 );
-    expect( Emulator.readUnsignedHex( 0x7fff ) ).toBe( 32767 );
+  // READUNSIGNEDHEX
+    test( 'UTIL readUnsignedHex', () => {
+      expect( Emulator.readUnsignedHex( 0xffff ) ).toBe( 65535 );
+      expect( Emulator.readUnsignedHex( 0x8000 ) ).toBe( 32768 );
+      expect( Emulator.readUnsignedHex( 0x0000 ) ).toBe( 0 );
+      expect( Emulator.readUnsignedHex( 0x7fff ) ).toBe( 32767 );
 
-    expect( Emulator.readUnsignedHex( 0x1234 ) ).toBe( 4660 );
+      expect( Emulator.readUnsignedHex( 0x1234 ) ).toBe( 4660 );
 
-    expect( Emulator.readUnsignedHex( 0xedcb ) ).toBe( 60875 );
+      expect( Emulator.readUnsignedHex( 0xedcb ) ).toBe( 60875 );
 
-    // outputs signed when recieving negatives
-    expect( Emulator.readUnsignedHex( -1 ) ).toBe( 0xffff );
-    expect( Emulator.readUnsignedHex( -32768 ) ).toBe( 0x8000 );
-    expect( Emulator.readUnsignedHex( 0 ) ).toBe( 0x0000 );
-    expect( Emulator.readUnsignedHex( 32767 ) ).toBe( 0x7fff );
+      // outputs signed when recieving negatives
+      expect( Emulator.readUnsignedHex( -1 ) ).toBe( 0xffff );
+      expect( Emulator.readUnsignedHex( -32768 ) ).toBe( 0x8000 );
+      expect( Emulator.readUnsignedHex( 0 ) ).toBe( 0x0000 );
+      expect( Emulator.readUnsignedHex( 32767 ) ).toBe( 0x7fff );
 
-    // out of bounds
-    expect( Emulator.readUnsignedHex( 65536 ) ).toBe( 0x10000 );
-    expect( Emulator.readUnsignedHex( 65537 ) ).toBe( 0x10000 );
-    expect( Emulator.readUnsignedHex( -32769 ) ).toBe( 0x10000 );
-  } );
+      // out of bounds
+      expect( Emulator.readUnsignedHex( 65536 ) ).toBe( 0x10000 );
+      expect( Emulator.readUnsignedHex( 65537 ) ).toBe( 0x10000 );
+      expect( Emulator.readUnsignedHex( -32769 ) ).toBe( 0x10000 );
+    } );
 
-  test( 'UTIL isValidNumber true' , () => {
-    expect( Emulator.isValidNumber( '0' ) ).toBe( true );
-    expect( Emulator.isValidNumber( '-1' ) ).toBe( true );
-    expect( Emulator.isValidNumber( '-0' ) ).toBe( true );
-    expect( Emulator.isValidNumber( '-32768' ) ).toBe( true );
-    expect( Emulator.isValidNumber( '65535' ) ).toBe( true );
+  // ISVALIDNUMBER
+    test( 'UTIL isValidNumber true' , () => {
+      expect( Emulator.isValidNumber( '0' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '-1' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '-0' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '-32768' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '65535' ) ).toBe( true );
 
-    expect( Emulator.isValidNumber( '$0' ) ).toBe( true );
-    expect( Emulator.isValidNumber( '$ffff' ) ).toBe( true );
-    expect( Emulator.isValidNumber( '$8000' ) ).toBe( true );
-    expect( Emulator.isValidNumber( '$1' ) ).toBe( true );
-    expect( Emulator.isValidNumber( '$0001' ) ).toBe( true );
-    expect( Emulator.isValidNumber( '$000001' ) ).toBe( true );
-  } );
+      expect( Emulator.isValidNumber( '$0' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '$ffff' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '$8000' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '$1' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '$0001' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '$000001' ) ).toBe( true );
+    } );
 
-  test( 'UTIL isValidNumber false' , () => {
-    expect( Emulator.isValidNumber( 'blah' ) ).toBe( false );
-    expect( Emulator.isValidNumber( '-32769' ) ).toBe( false );
-    expect( Emulator.isValidNumber( '65536' ) ).toBe( false );
+    test( 'UTIL isValidNumber false' , () => {
+      expect( Emulator.isValidNumber( 'blah' ) ).toBe( false );
+      expect( Emulator.isValidNumber( '-32769' ) ).toBe( false );
+      expect( Emulator.isValidNumber( '65536' ) ).toBe( false );
 
-    expect( Emulator.isValidNumber( '$h' ) ).toBe( false );
-    expect( Emulator.isValidNumber( '$10000' ) ).toBe( false );
-    expect( Emulator.isValidNumber( '1$8000' ) ).toBe( false );
-    expect( Emulator.isValidNumber( '-$1' ) ).toBe( false );
-  } );
+      expect( Emulator.isValidNumber( '$h' ) ).toBe( false );
+      expect( Emulator.isValidNumber( '$10000' ) ).toBe( false );
+      expect( Emulator.isValidNumber( '1$8000' ) ).toBe( false );
+      expect( Emulator.isValidNumber( '-$1' ) ).toBe( false );
+    } );
 
-  test( 'UTIL writeHex', () => {
-    expect( Emulator.writeHex( 0xffff ) ).toBe( 'ffff' );
-    expect( Emulator.writeHex( 0x7fff ) ).toBe( '7fff' );
-    expect( Emulator.writeHex( 0x1 ) ).toBe( '0001' );
-    expect( Emulator.writeHex( 0x0 ) ).toBe( '0000' );
-    expect( Emulator.writeHex( 0x10000 ) ).toBe( '10000' );
-  } );
+  // WRITEHEX
+    test( 'UTIL writeHex', () => {
+      expect( Emulator.writeHex( 0xffff ) ).toBe( 'ffff' );
+      expect( Emulator.writeHex( 0x7fff ) ).toBe( '7fff' );
+      expect( Emulator.writeHex( 0x1 ) ).toBe( '0001' );
+      expect( Emulator.writeHex( 0x0 ) ).toBe( '0000' );
+      expect( Emulator.writeHex( 0x10000 ) ).toBe( '10000' );
+    } );
 
 // CHECK METHODS
   // recognise
@@ -1615,10 +1619,201 @@ const testLabels = {
         expect( Emulator.parseLineForMachineCode( 'invnew R1,R15' ) ).toStrictEqual( [ 0xe116, 0xf0c0 ] );
       } );
 
+// RUNNING METHODS
+  // SETMEMORY
+    test( 'RUN setMemory', () => {
+      const machineCode = [ 0xf101, 0x0008, 0xf201, 0x0009, 0x0312, 0xf302, 0x000a, 0xd000, 0x0001, 0x0002, 0x0000 ];
+      const memory = {
+        0 : 0xf101,
+        1 : 0x0008,
+        2 : 0xf201,
+        3 : 0x0009,
+        4 : 0x0312,
+        5 : 0xf302,
+        6 : 0x000a,
+        7 : 0xd000,
+        8 : 0x0001,
+        9 : 0x0002,
+        10 : 0x0000
+      };
+      expect( Emulator.setMemory( machineCode ) ).toStrictEqual( memory );
+    } );
 
+  // runMemory tests are ran with the assumption that they have been checked, then parsed, and set into memory with previosuly tested functions
+  // RUNMEMORY
+    const runAllCommands = {
+      add : 'rrr', 
+      sub : 'rrr', 
+      mul : 'rrr', 
+      div : 'rrr', 
+      cmplt : 'rrr', 
+      cmpeq : 'rrr', 
+      cmpgt : 'rrr', 
+      and : 'rrr', 
+      or : 'rrr', 
+      xor : 'rrr',
+      trap : 'rrr',
 
+      // cmp : 'rr', 
+      // inv : 'rr',
 
+      lea : 'rx', 
+      load : 'rx', 
+      store : 'rx', 
+      jumpf : 'rx', 
+      jumpt : 'rx', 
+      jal : 'rx', 
+      testset : 'rx',
 
+      jump : 'jx', 
 
+      jumpc0 : 'kx', 
+      jumpc1 : 'kx',
 
+      jumple : 'jumpAlias',
+      jumpne : 'jumpAlias',
+      jumpge : 'jumpAlias',
+      jumpnv : 'jumpAlias',
+      jumpnvu : 'jumpAlias',
+      jumpnco : 'jumpAlias',
 
+      jumplt : 'jumpAlias',
+      jumpeq : 'jumpAlias',
+      jumpgt : 'jumpAlias',
+      jumpv : 'jumpAlias',
+      jumpvu : 'jumpAlias',
+      jumpco : 'jumpAlias',
+
+      data : 'x',
+
+      rfi : 'noEXP',
+
+      execute : 'rrEXP',
+
+      save : 'rrxEXP',
+      restore : 'rrxEXP',
+
+      getctl : 'rcEXP',
+      putctl : 'rcEXP',
+
+      push : 'rrrEXP',
+      pop : 'rrrEXP',
+      top : 'rrrEXP',
+      addc : 'rrrEXP',
+
+      shiftl : 'rrkEXP',
+      shiftr : 'rrkEXP',
+
+      getbit : 'rkEXP',
+      getbiti : 'rkEXP',
+      putbit : 'rkEXP',
+      putbiti : 'rkEXP',
+
+      field : 'injectIAlias',
+
+      extract : 'rrkkEXP',
+      extracti : 'rrkkEXP',
+
+      inject : 'rrrkkEXP',
+      injecti : 'rrrkkEXP',
+      logicb : 'rrrkkEXP',
+
+      logicw : 'rrrkEXP',
+
+      andb : 'logicAliasRRRK',
+      orb : 'logicAliasRRRK',
+      xorb : 'logicAliasRRRK',
+
+      invb : 'logicAliasRRK',
+
+      andnew : 'logicAliasRRR',
+      ornew : 'logicAliasRRR',
+      xornew : 'logicAliasRRR',
+
+      invnew : 'logicAliasRR'
+    };
+
+    function fresh() {
+      return {
+        'registers' : {
+          0 : 0,
+          1 : 0,
+          2 : 0,
+          3 : 0,
+          4 : 0,
+          5 : 0,
+          6 : 0,
+          7 : 0,
+          8 : 0,
+          9 : 0,
+          10 : 0,
+          11 : 0,
+          12 : 0,
+          13 : 0,
+          14 : 0,
+          15 : 0
+        },
+        'memory' : {},
+        'control' : {
+          'pc' : 0,
+          'ir' : 0,
+          'adr' : 0
+        }
+      };
+    }
+
+    var parsed;
+    var testRegisters;
+    var testMemory;
+    var testInput = 'Hello, Computer!';
+    var testOutput = '';
+
+    var resultRegisters;
+    var resultMemory;
+    var resultInput;
+    var resultOutput;
+    // RR
+      test( 'RUN RR inv', () => {
+        testMemory = fresh()['memory'];
+        testRegisters = fresh()['registers'];
+
+        testMemory[0] = 0x8131; // inv r3,r1
+        testMemory[1] = 0x8142; // inv r4,r2
+
+        testRegisters[1] = 0x0f0f;
+        testRegisters[2] = 0x00ff;
+
+        resultRegisters = testRegisters;
+
+        resultRegisters[3] = 0xf0f0;
+
+        resultMemory = testMemory;
+        resultInput = testInput;
+        resultOutput = testOutput;
+
+        parsed = Emulator.runMemory( fresh()['control'], testRegisters, testMemory, testInput, testOutput );
+        expect( parsed['control'] ).toStrictEqual( { 
+          pc : 1,
+          ir : 0x8131,
+          adr : 0x8142      
+        } );
+        expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+        expect( parsed['memory'] ).toStrictEqual( resultMemory );
+        expect( parsed['input'] ).toBe( resultInput );
+        expect( parsed['output'] ).toBe( resultOutput );
+        expect( parsed['halted'] ).toBe( false );
+
+        resultRegisters[4] = 0xff00;
+
+        parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
+        expect( parsed['control'] ).toStrictEqual( { 
+          pc : 2,
+          ir : 0x8142,
+          adr : 0x0000      
+        } );
+        expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+        expect( parsed['memory'] ).toStrictEqual( resultMemory );
+        expect( parsed['input'] ).toBe( resultInput );
+        expect( parsed['output'] ).toBe( resultOutput );
+        expect( parsed['halted'] ).toBe( false );
+      } );
