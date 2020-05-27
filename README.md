@@ -73,9 +73,9 @@ This will start the local React.js development server and should open a windown 
 
 5. Write Tests
 * √ - Write testing framework for/how to set tests out
-* Tests for UTILS
-* Tests for CHECKING
-* Tests for PARSING
+* √ - Tests for UTILS
+* √ - Tests for CHECKING
+* √ - Tests for PARSING
 * Tests for RUNNING
 * Finish tests for `Emulator.js`
 
