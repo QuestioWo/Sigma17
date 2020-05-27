@@ -177,11 +177,11 @@ const testLabels = {
 
     // invb : 'logicAliasRRK',
 
-    andnew : 'logicAliasRRR',
-    ornew : 'logicAliasRRR',
-    xornew : 'logicAliasRRR',
+    // andnew : 'logicAliasRRR',
+    // ornew : 'logicAliasRRR',
+    // xornew : 'logicAliasRRR',
 
-    invnew : 'logicAliasRR'
+    // invnew : 'logicAliasRR'
   };
   // recognise
     test( 'CHECK recognise-all-commands correct', () => {
@@ -305,1511 +305,758 @@ const testLabels = {
     } );
 
   // RR
-    // RRGENERAL
-      test( 'CHECK RR true', () => {
-        expect( Emulator.checkLine( 'inv R1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( 'inv R1,R2' ) ).toBe( true );
-        expect( Emulator.checkLine( 'inv r1,R2' ) ).toBe( true );
+    test( 'CHECK RR true', () => {
+      expect( Emulator.checkLine( 'inv R1,r2' ) ).toBe( true );
+      expect( Emulator.checkLine( 'inv R1,R2' ) ).toBe( true );
+      expect( Emulator.checkLine( 'inv r1,R2' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' inv r1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( '     inv r1,r2;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     inv r1,r2;comment;doublecomment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' inv r1,r2' ) ).toBe( true );
+      expect( Emulator.checkLine( '     inv r1,r2;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     inv r1,r2;comment;doublecomment' ) ).toBe( true );
+    } );
 
-      test( 'CHECK RR false', () => {
-        expect( Emulator.checkLine( 'inv R16,r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'inv R-1,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'inv r$f,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+    test( 'CHECK RR false', () => {
+      expect( Emulator.checkLine( 'inv R16,r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'inv R-1,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'inv r$f,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
 
-        expect( Emulator.checkLine( 'inv R1,r16' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'inv R1,R-1' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'inv r1,R$f' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'inv R1,r16' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'inv R1,R-1' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'inv r1,R$f' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
 
-        expect( Emulator.checkLine( ' inv r1;r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( '     inv r1,r2comment' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        
-        expect( Emulator.checkLine( '     inv' ) ).toBe( 'inv must be followed by 2 registers in form Rx,Rx' );
-      } );
-
-    // INV
-      test( 'CHECK inv true', () => {
-        expect( Emulator.checkLine( 'inv r1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( 'inv R1,R2' ) ).toBe( true );
-
-        expect( Emulator.checkLine( ' inv r1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( '     inv r1,r2;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     inv r1,r2;comment;doublecomment' ) ).toBe( true );
-      } );
-
-      test( 'CHECK inv false', () => {
-        expect( Emulator.checkLine( 'inv r1,r2,r3' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'inv R1' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-      } );
-
-    // CMP
-      test( 'CHECK cmp true', () => {
-        expect( Emulator.checkLine( 'cmp r1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( 'cmp R1,R2' ) ).toBe( true );
-
-        expect( Emulator.checkLine( ' cmp r1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( '     cmp r1,r2;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     cmp r1,r2;comment;doublecomment' ) ).toBe( true );
-      } );
-
-      test( 'CHECK cmp false', () => {
-        expect( Emulator.checkLine( 'cmp r1,r2,r3' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'cmp R1' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-      } );
+      expect( Emulator.checkLine( ' inv r1;r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( '     inv r1,r2comment' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      
+      expect( Emulator.checkLine( '     inv' ) ).toBe( 'inv must be followed by 2 registers in form Rx,Rx' );
+    } );
 
   // RRR
-    // RRRGENERAL
-      test( 'CHECK RRR true', () => {
-        expect( Emulator.checkLine( 'add R1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'add R1,R2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'add r1,R2,R3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'add r1,r2,R3' ) ).toBe( true );
+    test( 'CHECK RRR true', () => {
+      expect( Emulator.checkLine( 'add R1,r2,r3' ) ).toBe( true );
+      expect( Emulator.checkLine( 'add R1,R2,r3' ) ).toBe( true );
+      expect( Emulator.checkLine( 'add r1,R2,R3' ) ).toBe( true );
+      expect( Emulator.checkLine( 'add r1,r2,R3' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' add r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( '     add r1,r2,r3;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     add r1,r2,r3;comment;doublecomment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' add r1,r2,r3' ) ).toBe( true );
+      expect( Emulator.checkLine( '     add r1,r2,r3;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     add r1,r2,r3;comment;doublecomment' ) ).toBe( true );
+    } );
 
-      test( 'CHECK RRR false', () => {
-        expect( Emulator.checkLine( 'add R16,r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'add R-1,R2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'add r$f,R2,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+    test( 'CHECK RRR false', () => {
+      expect( Emulator.checkLine( 'add R16,r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'add R-1,R2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'add r$f,R2,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
-        expect( Emulator.checkLine( 'add R1,r2,r16' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'add R1,R2,r-1' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'add r1,R2,R$f' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'add R1,r2,r16' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'add R1,R2,r-1' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'add r1,R2,R$f' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
-        expect( Emulator.checkLine( 'add R1,r16,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'add R1,R-1,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'add r1,R$f,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'add R1,r16,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'add R1,R-1,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'add r1,R$f,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
-        expect( Emulator.checkLine( ' add r1;r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( '     add r1,r2,r3comment' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        
-        expect( Emulator.checkLine( '     add' ) ).toBe( 'add must be followed by 3 registers in form Rx,Rx,Rx' );
-      } );
-
-    // ADD
-      test( 'CHECK add true', () => {
-        expect( Emulator.checkLine( 'add r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'add R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK add false', () => {
-        expect( Emulator.checkLine( 'add r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'add R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // SUB
-      test( 'CHECK sub true', () => {
-        expect( Emulator.checkLine( 'sub r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'sub R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK sub false', () => {
-        expect( Emulator.checkLine( 'sub r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'sub R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // MUL
-      test( 'CHECK mul true', () => {
-        expect( Emulator.checkLine( 'mul r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'mul R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK mul false', () => {
-        expect( Emulator.checkLine( 'mul r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'mul R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // DIV
-      test( 'CHECK div true', () => {
-        expect( Emulator.checkLine( 'div r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'div R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK div false', () => {
-        expect( Emulator.checkLine( 'div r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'div R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // CMPLT
-      test( 'CHECK cmplt true', () => {
-        expect( Emulator.checkLine( 'cmplt r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'cmplt R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK cmplt false', () => {
-        expect( Emulator.checkLine( 'cmplt r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'cmplt R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // CMPEQ
-      test( 'CHECK cmpeq true', () => {
-        expect( Emulator.checkLine( 'cmpeq r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'cmpeq R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK cmpeq false', () => {
-        expect( Emulator.checkLine( 'cmpeq r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'cmpeq R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // CMPGT
-      test( 'CHECK cmpgt true', () => {
-        expect( Emulator.checkLine( 'cmpgt r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'cmpgt R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK cmpgt false', () => {
-        expect( Emulator.checkLine( 'cmpgt r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'cmpgt R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // AND
-      test( 'CHECK and true', () => {
-        expect( Emulator.checkLine( 'and r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'and R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK and false', () => {
-        expect( Emulator.checkLine( 'and r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'and R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // OR
-      test( 'CHECK or true', () => {
-        expect( Emulator.checkLine( 'or r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'or R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK or false', () => {
-        expect( Emulator.checkLine( 'or r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'or R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // XOR
-      test( 'CHECK xor true', () => {
-        expect( Emulator.checkLine( 'xor r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'xor R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK xor false', () => {
-        expect( Emulator.checkLine( 'xor r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'xor R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // TRAP
-      test( 'CHECK trap true', () => {
-        expect( Emulator.checkLine( 'trap r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'trap R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK trap false', () => {
-        expect( Emulator.checkLine( 'trap r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'trap R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
+      expect( Emulator.checkLine( ' add r1;r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( '     add r1,r2,r3comment' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      
+      expect( Emulator.checkLine( '     add' ) ).toBe( 'add must be followed by 3 registers in form Rx,Rx,Rx' );
+    } );
 
   // RX
-    // RXGENERAL
-      test( 'CHECK RX true', () => {
-        expect( Emulator.checkLine( 'lea r1,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'lea R1,test[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'lea r1,test[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'lea R1,test[r0]', testLabels ) ).toBe( true );
+    test( 'CHECK RX true', () => {
+      expect( Emulator.checkLine( 'lea r1,test[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'lea R1,test[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'lea r1,test[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'lea R1,test[r0]', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'lea r1,-1[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'lea R1,$ffff[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'lea r1,14[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'lea R1,test[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'lea r1,-1[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'lea R1,$ffff[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'lea r1,14[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'lea R1,test[r0]', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' lea r1,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     lea r1,test[r0];comment', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     lea r1,test[r0];comment;doublecomment', testLabels ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' lea r1,test[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     lea r1,test[r0];comment', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     lea r1,test[r0];comment;doublecomment', testLabels ) ).toBe( true );
+    } );
 
-      test( 'CHECK RX false', () => {
-        expect( Emulator.checkLine( 'lea test[]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'lea test[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'lea test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+    test( 'CHECK RX false', () => {
+      expect( Emulator.checkLine( 'lea test[]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+      expect( Emulator.checkLine( 'lea test[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+      expect( Emulator.checkLine( 'lea test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
 
-        expect( Emulator.checkLine( 'lea r1,test[]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'lea r1,test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+      expect( Emulator.checkLine( 'lea r1,test[]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+      expect( Emulator.checkLine( 'lea r1,test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
 
-        expect( Emulator.checkLine( 'lea r16,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'lea r-1,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'lea r$f,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+      expect( Emulator.checkLine( 'lea r16,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+      expect( Emulator.checkLine( 'lea r-1,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+      expect( Emulator.checkLine( 'lea r$f,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
 
-        expect( Emulator.checkLine( 'lea r1,test[r16]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'lea r1,test[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'lea r1,test[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+      expect( Emulator.checkLine( 'lea r1,test[r16]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+      expect( Emulator.checkLine( 'lea r1,test[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+      expect( Emulator.checkLine( 'lea r1,test[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
 
-        expect( Emulator.checkLine( 'lea r1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'lea r1,65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'lea r1,-32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+      expect( Emulator.checkLine( 'lea r1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+      expect( Emulator.checkLine( 'lea r1,65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+      expect( Emulator.checkLine( 'lea r1,-32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
 
-        expect( Emulator.checkLine( ' lea r1;test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( '     lea r1,test[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( '     lea r1,test[r0]comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-      } );
-
-    // LEA
-      test( 'CHECK lea true', () => {
-        expect( Emulator.checkLine( 'lea r1,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'lea R1,test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK lea false', () => {
-        expect( Emulator.checkLine( 'lea r1,test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'lea r1,test[]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'lea test[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'lea test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        
-        expect( Emulator.checkLine( 'lea R1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // LOAD
-      test( 'CHECK load true', () => {
-        expect( Emulator.checkLine( 'load r1,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'load R1,test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK load false', () => {
-        expect( Emulator.checkLine( 'load r1,test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'load r1,test[]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'load test[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'load test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-
-        expect( Emulator.checkLine( 'load R1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // STORE
-      test( 'CHECK store true', () => {
-        expect( Emulator.checkLine( 'store r1,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'store R1,test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK store false', () => {
-        expect( Emulator.checkLine( 'store r1,test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'store r1,test[]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'store test[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'store test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-
-        expect( Emulator.checkLine( 'store R1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPF
-      test( 'CHECK jumpf true', () => {
-        expect( Emulator.checkLine( 'jumpf r1,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpf R1,test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpf false', () => {
-        expect( Emulator.checkLine( 'jumpf r1,test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'jumpf r1,test[]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'jumpf test[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'jumpf test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-
-        expect( Emulator.checkLine( 'jumpf R1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPT
-      test( 'CHECK jumpt true', () => {
-        expect( Emulator.checkLine( 'jumpt r1,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpt R1,test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpt false', () => {
-        expect( Emulator.checkLine( 'jumpt r1,test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'jumpt r1,test[]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'jumpt test[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'jumpt test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-
-        expect( Emulator.checkLine( 'jumpt R1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JAL
-      test( 'CHECK jal true', () => {
-        expect( Emulator.checkLine( 'jal r1,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jal R1,test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jal false', () => {
-        expect( Emulator.checkLine( 'jal r1,test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'jal r1,test[]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'jal test[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'jal test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-
-        expect( Emulator.checkLine( 'jal R1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // TESTSET
-      test( 'CHECK testset true', () => {
-        expect( Emulator.checkLine( 'testset r1,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'testset R1,test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK testset false', () => {
-        expect( Emulator.checkLine( 'testset r1,test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'testset r1,test[]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'testset test[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-        expect( Emulator.checkLine( 'testset test', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
-
-        expect( Emulator.checkLine( 'testset R1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
+      expect( Emulator.checkLine( ' lea r1;test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+      expect( Emulator.checkLine( '     lea r1,test[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+      expect( Emulator.checkLine( '     lea r1,test[r0]comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+    } );
 
   // JX
-    // JXGENERAL
-      test( 'CHECK JX true', () => {
-        expect( Emulator.checkLine( 'jump test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jump test[R0]', testLabels ) ).toBe( true );
+    test( 'CHECK JX true', () => {
+      expect( Emulator.checkLine( 'jump test[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jump test[R0]', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'jump -1[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jump $ffff[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jump 14[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jump test[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jump -1[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jump $ffff[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jump 14[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jump test[r0]', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' jump test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     jump test[r0];comment', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     jump test[r0];comment;doublecomment', testLabels ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' jump test[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     jump test[r0];comment', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     jump test[r0];comment;doublecomment', testLabels ) ).toBe( true );
+    } );
 
-      test( 'CHECK JX false', () => {
-        expect( Emulator.checkLine( 'jump test[]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
-        expect( Emulator.checkLine( 'jump test', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+    test( 'CHECK JX false', () => {
+      expect( Emulator.checkLine( 'jump test[]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+      expect( Emulator.checkLine( 'jump test', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
 
-        expect( Emulator.checkLine( 'jump test[r16]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
-        expect( Emulator.checkLine( 'jump test[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
-        expect( Emulator.checkLine( 'jump test[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+      expect( Emulator.checkLine( 'jump test[r16]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+      expect( Emulator.checkLine( 'jump test[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+      expect( Emulator.checkLine( 'jump test[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
 
-        expect( Emulator.checkLine( 'jump notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'jump 65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'jump -32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+      expect( Emulator.checkLine( 'jump notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+      expect( Emulator.checkLine( 'jump 65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+      expect( Emulator.checkLine( 'jump -32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
 
-        expect( Emulator.checkLine( ' jump test;[r0]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
-        expect( Emulator.checkLine( '     jump test[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
-        expect( Emulator.checkLine( '     jump test[r0]comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
-      } );
-
-    // JUMP
-      test( 'CHECK jump true', () => {
-        expect( Emulator.checkLine( 'jump test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jump test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jump false', () => {
-        expect( Emulator.checkLine( 'jump notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
+      expect( Emulator.checkLine( ' jump test;[r0]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+      expect( Emulator.checkLine( '     jump test[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+      expect( Emulator.checkLine( '     jump test[r0]comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+    } );
 
   // KX
-    // KXGENERAL
-      test( 'CHECK KX true', () => {
-        expect( Emulator.checkLine( 'jumpc0 1,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpc0 1,test[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpc0 1,test[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpc0 1,test[r0]', testLabels ) ).toBe( true );
+    test( 'CHECK KX true', () => {
+      expect( Emulator.checkLine( 'jumpc0 1,test[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jumpc0 1,test[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jumpc0 1,test[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jumpc0 1,test[r0]', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'jumpc0 0,-1[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpc0 15,$ffff[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpc0 $f,14[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpc0 4,test[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jumpc0 0,-1[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jumpc0 15,$ffff[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jumpc0 $f,14[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jumpc0 4,test[r0]', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' jumpc0 1,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     jumpc0 1,test[r0];comment', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     jumpc0 1,test[r0];comment;doublecomment', testLabels ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' jumpc0 1,test[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     jumpc0 1,test[r0];comment', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     jumpc0 1,test[r0];comment;doublecomment', testLabels ) ).toBe( true );
+    } );
 
-      test( 'CHECK KX false', () => {
-        expect( Emulator.checkLine( 'jumpc0 test[]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
-        expect( Emulator.checkLine( 'jumpc0 test[r1]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
-        expect( Emulator.checkLine( 'jumpc0 test', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+    test( 'CHECK KX false', () => {
+      expect( Emulator.checkLine( 'jumpc0 test[]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+      expect( Emulator.checkLine( 'jumpc0 test[r1]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+      expect( Emulator.checkLine( 'jumpc0 test', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
 
-        expect( Emulator.checkLine( 'jumpc0 1,test[]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
-        expect( Emulator.checkLine( 'jumpc0 1,test', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+      expect( Emulator.checkLine( 'jumpc0 1,test[]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+      expect( Emulator.checkLine( 'jumpc0 1,test', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
 
-        expect( Emulator.checkLine( 'jumpc0 16,test[r0]', testLabels ) ).toBe( 'k argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'jumpc0 -1,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
-        expect( Emulator.checkLine( 'jumpc0 $10,test[r0]', testLabels ) ).toBe( 'k argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'jumpc0 16,test[r0]', testLabels ) ).toBe( 'k argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'jumpc0 -1,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+      expect( Emulator.checkLine( 'jumpc0 $10,test[r0]', testLabels ) ).toBe( 'k argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'jumpc0 1,test[r16]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
-        expect( Emulator.checkLine( 'jumpc0 1,test[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
-        expect( Emulator.checkLine( 'jumpc0 1,test[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+      expect( Emulator.checkLine( 'jumpc0 1,test[r16]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+      expect( Emulator.checkLine( 'jumpc0 1,test[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+      expect( Emulator.checkLine( 'jumpc0 1,test[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
 
-        expect( Emulator.checkLine( 'jumpc0 1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'jumpc0 1,65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'jumpc0 1,-32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+      expect( Emulator.checkLine( 'jumpc0 1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+      expect( Emulator.checkLine( 'jumpc0 1,65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+      expect( Emulator.checkLine( 'jumpc0 1,-32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
 
-        expect( Emulator.checkLine( ' jumpc0 1;test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
-        expect( Emulator.checkLine( '     jumpc0 1,test[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
-        expect( Emulator.checkLine( '     jumpc0 1,test[r0]comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
-      } );
-
-    // JUMPC0
-      test( 'CHECK jumpc0 true', () => {
-        expect( Emulator.checkLine( 'jumpc0 0,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpc0 15,test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpc0 false', () => {
-        expect( Emulator.checkLine( 'jumpc0 1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPC1
-      test( 'CHECK jumpc1 true', () => {
-        expect( Emulator.checkLine( 'jumpc1 0,test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpc1 15,test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpc1 false', () => {
-        expect( Emulator.checkLine( 'jumpc1 1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
+      expect( Emulator.checkLine( ' jumpc0 1;test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+      expect( Emulator.checkLine( '     jumpc0 1,test[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+      expect( Emulator.checkLine( '     jumpc0 1,test[r0]comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+    } );
 
   // JUMPALIAS
-    // JUMPALIASGENERAL
-      test( 'CHECK JUMPALIAS true', () => {
-        expect( Emulator.checkLine( 'jumple test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumple test[R0]', testLabels ) ).toBe( true );
+    test( 'CHECK JUMPALIAS true', () => {
+      expect( Emulator.checkLine( 'jumple test[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jumple test[R0]', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'jumple -1[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumple $ffff[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumple 14[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumple test[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jumple -1[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jumple $ffff[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jumple 14[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'jumple test[r0]', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' jumple test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     jumple test[r0];comment', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     jumple test[r0];comment;doublecomment', testLabels ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' jumple test[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     jumple test[r0];comment', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     jumple test[r0];comment;doublecomment', testLabels ) ).toBe( true );
+    } );
 
-      test( 'CHECK JUMPALIAS false', () => {
-        expect( Emulator.checkLine( 'jumple test[]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
-        expect( Emulator.checkLine( 'jumple test', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+    test( 'CHECK JUMPALIAS false', () => {
+      expect( Emulator.checkLine( 'jumple test[]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+      expect( Emulator.checkLine( 'jumple test', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
 
-        expect( Emulator.checkLine( 'jumple test[r16]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
-        expect( Emulator.checkLine( 'jumple test[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
-        expect( Emulator.checkLine( 'jumple test[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+      expect( Emulator.checkLine( 'jumple test[r16]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+      expect( Emulator.checkLine( 'jumple test[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+      expect( Emulator.checkLine( 'jumple test[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
 
-        expect( Emulator.checkLine( 'jumple notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'jumple 65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'jumple -32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+      expect( Emulator.checkLine( 'jumple notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+      expect( Emulator.checkLine( 'jumple 65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+      expect( Emulator.checkLine( 'jumple -32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
 
-        expect( Emulator.checkLine( ' jumple test;[r0]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
-        expect( Emulator.checkLine( '     jumple test[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
-        expect( Emulator.checkLine( '     jumple test[r0]comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
-      } );
-
-    // JUMPLE
-      test( 'CHECK jumple true', () => {
-        expect( Emulator.checkLine( 'jumple test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumple test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumple false', () => {
-        expect( Emulator.checkLine( 'jumple notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPNE
-      test( 'CHECK jumpne true', () => {
-        expect( Emulator.checkLine( 'jumpne test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpne test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpne false', () => {
-        expect( Emulator.checkLine( 'jumpne notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPGE
-      test( 'CHECK jumpge true', () => {
-        expect( Emulator.checkLine( 'jumpge test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpge test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpge false', () => {
-        expect( Emulator.checkLine( 'jumpge notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPNV
-      test( 'CHECK jumpnv true', () => {
-        expect( Emulator.checkLine( 'jumpnv test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpnv test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpnv false', () => {
-        expect( Emulator.checkLine( 'jumpnv notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPNVU
-      test( 'CHECK jumpnvu true', () => {
-        expect( Emulator.checkLine( 'jumpnvu test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpnvu test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpnvu false', () => {
-        expect( Emulator.checkLine( 'jumpnvu notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPNCO
-      test( 'CHECK jumpnco true', () => {
-        expect( Emulator.checkLine( 'jumpnco test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpnco test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpnco false', () => {
-        expect( Emulator.checkLine( 'jumpnco notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPLT
-      test( 'CHECK jumplt true', () => {
-        expect( Emulator.checkLine( 'jumplt test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumplt test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumplt false', () => {
-        expect( Emulator.checkLine( 'jumplt notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPEQ
-      test( 'CHECK jumpeq true', () => {
-        expect( Emulator.checkLine( 'jumpeq test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpeq test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpeq false', () => {
-        expect( Emulator.checkLine( 'jumpeq notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPGT
-      test( 'CHECK jumpgt true', () => {
-        expect( Emulator.checkLine( 'jumpgt test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpgt test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpgt false', () => {
-        expect( Emulator.checkLine( 'jumpgt notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPV
-      test( 'CHECK jumpv true', () => {
-        expect( Emulator.checkLine( 'jumpv test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpv test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpv false', () => {
-        expect( Emulator.checkLine( 'jumpv notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPVU
-      test( 'CHECK jumpvu true', () => {
-        expect( Emulator.checkLine( 'jumpvu test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpvu test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpvu false', () => {
-        expect( Emulator.checkLine( 'jumpvu notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
-
-    // JUMPCO
-      test( 'CHECK jumpco true', () => {
-        expect( Emulator.checkLine( 'jumpco test[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'jumpco test[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK jumpco false', () => {
-        expect( Emulator.checkLine( 'jumpco notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-      } );
+      expect( Emulator.checkLine( ' jumple test;[r0]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+      expect( Emulator.checkLine( '     jumple test[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+      expect( Emulator.checkLine( '     jumple test[r0]comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+    } );
 
   // X
-    // XGENERAL / DATA
-      test( 'CHECK X true', () => {
-        expect( Emulator.checkLine( 'data -1' ) ).toBe( true );
-        expect( Emulator.checkLine( 'data $ffff' ) ).toBe( true );
-        expect( Emulator.checkLine( 'data 14' ) ).toBe( true );
-        expect( Emulator.checkLine( 'data $23' ) ).toBe( true );
+    test( 'CHECK X true', () => {
+      expect( Emulator.checkLine( 'data -1' ) ).toBe( true );
+      expect( Emulator.checkLine( 'data $ffff' ) ).toBe( true );
+      expect( Emulator.checkLine( 'data 14' ) ).toBe( true );
+      expect( Emulator.checkLine( 'data $23' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' data $01' ) ).toBe( true );
-        expect( Emulator.checkLine( '     data $01;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     data $01;comment;doublecomment' ) ).toBe( true );
+      expect( Emulator.checkLine( ' data $01' ) ).toBe( true );
+      expect( Emulator.checkLine( '     data $01;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     data $01;comment;doublecomment' ) ).toBe( true );
 
-        expect( Emulator.checkLine( '     data $01comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     data $01comment;doublecomment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( '     data $01comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     data $01comment;doublecomment' ) ).toBe( true );
+    } );
 
-      test( 'CHECK X false', () => {
-        expect( Emulator.checkLine( 'data $10000' ) ).toBe( 'data must be followed by either a decimal or hex number <= 65535 and >=-32768' );
-        expect( Emulator.checkLine( 'data $-12' ) ).toBe( 'arguments must be in the form of "constant" up to 65535 and down to -32768' );
-        expect( Emulator.checkLine( 'data 65536' ) ).toBe( 'data must be followed by either a decimal or hex number <= 65535 and >=-32768' );
-        expect( Emulator.checkLine( 'data -32769' ) ).toBe( 'data must be followed by either a decimal or hex number <= 65535 and >=-32768' );
-      } );
-
-    // DATA
-      test( 'CHECK data true', () => {
-        expect( Emulator.checkLine( 'data 0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'data $15' ) ).toBe( true );
-      } );
-
-      test( 'CHECK data false', () => {
-        expect( Emulator.checkLine( 'data -65536' ) ).toBe( 'data must be followed by either a decimal or hex number <= 65535 and >=-32768' );
-      } );
+    test( 'CHECK X false', () => {
+      expect( Emulator.checkLine( 'data $10000' ) ).toBe( 'data must be followed by either a decimal or hex number <= 65535 and >=-32768' );
+      expect( Emulator.checkLine( 'data $-12' ) ).toBe( 'arguments must be in the form of "constant" up to 65535 and down to -32768' );
+      expect( Emulator.checkLine( 'data 65536' ) ).toBe( 'data must be followed by either a decimal or hex number <= 65535 and >=-32768' );
+      expect( Emulator.checkLine( 'data -32769' ) ).toBe( 'data must be followed by either a decimal or hex number <= 65535 and >=-32768' );
+    } );
 
   // NOEXP
-    // NOEXPGENERAL
-      test( 'CHECK NOEXP true', () => {
-        expect( Emulator.checkLine( 'rfi' ) ).toBe( true );
-        expect( Emulator.checkLine( 'rfi -1' ) ).toBe( true );
-        expect( Emulator.checkLine( 'rfi $ffff' ) ).toBe( true );
-        expect( Emulator.checkLine( 'rfi 14[r0]' ) ).toBe( true );
-        expect( Emulator.checkLine( 'rfi r1,r2' ) ).toBe( true );
+    test( 'CHECK NOEXP true', () => {
+      expect( Emulator.checkLine( 'rfi' ) ).toBe( true );
+      expect( Emulator.checkLine( 'rfi -1' ) ).toBe( true );
+      expect( Emulator.checkLine( 'rfi $ffff' ) ).toBe( true );
+      expect( Emulator.checkLine( 'rfi 14[r0]' ) ).toBe( true );
+      expect( Emulator.checkLine( 'rfi r1,r2' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' rfi;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( ' rfi ;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     rfi ;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     rfi ;comment;doublecomment' ) ).toBe( true );
-      } );
-
-    // RFI
-      test( 'CHECK rfi true', () => {
-        expect( Emulator.checkLine( 'rfi' ) ).toBe( true );
-        expect( Emulator.checkLine( 'rfi;comment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' rfi;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( ' rfi ;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     rfi ;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     rfi ;comment;doublecomment' ) ).toBe( true );
+    } );
 
   // RREXP
-    // RREXPGENERAL
-      test( 'CHECK RREXP true', () => {
-        expect( Emulator.checkLine( 'execute R1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( 'execute R1,R2' ) ).toBe( true );
-        expect( Emulator.checkLine( 'execute r1,R2' ) ).toBe( true );
+    test( 'CHECK RREXP true', () => {
+      expect( Emulator.checkLine( 'execute R1,r2' ) ).toBe( true );
+      expect( Emulator.checkLine( 'execute R1,R2' ) ).toBe( true );
+      expect( Emulator.checkLine( 'execute r1,R2' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' execute r1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( '     execute r1,r2;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     execute r1,r2;comment;doublecomment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' execute r1,r2' ) ).toBe( true );
+      expect( Emulator.checkLine( '     execute r1,r2;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     execute r1,r2;comment;doublecomment' ) ).toBe( true );
+    } );
 
-      test( 'CHECK RREXP false', () => {
-        expect( Emulator.checkLine( 'execute R16,r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'execute R-1,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'execute r$f,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+    test( 'CHECK RREXP false', () => {
+      expect( Emulator.checkLine( 'execute R16,r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'execute R-1,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'execute r$f,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
 
-        expect( Emulator.checkLine( 'execute R1,r16' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'execute R1,R-1' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'execute r1,R$f' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'execute R1,r16' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'execute R1,R-1' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'execute r1,R$f' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
 
-        expect( Emulator.checkLine( ' execute r1;r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( '     execute r1,r2comment' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        
-        expect( Emulator.checkLine( '     execute' ) ).toBe( 'execute must be followed by 2 registers in form Rx,Rx' );
-      } );
-
-    // EXECUTE
-      test( 'CHECK execute true', () => {
-        expect( Emulator.checkLine( 'execute r1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( 'execute R1,R2' ) ).toBe( true );
-
-        expect( Emulator.checkLine( 'execute R1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( 'execute R1,R2' ) ).toBe( true );
-        expect( Emulator.checkLine( 'execute r1,R2' ) ).toBe( true );
-        expect( Emulator.checkLine( 'execute r1,r2' ) ).toBe( true );
-
-        expect( Emulator.checkLine( ' execute r1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( '     execute r1,r2;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     execute r1,r2;comment;doublecomment' ) ).toBe( true );
-      } );
-
-      test( 'CHECK execute false', () => {
-        expect( Emulator.checkLine( 'execute r1,r2,r3' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'execute R1' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-      } );
+      expect( Emulator.checkLine( ' execute r1;r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( '     execute r1,r2comment' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      
+      expect( Emulator.checkLine( '     execute' ) ).toBe( 'execute must be followed by 2 registers in form Rx,Rx' );
+    } );
 
   // RRXEXP
-    // RRXGENERAL
-      test( 'CHECK RRXEXP true', () => {
-        expect( Emulator.checkLine( 'save r1,r2,$ff[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'save R1,R2,$ff[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'save r1,R2,$ff[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'save R1,r2,$ff[r0]', testLabels ) ).toBe( true );
+    test( 'CHECK RRXEXP true', () => {
+      expect( Emulator.checkLine( 'save r1,r2,$ff[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'save R1,R2,$ff[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'save r1,R2,$ff[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'save R1,r2,$ff[r0]', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'save r1,r2,0[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'save R1,r2,$ff[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'save r1,r2,15[R0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'save R1,r2,255[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'save r1,r2,0[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'save R1,r2,$ff[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'save r1,r2,15[R0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'save R1,r2,255[r0]', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' save r1,r2,$ff[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     save r1,r2,$ff[r0];comment', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     save r1,r2,$ff[r0];comment;doublecomment', testLabels ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' save r1,r2,$ff[r0]', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     save r1,r2,$ff[r0];comment', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     save r1,r2,$ff[r0];comment;doublecomment', testLabels ) ).toBe( true );
+    } );
 
-      test( 'CHECK RRXEXP false', () => {
-        expect( Emulator.checkLine( 'save $ff[]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save $ff[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save $ff', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+    test( 'CHECK RRXEXP false', () => {
+      expect( Emulator.checkLine( 'save $ff[]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save $ff[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save $ff', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'save r1,$ff[]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save r1,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save r1,$ff', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,$ff[]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,$ff', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'save r1,r2,$ff[]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save r1,r2,$ff', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,r2,$ff[]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,r2,$ff', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'save r16,r2,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save r-1,r2,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save r$f,r2,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r16,r2,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r-1,r2,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r$f,r2,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'save r1,r16,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save r1,r-1,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save r1,r$f,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,r16,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,r-1,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,r$f,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'save r1,r2,$ff[r16]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save r1,r2,$ff[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save r1,r2,$ff[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,r2,$ff[r16]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,r2,$ff[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,r2,$ff[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'save r1,r2,256[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, or a hex with decimal values between 0 and 255' );
-        expect( Emulator.checkLine( 'save r1,r2,-1[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,r2,256[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, or a hex with decimal values between 0 and 255' );
+      expect( Emulator.checkLine( 'save r1,r2,-1[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'save r1,r2,$100[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, or a hex with decimal values between 0 and 255' );
-        expect( Emulator.checkLine( 'save r1,r2,$-1[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( 'save r1,r2,$100[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, or a hex with decimal values between 0 and 255' );
+      expect( Emulator.checkLine( 'save r1,r2,$-1[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
-        expect( Emulator.checkLine( ' save r1,r2,;$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( '     save r1,r2,$ff[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( '     save r1,r2,$ff[r0]comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-      } );
-
-    // SAVE
-      test( 'CHECK save true', () => {
-        expect( Emulator.checkLine( 'save r1,r2,$ff[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'save R1,R2,$ff[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK save false', () => {
-        expect( Emulator.checkLine( 'save r1,r2,$ff', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save r1,r2,$ff[]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save r2,$ff[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'save r2,$ff', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        
-        expect( Emulator.checkLine( 'save R1,R2,$100[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, or a hex with decimal values between 0 and 255' );
-      } );
-
-    // RESTORE
-      test( 'CHECK restore true', () => {
-        expect( Emulator.checkLine( 'restore r1,r2,$ff[r0]', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'restore R1,R2,$ff[R0]', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK restore false', () => {
-        expect( Emulator.checkLine( 'restore r1,r2,$ff', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'restore r1,r2,$ff[]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'restore r2,$ff[r1]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        expect( Emulator.checkLine( 'restore r2,$ff', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
-        
-        expect( Emulator.checkLine( 'restore R1,R2,$100[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, or a hex with decimal values between 0 and 255' );
-      } );
+      expect( Emulator.checkLine( ' save r1,r2,;$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( '     save r1,r2,$ff[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+      expect( Emulator.checkLine( '     save r1,r2,$ff[r0]comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+    } );
 
   // RCEXP
-    // RCEXPGENERAL
-      test( 'CHECK RCEXP true', () => {
-        expect( Emulator.checkLine( 'getctl R1,pc' ) ).toBe( true );
-        expect( Emulator.checkLine( 'getctl R1,ir' ) ).toBe( true );
-        expect( Emulator.checkLine( 'getctl R1,adr' ) ).toBe( true );
+    test( 'CHECK RCEXP true', () => {
+      expect( Emulator.checkLine( 'getctl R1,pc' ) ).toBe( true );
+      expect( Emulator.checkLine( 'getctl R1,ir' ) ).toBe( true );
+      expect( Emulator.checkLine( 'getctl R1,adr' ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'getctl r1,pc' ) ).toBe( true );
-        expect( Emulator.checkLine( 'getctl r1,ir' ) ).toBe( true );
-        expect( Emulator.checkLine( 'getctl r1,adr' ) ).toBe( true );
+      expect( Emulator.checkLine( 'getctl r1,pc' ) ).toBe( true );
+      expect( Emulator.checkLine( 'getctl r1,ir' ) ).toBe( true );
+      expect( Emulator.checkLine( 'getctl r1,adr' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' getctl r1,pc' ) ).toBe( true );
-        expect( Emulator.checkLine( '     getctl r1,ir;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     getctl r1,adr;comment;doublecomment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' getctl r1,pc' ) ).toBe( true );
+      expect( Emulator.checkLine( '     getctl r1,ir;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     getctl r1,adr;comment;doublecomment' ) ).toBe( true );
+    } );
 
-      test( 'CHECK RCEXP false', () => {
-        expect( Emulator.checkLine( 'getctl R16,pc' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
-        expect( Emulator.checkLine( 'getctl R-1,pc' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
-        expect( Emulator.checkLine( 'getctl r$f,pc' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
+    test( 'CHECK RCEXP false', () => {
+      expect( Emulator.checkLine( 'getctl R16,pc' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
+      expect( Emulator.checkLine( 'getctl R-1,pc' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
+      expect( Emulator.checkLine( 'getctl r$f,pc' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
 
-        expect( Emulator.checkLine( 'getctl R1,blah' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
+      expect( Emulator.checkLine( 'getctl R1,blah' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
 
-        expect( Emulator.checkLine( ' getctl r1;pc' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
-        expect( Emulator.checkLine( '     getctl r1,pccomment' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
-        
-        expect( Emulator.checkLine( '     getctl' ) ).toBe( 'getctl must be followed by a register and a control register in the form Rx,(pc/ir/adr)' );
-      } );
-
-    // GETCTL
-      test( 'CHECK getctl true', () => {
-        expect( Emulator.checkLine( 'getctl r1,pc' ) ).toBe( true );
-        expect( Emulator.checkLine( ' getctl R1,pc' ) ).toBe( true );
-
-        expect( Emulator.checkLine( '     getctl r1,pc;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     getctl r1,pc;comment;doublecomment' ) ).toBe( true );
-      } );
-
-      test( 'CHECK getctl false', () => {
-        expect( Emulator.checkLine( 'getctl r1,pc,r3' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
-        expect( Emulator.checkLine( 'getctl R1' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
-        expect( Emulator.checkLine( 'getctl r1,PC' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
-      } );
-
-    // PUTCTL
-      test( 'CHECK putctl true', () => {
-        expect( Emulator.checkLine( 'putctl r1,pc' ) ).toBe( true );
-        expect( Emulator.checkLine( ' putctl R1,pc' ) ).toBe( true );
-
-        expect( Emulator.checkLine( '     putctl r1,pc;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     putctl r1,pc;comment;doublecomment' ) ).toBe( true );
-      } );
-
-      test( 'CHECK putctl false', () => {
-        expect( Emulator.checkLine( 'putctl r1,pc,r3' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
-        expect( Emulator.checkLine( 'putctl R1' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
-        expect( Emulator.checkLine( 'putctl r1,PC' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
-      } );
+      expect( Emulator.checkLine( ' getctl r1;pc' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
+      expect( Emulator.checkLine( '     getctl r1,pccomment' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
+      
+      expect( Emulator.checkLine( '     getctl' ) ).toBe( 'getctl must be followed by a register and a control register in the form Rx,(pc/ir/adr)' );
+    } );
 
   // RRREXP
-    // RRREXPGENERAL
-      test( 'CHECK RRREXP true', () => {
-        expect( Emulator.checkLine( 'push R1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'push R1,R2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'push r1,R2,R3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'push r1,r2,R3' ) ).toBe( true );
+    test( 'CHECK RRREXP true', () => {
+      expect( Emulator.checkLine( 'push R1,r2,r3' ) ).toBe( true );
+      expect( Emulator.checkLine( 'push R1,R2,r3' ) ).toBe( true );
+      expect( Emulator.checkLine( 'push r1,R2,R3' ) ).toBe( true );
+      expect( Emulator.checkLine( 'push r1,r2,R3' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' push r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( '     push r1,r2,r3;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     push r1,r2,r3;comment;doublecomment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' push r1,r2,r3' ) ).toBe( true );
+      expect( Emulator.checkLine( '     push r1,r2,r3;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     push r1,r2,r3;comment;doublecomment' ) ).toBe( true );
+    } );
 
-      test( 'CHECK RRREXP false', () => {
-        expect( Emulator.checkLine( 'push R16,r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'push R-1,R2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'push r$f,R2,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+    test( 'CHECK RRREXP false', () => {
+      expect( Emulator.checkLine( 'push R16,r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'push R-1,R2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'push r$f,R2,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
-        expect( Emulator.checkLine( 'push R1,r2,r16' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'push R1,R2,r-1' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'push r1,R2,R$f' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'push R1,r2,r16' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'push R1,R2,r-1' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'push r1,R2,R$f' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
-        expect( Emulator.checkLine( 'push R1,r16,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'push R1,R-1,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'push r1,R$f,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'push R1,r16,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'push R1,R-1,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'push r1,R$f,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
-        expect( Emulator.checkLine( ' push r1;r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( '     push r1,r2,r3comment' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        
-        expect( Emulator.checkLine( '     push' ) ).toBe( 'push must be followed by 3 registers in form Rx,Rx,Rx' );
-      } );
-
-    // PUSH
-      test( 'CHECK push true', () => {
-        expect( Emulator.checkLine( 'push r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'push R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK push false', () => {
-        expect( Emulator.checkLine( 'push r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'push R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // POP
-      test( 'CHECK pop true', () => {
-        expect( Emulator.checkLine( 'pop r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'pop R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK pop false', () => {
-        expect( Emulator.checkLine( 'pop r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'pop R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // TOP
-      test( 'CHECK top true', () => {
-        expect( Emulator.checkLine( 'top r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'top R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK top false', () => {
-        expect( Emulator.checkLine( 'top r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'top R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // ADDC
-      test( 'CHECK addc true', () => {
-        expect( Emulator.checkLine( 'addc r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'addc R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK addc false', () => {
-        expect( Emulator.checkLine( 'addc r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'addc R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
+      expect( Emulator.checkLine( ' push r1;r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( '     push r1,r2,r3comment' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      
+      expect( Emulator.checkLine( '     push' ) ).toBe( 'push must be followed by 3 registers in form Rx,Rx,Rx' );
+    } );
 
   // RRKEXP
-    // RRKGENERAL
-      test( 'CHECK RRKEXP true', () => {
-        expect( Emulator.checkLine( 'shiftl R1,R2,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'shiftl r1,r2,15', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'shiftl R1,r2,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'shiftl r1,R2,15', testLabels ) ).toBe( true );
+    test( 'CHECK RRKEXP true', () => {
+      expect( Emulator.checkLine( 'shiftl R1,R2,0', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'shiftl r1,r2,15', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'shiftl R1,r2,0', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'shiftl r1,R2,15', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'shiftl r1,r2,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'shiftl r1,r2,15', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'shiftl r1,r2,$f', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'shiftl r1,r2,4', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'shiftl r1,r2,0', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'shiftl r1,r2,15', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'shiftl r1,r2,$f', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'shiftl r1,r2,4', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' shiftl r1,r2,1', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     shiftl r1,r2,1;comment', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     shiftl r1,r2,1;comment;doublecomment', testLabels ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' shiftl r1,r2,1', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     shiftl r1,r2,1;comment', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     shiftl r1,r2,1;comment;doublecomment', testLabels ) ).toBe( true );
+    } );
 
-      test( 'CHECK RRKEXP false', () => {
-        expect( Emulator.checkLine( 'shiftl 1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'shiftl r2,2', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'shiftl r1,r2', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+    test( 'CHECK RRKEXP false', () => {
+      expect( Emulator.checkLine( 'shiftl 1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'shiftl r2,2', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'shiftl r1,r2', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'shiftl r1,r2,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
-        expect( Emulator.checkLine( 'shiftl r1,r2,-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'shiftl r1,r2,$10', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+      expect( Emulator.checkLine( 'shiftl r1,r2,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+      expect( Emulator.checkLine( 'shiftl r1,r2,-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'shiftl r1,r2,$10', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
 
-        expect( Emulator.checkLine( 'shiftl r16,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'shiftl r-1,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'shiftl r$f,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'shiftl r16,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'shiftl r-1,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'shiftl r$f,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'shiftl r1,r16,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'shiftl r1,r-1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'shiftl r1,r$f,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'shiftl r1,r16,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'shiftl r1,r-1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'shiftl r1,r$f,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( ' shiftl r1,r2;0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( '     shiftl r1,r2;0comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( '     shiftl r1,r2;0comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-      } );
-
-    // SHIFTL
-      test( 'CHECK shiftl true', () => {
-        expect( Emulator.checkLine( 'shiftl r1,r2,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'shiftl R1,R2,15', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK shiftl false', () => {
-        expect( Emulator.checkLine( 'shiftl r1,r2,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
-      } );
-
-    // SHIFTR
-      test( 'CHECK shiftr true', () => {
-        expect( Emulator.checkLine( 'shiftr r1,r2,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'shiftr R1,R2,15', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK shiftr false', () => {
-        expect( Emulator.checkLine( 'shiftr r1,r2,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
-      } );
+      expect( Emulator.checkLine( ' shiftl r1,r2;0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( '     shiftl r1,r2;0comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( '     shiftl r1,r2;0comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+    } );
 
   // RKEXP
-    // RKGENERAL
-      test( 'CHECK RKEXP true', () => {
-        expect( Emulator.checkLine( 'getbit R1,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'getbit r1,15', testLabels ) ).toBe( true );
+    test( 'CHECK RKEXP true', () => {
+      expect( Emulator.checkLine( 'getbit R1,0', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'getbit r1,15', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'getbit r1,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'getbit r1,15', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'getbit r1,$f', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'getbit r1,0', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'getbit r1,15', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'getbit r1,$f', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' getbit r1,1', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     getbit r1,1;comment', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     getbit r1,1;comment;doublecomment', testLabels ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' getbit r1,1', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     getbit r1,1;comment', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     getbit r1,1;comment;doublecomment', testLabels ) ).toBe( true );
+    } );
 
-      test( 'CHECK RKEXP false', () => {
-        expect( Emulator.checkLine( 'getbit 1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
+    test( 'CHECK RKEXP false', () => {
+      expect( Emulator.checkLine( 'getbit 1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'getbit r1,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
-        expect( Emulator.checkLine( 'getbit r1,-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'getbit r1,$10', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+      expect( Emulator.checkLine( 'getbit r1,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+      expect( Emulator.checkLine( 'getbit r1,-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'getbit r1,$10', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
 
-        expect( Emulator.checkLine( 'getbit r16,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'getbit r-1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'getbit r$f,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'getbit r16,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'getbit r-1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'getbit r$f,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( ' getbit r1;0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
-        expect( Emulator.checkLine( '     getbit r1;0comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
-        expect( Emulator.checkLine( '     getbit r1;0comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
-      } );
-
-    // GETBIT
-      test( 'CHECK getbit true', () => {
-        expect( Emulator.checkLine( 'getbit r1,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'getbit R1,15', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK getbit false', () => {
-        expect( Emulator.checkLine( 'getbit r1,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
-      } );
-
-    // GETBITI
-      test( 'CHECK getbiti true', () => {
-        expect( Emulator.checkLine( 'getbiti r1,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'getbiti R1,15', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK getbiti false', () => {
-        expect( Emulator.checkLine( 'getbiti r1,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
-      } );
-
-    // PUTBIT
-      test( 'CHECK putbit true', () => {
-        expect( Emulator.checkLine( 'putbit r1,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'putbit R1,15', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK putbit false', () => {
-        expect( Emulator.checkLine( 'putbit r1,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
-      } );
-
-    // PUTBITI
-      test( 'CHECK putbiti true', () => {
-        expect( Emulator.checkLine( 'putbiti r1,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'putbiti R1,15', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK putbiti false', () => {
-        expect( Emulator.checkLine( 'putbiti r1,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
-      } );
+      expect( Emulator.checkLine( ' getbit r1;0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
+      expect( Emulator.checkLine( '     getbit r1;0comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
+      expect( Emulator.checkLine( '     getbit r1;0comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
+    } );
 
   // INJECTIALIAS
-    // INJECTIALIASGENERAL / FIELD
-      test( 'CHECK INJECTIALIAS true', () => {
-        expect( Emulator.checkLine( 'field R1,0,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'field r1,0,0', testLabels ) ).toBe( true );
+    test( 'CHECK INJECTIALIAS true', () => {
+      expect( Emulator.checkLine( 'field R1,0,0', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'field r1,0,0', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'field r1,15,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'field r1,$f,0', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'field r1,15,0', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'field r1,$f,0', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'field r1,0,15', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'field r1,0,$f', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'field r1,0,15', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'field r1,0,$f', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' field r1,1,1', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     field r1,1,1;comment', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     field r1,1,1;comment;doublecomment', testLabels ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' field r1,1,1', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     field r1,1,1;comment', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     field r1,1,1;comment;doublecomment', testLabels ) ).toBe( true );
+    } );
 
-      test( 'CHECK INJECTIALIAS false', () => {
-        expect( Emulator.checkLine( 'field 1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'field 1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'field r1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
+    test( 'CHECK INJECTIALIAS false', () => {
+      expect( Emulator.checkLine( 'field 1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'field 1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'field r1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'field r1,16,0', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
-        expect( Emulator.checkLine( 'field r1,-1,0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'field r1,$10,0', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+      expect( Emulator.checkLine( 'field r1,16,0', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+      expect( Emulator.checkLine( 'field r1,-1,0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'field r1,$10,0', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
 
-        expect( Emulator.checkLine( 'field r1,0,16', testLabels ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15' );
-        expect( Emulator.checkLine( 'field r1,0,-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'field r1,0,$10', testLabels ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15' );
+      expect( Emulator.checkLine( 'field r1,0,16', testLabels ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15' );
+      expect( Emulator.checkLine( 'field r1,0,-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'field r1,0,$10', testLabels ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15' );
 
-        expect( Emulator.checkLine( 'field r16,1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'field r-1,1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'field r$f,1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'field r16,1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'field r-1,1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'field r$f,1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( ' field r1,1;0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( '     field r1,1;0comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( '     field r1,1;0comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
-      } );
+      expect( Emulator.checkLine( ' field r1,1;0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( '     field r1,1;0comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( '     field r1,1;0comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
+    } );
 
   // RRKKEXP
-    // RRKKEXPGENERAL
-      test( 'CHECK RRKKEXP true', () => {
-        expect( Emulator.checkLine( 'extract R1,r2,0,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'extract R1,R2,0,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'extract r1,R2,0,0' ) ).toBe( true );
+    test( 'CHECK RRKKEXP true', () => {
+      expect( Emulator.checkLine( 'extract R1,r2,0,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'extract R1,R2,0,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'extract r1,R2,0,0' ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'extract R1,R2,15,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'extract r1,R2,$f,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'extract R1,R2,15,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'extract r1,R2,$f,0' ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'extract R1,R2,0,15' ) ).toBe( true );
-        expect( Emulator.checkLine( 'extract r1,R2,0,$f' ) ).toBe( true );
+      expect( Emulator.checkLine( 'extract R1,R2,0,15' ) ).toBe( true );
+      expect( Emulator.checkLine( 'extract r1,R2,0,$f' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' extract r1,r2,0,0' ) ).toBe( true );
-        expect( Emulator.checkLine( '     extract r1,r2,0,0;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     extract r1,r2,0,0;comment;doublecomment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' extract r1,r2,0,0' ) ).toBe( true );
+      expect( Emulator.checkLine( '     extract r1,r2,0,0;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     extract r1,r2,0,0;comment;doublecomment' ) ).toBe( true );
+    } );
 
-      test( 'CHECK RRKKEXP false', () => {
-        expect( Emulator.checkLine( 'extract R16,r2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'extract R-1,R2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'extract r$f,R2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
+    test( 'CHECK RRKKEXP false', () => {
+      expect( Emulator.checkLine( 'extract R16,r2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'extract R-1,R2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'extract r$f,R2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'extract R1,r16,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'extract R1,R-1,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'extract r1,R$f,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'extract R1,r16,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'extract R1,R-1,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'extract r1,R$f,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'extract R1,r1,16,0' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'extract R1,r1,$10,0' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'extract r1,r1,-1,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'extract R1,r1,16,0' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'extract R1,r1,$10,0' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'extract r1,r1,-1,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'extract R1,r1,0,16' ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'extract R1,r1,0,$10' ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'extract r1,r1,0,-1' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'extract R1,r1,0,16' ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'extract R1,r1,0,$10' ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'extract r1,r1,0,-1' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( ' extract r1;r2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( '     extract r1,r2,0,0comment' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
-        
-        expect( Emulator.checkLine( '     extract' ) ).toBe( 'extract must be followed by 2 registers and 2 constants in form Rx,Rx,k1,k2' );
-      } );
-
-    // EXTRACT
-      test( 'CHECK extract true', () => {
-        expect( Emulator.checkLine( 'extract r1,r2,0,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'extract R1,R2,15,0', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK extract false', () => {
-        expect( Emulator.checkLine( 'extract r1,r2,16,0', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-      } );
-
-    // EXTRACTI
-      test( 'CHECK extracti true', () => {
-        expect( Emulator.checkLine( 'extracti r1,r2,0,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'extracti R1,R2,15,0', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK extracti false', () => {
-        expect( Emulator.checkLine( 'extracti r1,r2,16,0', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-      } );
+      expect( Emulator.checkLine( ' extract r1;r2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( '     extract r1,r2,0,0comment' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
+      
+      expect( Emulator.checkLine( '     extract' ) ).toBe( 'extract must be followed by 2 registers and 2 constants in form Rx,Rx,k1,k2' );
+    } );
 
   // RRRKKEXP
-    // RRRKKEXPGENERAL
-      test( 'CHECK RRRKKEXP true', () => {
-        expect( Emulator.checkLine( 'inject R1,r2,R3,0,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'inject R1,R2,R3,0,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'inject r1,R2,R3,0,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'inject r1,r2,R3,0,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'inject R1,r2,R3,0,0' ) ).toBe( true );
+    test( 'CHECK RRRKKEXP true', () => {
+      expect( Emulator.checkLine( 'inject R1,r2,R3,0,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'inject R1,R2,R3,0,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'inject r1,R2,R3,0,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'inject r1,r2,R3,0,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'inject R1,r2,R3,0,0' ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'inject R1,R2,r3,0,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'inject r1,R2,r3,0,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'inject R1,R2,r3,0,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'inject r1,R2,r3,0,0' ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'inject R1,R2,r3,15,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'inject r1,R2,r3,$f,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'inject R1,R2,r3,15,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'inject r1,R2,r3,$f,0' ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'inject R1,R2,r3,0,15' ) ).toBe( true );
-        expect( Emulator.checkLine( 'inject r1,R2,r3,0,$f' ) ).toBe( true );
+      expect( Emulator.checkLine( 'inject R1,R2,r3,0,15' ) ).toBe( true );
+      expect( Emulator.checkLine( 'inject r1,R2,r3,0,$f' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' inject r1,r2,r3,0,0' ) ).toBe( true );
-        expect( Emulator.checkLine( '     inject r1,r2,r3,0,0;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     inject r1,r2,r3,0,0;comment;doublecomment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' inject r1,r2,r3,0,0' ) ).toBe( true );
+      expect( Emulator.checkLine( '     inject r1,r2,r3,0,0;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     inject r1,r2,r3,0,0;comment;doublecomment' ) ).toBe( true );
+    } );
 
-      test( 'CHECK RRRKKEXP false', () => {
-        expect( Emulator.checkLine( 'inject R16,r2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'inject R-1,R2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'inject r$f,R2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+    test( 'CHECK RRRKKEXP false', () => {
+      expect( Emulator.checkLine( 'inject R16,r2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject R-1,R2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject r$f,R2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'inject R1,r16,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'inject R1,R-1,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'inject r1,R$f,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject R1,r16,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject R1,R-1,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject r1,R$f,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'inject R1,r1,r16,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'inject R1,R1,r-1,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'inject r1,R1,r$f,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject R1,r1,r16,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject R1,R1,r-1,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject r1,R1,r$f,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'inject R1,r1,r3,16,0' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'inject R1,r1,r3,$10,0' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'inject r1,r1,r3,-1,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject R1,r1,r3,16,0' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject R1,r1,r3,$10,0' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject r1,r1,r3,-1,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'inject R1,r1,r3,0,16' ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'inject R1,r1,r3,0,$10' ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'inject r1,r1,r3,0,-1' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject R1,r1,r3,0,16' ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject R1,r1,r3,0,$10' ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'inject r1,r1,r3,0,-1' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( ' inject r1;r2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( '     inject r1,r2,r3,0,0comment' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
-        
-        expect( Emulator.checkLine( '     inject' ) ).toBe( 'inject must be followed by 3 registers and 2 constants in form Rx,Rx,Rx,k1,k2' );
-      } );
-
-    // INJECT
-      test( 'CHECK inject true', () => {
-        expect( Emulator.checkLine( 'inject r1,r2,r3,0,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'inject R1,R2,r3,15,0', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK inject false', () => {
-        expect( Emulator.checkLine( 'inject r1,r2,r3,16,0', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-      } );
-
-    // INJECTI
-      test( 'CHECK injecti true', () => {
-        expect( Emulator.checkLine( 'injecti r1,r2,r3,0,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'injecti R1,R2,r3,15,0', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK injecti false', () => {
-        expect( Emulator.checkLine( 'injecti r1,r2,r3,16,0', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-      } );
-
-    // LOGICB
-      test( 'CHECK logicb true', () => {
-        expect( Emulator.checkLine( 'logicb r1,r2,r3,0,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'logicb R1,R2,r3,15,0', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK logicb false', () => {
-        expect( Emulator.checkLine( 'logicb r1,r2,r3,16,0', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-      } );
+      expect( Emulator.checkLine( ' inject r1;r2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+      expect( Emulator.checkLine( '     inject r1,r2,r3,0,0comment' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+      
+      expect( Emulator.checkLine( '     inject' ) ).toBe( 'inject must be followed by 3 registers and 2 constants in form Rx,Rx,Rx,k1,k2' );
+    } );
 
   // RRRKEXP
-    // RRRKEXPGENERAL
-      test( 'CHECK RRRKEXP true', () => {
-        expect( Emulator.checkLine( 'logicw R1,r2,R3,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'logicw R1,R2,R3,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'logicw r1,R2,R3,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'logicw r1,r2,R3,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'logicw R1,r2,R3,0' ) ).toBe( true );
+    test( 'CHECK RRRKEXP true', () => {
+      expect( Emulator.checkLine( 'logicw R1,r2,R3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'logicw R1,R2,R3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'logicw r1,R2,R3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'logicw r1,r2,R3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'logicw R1,r2,R3,0' ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'logicw R1,R2,r3,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'logicw r1,R2,r3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'logicw R1,R2,r3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'logicw r1,R2,r3,0' ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'logicw R1,R2,r3,15' ) ).toBe( true );
-        expect( Emulator.checkLine( 'logicw r1,R2,r3,$f' ) ).toBe( true );
+      expect( Emulator.checkLine( 'logicw R1,R2,r3,15' ) ).toBe( true );
+      expect( Emulator.checkLine( 'logicw r1,R2,r3,$f' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' logicw r1,r2,r3,0' ) ).toBe( true );
-        expect( Emulator.checkLine( '     logicw r1,r2,r3,0;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     logicw r1,r2,r3,0;comment;doublecomment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' logicw r1,r2,r3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( '     logicw r1,r2,r3,0;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     logicw r1,r2,r3,0;comment;doublecomment' ) ).toBe( true );
+    } );
 
-      test( 'CHECK RRRKEXP false', () => {
-        expect( Emulator.checkLine( 'logicw R16,r2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'logicw R-1,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'logicw r$f,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+    test( 'CHECK RRRKEXP false', () => {
+      expect( Emulator.checkLine( 'logicw R16,r2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'logicw R-1,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'logicw r$f,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'logicw R1,r16,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'logicw R1,R-1,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'logicw r1,R$f,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'logicw R1,r16,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'logicw R1,R-1,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'logicw r1,R$f,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'logicw R1,r1,r16,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'logicw R1,R1,r-1,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'logicw r1,R1,r$f,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'logicw R1,r1,r16,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'logicw R1,R1,r-1,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'logicw r1,R1,r$f,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'logicw R1,r1,r3,16' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'logicw R1,r1,r3,$10' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'logicw r1,r1,r3,-1' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'logicw R1,r1,r3,16' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'logicw R1,r1,r3,$10' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'logicw r1,r1,r3,-1' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( ' logicw r1;r2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( '     logicw r1,r2,r3,0comment' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        
-        expect( Emulator.checkLine( '     logicw' ) ).toBe( 'logicw must be followed by 3 registers and a constant in form Rx,Rx,Rx,k' );
-      } );
-
-    // LOGICW
-      test( 'CHECK logicw true', () => {
-        expect( Emulator.checkLine( 'logicw r1,r2,r3,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'logicw R1,R2,r3,15', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK logicw false', () => {
-        expect( Emulator.checkLine( 'logicw r1,r2,r3,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-      } );
-
-    // EXTRACTI
+      expect( Emulator.checkLine( ' logicw r1;r2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( '     logicw r1,r2,r3,0comment' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      
+      expect( Emulator.checkLine( '     logicw' ) ).toBe( 'logicw must be followed by 3 registers and a constant in form Rx,Rx,Rx,k' );
+    } );
 
   // LOGICALIASRRRK
-    // RRRKEXPGENERAL
-      test( 'CHECK LOGICALIASRRRK true', () => {
-        expect( Emulator.checkLine( 'andb R1,r2,R3,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'andb R1,R2,R3,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'andb r1,R2,R3,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'andb r1,r2,R3,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'andb R1,r2,R3,0' ) ).toBe( true );
+    test( 'CHECK LOGICALIASRRRK true', () => {
+      expect( Emulator.checkLine( 'andb R1,r2,R3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'andb R1,R2,R3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'andb r1,R2,R3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'andb r1,r2,R3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'andb R1,r2,R3,0' ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'andb R1,R2,r3,0' ) ).toBe( true );
-        expect( Emulator.checkLine( 'andb r1,R2,r3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'andb R1,R2,r3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( 'andb r1,R2,r3,0' ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'andb R1,R2,r3,15' ) ).toBe( true );
-        expect( Emulator.checkLine( 'andb r1,R2,r3,$f' ) ).toBe( true );
+      expect( Emulator.checkLine( 'andb R1,R2,r3,15' ) ).toBe( true );
+      expect( Emulator.checkLine( 'andb r1,R2,r3,$f' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' andb r1,r2,r3,0' ) ).toBe( true );
-        expect( Emulator.checkLine( '     andb r1,r2,r3,0;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     andb r1,r2,r3,0;comment;doublecomment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' andb r1,r2,r3,0' ) ).toBe( true );
+      expect( Emulator.checkLine( '     andb r1,r2,r3,0;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     andb r1,r2,r3,0;comment;doublecomment' ) ).toBe( true );
+    } );
 
-      test( 'CHECK LOGICALIASRRRK false', () => {
-        expect( Emulator.checkLine( 'andb R16,r2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'andb R-1,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'andb r$f,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+    test( 'CHECK LOGICALIASRRRK false', () => {
+      expect( Emulator.checkLine( 'andb R16,r2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'andb R-1,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'andb r$f,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'andb R1,r16,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'andb R1,R-1,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'andb r1,R$f,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'andb R1,r16,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'andb R1,R-1,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'andb r1,R$f,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'andb R1,r1,r16,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'andb R1,R1,r-1,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'andb r1,R1,r$f,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'andb R1,r1,r16,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'andb R1,R1,r-1,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'andb r1,R1,r$f,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'andb R1,r1,r3,16' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'andb R1,r1,r3,$10' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'andb r1,r1,r3,-1' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'andb R1,r1,r3,16' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'andb R1,r1,r3,$10' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+      expect( Emulator.checkLine( 'andb r1,r1,r3,-1' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( ' andb r1;r2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        expect( Emulator.checkLine( '     andb r1,r2,r3,0comment' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
-        
-        expect( Emulator.checkLine( '     andb' ) ).toBe( 'andb must be followed by 3 registers and a constant in form Rx,Rx,Rx,k' );
-      } );
-
-    // ANDB
-      test( 'CHECK andb true', () => {
-        expect( Emulator.checkLine( 'andb r1,r2,r3,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'andb R1,R2,r3,15', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK andb false', () => {
-        expect( Emulator.checkLine( 'andb r1,r2,r3,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-      } );
-
-    // ORB
-      test( 'CHECK orb true', () => {
-        expect( Emulator.checkLine( 'orb r1,r2,r3,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'orb R1,R2,r3,15', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK orb false', () => {
-        expect( Emulator.checkLine( 'orb r1,r2,r3,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-      } );
-
-    // XORB
-      test( 'CHECK xorb true', () => {
-        expect( Emulator.checkLine( 'xorb r1,r2,r3,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'xorb R1,R2,r3,15', testLabels ) ).toBe( true );
-      } );
-
-      test( 'CHECK xorb false', () => {
-        expect( Emulator.checkLine( 'xorb r1,r2,r3,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-      } );
+      expect( Emulator.checkLine( ' andb r1;r2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      expect( Emulator.checkLine( '     andb r1,r2,r3,0comment' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+      
+      expect( Emulator.checkLine( '     andb' ) ).toBe( 'andb must be followed by 3 registers and a constant in form Rx,Rx,Rx,k' );
+    } );
 
   // LOGICALIASRRK
-    // LOGICALIASRRKGENERAL / INVB
-      test( 'CHECK LOGICALIASRRK true', () => {
-        expect( Emulator.checkLine( 'invb R1,R2,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'invb r1,r2,15', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'invb R1,r2,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'invb r1,R2,15', testLabels ) ).toBe( true );
+    test( 'CHECK LOGICALIASRRK true', () => {
+      expect( Emulator.checkLine( 'invb R1,R2,0', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'invb r1,r2,15', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'invb R1,r2,0', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'invb r1,R2,15', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( 'invb r1,r2,0', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'invb r1,r2,15', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'invb r1,r2,$f', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( 'invb r1,r2,4', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'invb r1,r2,0', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'invb r1,r2,15', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'invb r1,r2,$f', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( 'invb r1,r2,4', testLabels ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' invb r1,r2,1', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     invb r1,r2,1;comment', testLabels ) ).toBe( true );
-        expect( Emulator.checkLine( '     invb r1,r2,1;comment;doublecomment', testLabels ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' invb r1,r2,1', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     invb r1,r2,1;comment', testLabels ) ).toBe( true );
+      expect( Emulator.checkLine( '     invb r1,r2,1;comment;doublecomment', testLabels ) ).toBe( true );
+    } );
 
-      test( 'CHECK LOGICALIASRRK false', () => {
-        expect( Emulator.checkLine( 'invb 1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'invb r2,2', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'invb r1,r2', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+    test( 'CHECK LOGICALIASRRK false', () => {
+      expect( Emulator.checkLine( 'invb 1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'invb r2,2', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'invb r1,r2', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'invb r1,r2,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
-        expect( Emulator.checkLine( 'invb r1,r2,-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'invb r1,r2,$10', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+      expect( Emulator.checkLine( 'invb r1,r2,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+      expect( Emulator.checkLine( 'invb r1,r2,-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'invb r1,r2,$10', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
 
-        expect( Emulator.checkLine( 'invb r16,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'invb r-1,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'invb r$f,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'invb r16,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'invb r-1,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'invb r$f,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'invb r1,r16,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'invb r1,r-1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'invb r1,r$f,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'invb r1,r16,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'invb r1,r-1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( 'invb r1,r$f,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( ' invb r1,r2;0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( '     invb r1,r2;0comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( '     invb r1,r2;0comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-      } );
+      expect( Emulator.checkLine( ' invb r1,r2;0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( '     invb r1,r2;0comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+      expect( Emulator.checkLine( '     invb r1,r2;0comment;doublecomment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+    } );
 
   // LOGICALIASRRR
-    // LOGICALIASRRRGENERAL
-      test( 'CHECK LOGICALIASRRR true', () => {
-        expect( Emulator.checkLine( 'andnew R1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'andnew R1,R2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'andnew r1,R2,R3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'andnew r1,r2,R3' ) ).toBe( true );
+    test( 'CHECK LOGICALIASRRR true', () => {
+      expect( Emulator.checkLine( 'andnew R1,r2,r3' ) ).toBe( true );
+      expect( Emulator.checkLine( 'andnew R1,R2,r3' ) ).toBe( true );
+      expect( Emulator.checkLine( 'andnew r1,R2,R3' ) ).toBe( true );
+      expect( Emulator.checkLine( 'andnew r1,r2,R3' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' andnew r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( '     andnew r1,r2,r3;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     andnew r1,r2,r3;comment;doublecomment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' andnew r1,r2,r3' ) ).toBe( true );
+      expect( Emulator.checkLine( '     andnew r1,r2,r3;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     andnew r1,r2,r3;comment;doublecomment' ) ).toBe( true );
+    } );
 
-      test( 'CHECK LOGICALIASRRR false', () => {
-        expect( Emulator.checkLine( 'andnew R16,r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'andnew R-1,R2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'andnew r$f,R2,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+    test( 'CHECK LOGICALIASRRR false', () => {
+      expect( Emulator.checkLine( 'andnew R16,r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'andnew R-1,R2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'andnew r$f,R2,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
-        expect( Emulator.checkLine( 'andnew R1,r2,r16' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'andnew R1,R2,r-1' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'andnew r1,R2,R$f' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'andnew R1,r2,r16' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'andnew R1,R2,r-1' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'andnew r1,R2,R$f' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
-        expect( Emulator.checkLine( 'andnew R1,r16,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'andnew R1,R-1,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'andnew r1,R$f,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'andnew R1,r16,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'andnew R1,R-1,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( 'andnew r1,R$f,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
-        expect( Emulator.checkLine( ' andnew r1;r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( '     andnew r1,r2,r3comment' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        
-        expect( Emulator.checkLine( '     andnew' ) ).toBe( 'andnew must be followed by 3 registers in form Rx,Rx,Rx' );
-      } );
-
-    // ANDNEW
-      test( 'CHECK andnew true', () => {
-        expect( Emulator.checkLine( 'andnew r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'andnew R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK andnew false', () => {
-        expect( Emulator.checkLine( 'andnew r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'andnew R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // ORNEW
-      test( 'CHECK ornew true', () => {
-        expect( Emulator.checkLine( 'ornew r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'ornew R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK ornew false', () => {
-        expect( Emulator.checkLine( 'ornew r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'ornew R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
-
-    // XORNEW
-      test( 'CHECK xornew true', () => {
-        expect( Emulator.checkLine( 'xornew r1,r2,r3' ) ).toBe( true );
-        expect( Emulator.checkLine( 'xornew R1,R2,R3' ) ).toBe( true );
-      } );
-
-      test( 'CHECK xornew false', () => {
-        expect( Emulator.checkLine( 'xornew r1,r2' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-        expect( Emulator.checkLine( 'xornew R1,R2,R3,R4' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
-      } );
+      expect( Emulator.checkLine( ' andnew r1;r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      expect( Emulator.checkLine( '     andnew r1,r2,r3comment' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+      
+      expect( Emulator.checkLine( '     andnew' ) ).toBe( 'andnew must be followed by 3 registers in form Rx,Rx,Rx' );
+    } );
 
   // LOGICALIASRR
-    // LOGICALIASGENERAL / INVNEW
-      test( 'CHECK LOGICALIASRR true', () => {
-        expect( Emulator.checkLine( 'invnew R1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( 'invnew R1,R2' ) ).toBe( true );
-        expect( Emulator.checkLine( 'invnew r1,R2' ) ).toBe( true );
+    test( 'CHECK LOGICALIASRR true', () => {
+      expect( Emulator.checkLine( 'invnew R1,r2' ) ).toBe( true );
+      expect( Emulator.checkLine( 'invnew R1,R2' ) ).toBe( true );
+      expect( Emulator.checkLine( 'invnew r1,R2' ) ).toBe( true );
 
-        expect( Emulator.checkLine( ' invnew r1,r2' ) ).toBe( true );
-        expect( Emulator.checkLine( '     invnew r1,r2;comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     invnew r1,r2;comment;doublecomment' ) ).toBe( true );
-      } );
+      expect( Emulator.checkLine( ' invnew r1,r2' ) ).toBe( true );
+      expect( Emulator.checkLine( '     invnew r1,r2;comment' ) ).toBe( true );
+      expect( Emulator.checkLine( '     invnew r1,r2;comment;doublecomment' ) ).toBe( true );
+    } );
 
-      test( 'CHECK LOGICALIASRR false', () => {
-        expect( Emulator.checkLine( 'invnew R16,r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'invnew R-1,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'invnew r$f,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+    test( 'CHECK LOGICALIASRR false', () => {
+      expect( Emulator.checkLine( 'invnew R16,r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'invnew R-1,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'invnew r$f,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
 
-        expect( Emulator.checkLine( 'invnew R1,r16' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'invnew R1,R-1' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( 'invnew r1,R$f' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'invnew R1,r16' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'invnew R1,R-1' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( 'invnew r1,R$f' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
 
-        expect( Emulator.checkLine( ' invnew r1;r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        expect( Emulator.checkLine( '     invnew r1,r2comment' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-        
-        expect( Emulator.checkLine( '     invnew' ) ).toBe( 'invnew must be followed by 2 registers in form Rx,Rx' );
-      } );
+      expect( Emulator.checkLine( ' invnew r1;r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      expect( Emulator.checkLine( '     invnew r1,r2comment' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      
+      expect( Emulator.checkLine( '     invnew' ) ).toBe( 'invnew must be followed by 2 registers in form Rx,Rx' );
+    } );
 
 
 
