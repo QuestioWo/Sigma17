@@ -1774,46 +1774,219 @@ const testLabels = {
     var resultOutput;
     // RR
       test( 'RUN RR inv', () => {
-        testMemory = fresh()['memory'];
-        testRegisters = fresh()['registers'];
+        // SETUP
+          testMemory = fresh()['memory'];
+          testRegisters = fresh()['registers'];
 
-        testMemory[0] = 0x8131; // inv r3,r1
-        testMemory[1] = 0x8142; // inv r4,r2
+          testMemory[0] = 0x8131; // inv r3,r1
+          testMemory[1] = 0x8142; // inv r4,r2
 
-        testRegisters[1] = 0x0f0f;
-        testRegisters[2] = 0x00ff;
+          testRegisters[1] = 0x0f0f;
+          testRegisters[2] = 0x00ff;
 
-        resultRegisters = testRegisters;
+          resultRegisters = testRegisters;
 
-        resultRegisters[3] = 0xf0f0;
+          resultMemory = testMemory;
+          resultInput = testInput;
+          resultOutput = testOutput;
 
-        resultMemory = testMemory;
-        resultInput = testInput;
-        resultOutput = testOutput;
+        // inv 0f0f
+          resultRegisters[3] = 0xf0f0;
 
-        parsed = Emulator.runMemory( fresh()['control'], testRegisters, testMemory, testInput, testOutput );
-        expect( parsed['control'] ).toStrictEqual( { 
-          pc : 1,
-          ir : 0x8131,
-          adr : 0x8142      
-        } );
-        expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-        expect( parsed['memory'] ).toStrictEqual( resultMemory );
-        expect( parsed['input'] ).toBe( resultInput );
-        expect( parsed['output'] ).toBe( resultOutput );
-        expect( parsed['halted'] ).toBe( false );
+          parsed = Emulator.runMemory( fresh()['control'], testRegisters, testMemory, testInput, testOutput );
+          expect( parsed['control'] ).toStrictEqual( { 
+            pc : 1,
+            ir : 0x8131,
+            adr : 0x8142      
+          } );
+          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+          expect( parsed['memory'] ).toStrictEqual( resultMemory );
+          expect( parsed['input'] ).toBe( resultInput );
+          expect( parsed['output'] ).toBe( resultOutput );
+          expect( parsed['halted'] ).toBe( false );
 
-        resultRegisters[4] = 0xff00;
+        // inv 00ff
+          resultRegisters[4] = 0xff00;
 
-        parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
-        expect( parsed['control'] ).toStrictEqual( { 
-          pc : 2,
-          ir : 0x8142,
-          adr : 0x0000      
-        } );
-        expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-        expect( parsed['memory'] ).toStrictEqual( resultMemory );
-        expect( parsed['input'] ).toBe( resultInput );
-        expect( parsed['output'] ).toBe( resultOutput );
-        expect( parsed['halted'] ).toBe( false );
+          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
+          expect( parsed['control'] ).toStrictEqual( { 
+            pc : 2,
+            ir : 0x8142,
+            adr : 0x0000      
+          } );
+          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+          expect( parsed['memory'] ).toStrictEqual( resultMemory );
+          expect( parsed['input'] ).toBe( resultInput );
+          expect( parsed['output'] ).toBe( resultOutput );
+          expect( parsed['halted'] ).toBe( false );
       } );
+
+      test( 'RUN RR cmp', () => {
+        // SETUP
+          testMemory = fresh()['memory'];
+          testRegisters = fresh()['registers'];
+
+          testMemory[0] = 0x4112; // cmp r1,r2
+          testMemory[1] = 0x4111; // cmp r1,r1
+          testMemory[2] = 0x4110; // cmp r1,r0
+
+          testMemory[3] = 0x4330; // cmp r3,r0
+          testMemory[4] = 0x4333; // cmp r3,r3
+          testMemory[5] = 0x4334; // cmp r3,r4
+
+          testMemory[6] = 0x4332; // cmp r3,r2
+          testMemory[7] = 0x4000; // cmp r0,r0
+          testMemory[8] = 0x4223; // cmp r2,r3
+
+          testRegisters[1] = 0x0001;
+          testRegisters[2] = 0x0002;
+          testRegisters[3] = 0xffff;
+          testRegisters[4] = 0xfffe;
+
+          resultRegisters = testRegisters;
+
+        // cmp 1,2 r15 := c000
+          resultRegisters[15] = 0xc000;
+
+          resultMemory = testMemory;
+          resultInput = testInput;
+          resultOutput = testOutput;
+
+          parsed = Emulator.runMemory( fresh()['control'], testRegisters, testMemory, testInput, testOutput );
+          expect( parsed['control'] ).toStrictEqual( { 
+            pc : 1,
+            ir : testMemory[0],
+            adr : testMemory[1]      
+          } );
+          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+          expect( parsed['memory'] ).toStrictEqual( resultMemory );
+          expect( parsed['input'] ).toBe( resultInput );
+          expect( parsed['output'] ).toBe( resultOutput );
+          expect( parsed['halted'] ).toBe( false );
+
+        // cmp 1,1 r15 := 2000
+          resultRegisters[15] = 0x2000;
+
+          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
+          expect( parsed['control'] ).toStrictEqual( { 
+            pc : 2,
+            ir : testMemory[1],
+            adr : testMemory[2]      
+          } );
+          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+          expect( parsed['memory'] ).toStrictEqual( resultMemory );
+          expect( parsed['input'] ).toBe( resultInput );
+          expect( parsed['output'] ).toBe( resultOutput );
+          expect( parsed['halted'] ).toBe( false );
+
+        // cmp 1,0 r15 := 1800
+          resultRegisters[15] = 0x1800;
+
+          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
+          expect( parsed['control'] ).toStrictEqual( { 
+            pc : 3,
+            ir : testMemory[2],
+            adr : testMemory[3]      
+          } );
+          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+          expect( parsed['memory'] ).toStrictEqual( resultMemory );
+          expect( parsed['input'] ).toBe( resultInput );
+          expect( parsed['output'] ).toBe( resultOutput );
+          expect( parsed['halted'] ).toBe( false );
+
+        // cmp -1,0 r15 := c000
+          resultRegisters[15] = 0xc000;
+
+          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
+          expect( parsed['control'] ).toStrictEqual( { 
+            pc : 4,
+            ir : testMemory[3],
+            adr : testMemory[4]      
+          } );
+          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+          expect( parsed['memory'] ).toStrictEqual( resultMemory );
+          expect( parsed['input'] ).toBe( resultInput );
+          expect( parsed['output'] ).toBe( resultOutput );
+          expect( parsed['halted'] ).toBe( false );
+
+        // cmp -1,-1 r15 := 2000
+          resultRegisters[15] = 0x2000;
+
+          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
+          expect( parsed['control'] ).toStrictEqual( { 
+            pc : 5,
+            ir : testMemory[4],
+            adr : testMemory[5]      
+          } );
+          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+          expect( parsed['memory'] ).toStrictEqual( resultMemory );
+          expect( parsed['input'] ).toBe( resultInput );
+          expect( parsed['output'] ).toBe( resultOutput );
+          expect( parsed['halted'] ).toBe( false );
+
+        // cmp -1,-2 r15 := 1800
+          resultRegisters[15] = 0x1800;
+
+          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
+          expect( parsed['control'] ).toStrictEqual( { 
+            pc : 6,
+            ir : testMemory[5],
+            adr : testMemory[6]      
+          } );
+          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+          expect( parsed['memory'] ).toStrictEqual( resultMemory );
+          expect( parsed['input'] ).toBe( resultInput );
+          expect( parsed['output'] ).toBe( resultOutput );
+          expect( parsed['halted'] ).toBe( false );
+
+        // cmp -1,2 r15 := c000
+          resultRegisters[15] = 0xc000;
+
+          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
+          expect( parsed['control'] ).toStrictEqual( { 
+            pc : 7,
+            ir : testMemory[6],
+            adr : testMemory[7]      
+          } );
+          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+          expect( parsed['memory'] ).toStrictEqual( resultMemory );
+          expect( parsed['input'] ).toBe( resultInput );
+          expect( parsed['output'] ).toBe( resultOutput );
+          expect( parsed['halted'] ).toBe( false );
+
+        // cmp 0,0 r15 := 2000
+          resultRegisters[15] = 0x2000;
+
+          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
+          expect( parsed['control'] ).toStrictEqual( { 
+            pc : 8,
+            ir : testMemory[7],
+            adr : testMemory[8]      
+          } );
+          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+          expect( parsed['memory'] ).toStrictEqual( resultMemory );
+          expect( parsed['input'] ).toBe( resultInput );
+          expect( parsed['output'] ).toBe( resultOutput );
+          expect( parsed['halted'] ).toBe( false );
+
+        // cmp 2,-1 r15 := 1800
+          resultRegisters[15] = 0x1800;
+
+          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
+          expect( parsed['control'] ).toStrictEqual( { 
+            pc : 9,
+            ir : testMemory[8],
+            adr : 0x0000      
+          } );
+          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+          expect( parsed['memory'] ).toStrictEqual( resultMemory );
+          expect( parsed['input'] ).toBe( resultInput );
+          expect( parsed['output'] ).toBe( resultOutput );
+          expect( parsed['halted'] ).toBe( false );
+      } );
+
+
+
+
+
+
