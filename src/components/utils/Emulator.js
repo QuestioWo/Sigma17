@@ -1916,16 +1916,19 @@
       case 0x1 :
         // sub
         instructionWords = 1;
+
+        RaValue = readSignedHex( RaValue );
+        RbValue = readSignedHex( RbValue );
         
         registers[Rd] = RaValue;
 
-        if ( readSignedHex( RaValue ) < readSignedHex( RbValue ) ) {
+        if ( RaValue < RbValue ) {
           flagDict['v'] = 1;
         }
 
         registers[Rd] -= RbValue;
         
-        flagDict = compareRegisters( registers[Rd], registers[0], flagDict );
+        flagDict = compareRegisters( readUnsignedHex( registers[Rd] ), registers[0], flagDict );
         setR15 = true;
 
         break;
@@ -1948,6 +1951,9 @@
       case 0x3 :
         // div
         instructionWords = 1;
+
+        RaValue = readSignedHex( RaValue );
+        RbValue = readSignedHex( RbValue );
 
         if ( RbValue !== 0 ) {
           registers[Rd] = Math.floor( RaValue / RbValue );
@@ -1976,20 +1982,20 @@
       case 0x5 :
         // cmplt
         instructionWords = 1;
-        ( RaValue < RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
+        ( readSignedHex( RaValue ) < readSignedHex( RbValue ) ) ? registers[Rd] = 1 : registers[Rd] = 0;
         
         break;
 
       case 0x6 :
         // cmpeq
         instructionWords = 1;
-        ( RaValue === RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
+        ( readSignedHex( RaValue ) === readSignedHex( RbValue ) ) ? registers[Rd] = 1 : registers[Rd] = 0;
         break;
 
       case 0x7 :
         // cmpgt
         instructionWords = 1;
-        ( RaValue > RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
+        ( readSignedHex( RaValue ) > readSignedHex( RbValue ) ) ? registers[Rd] = 1 : registers[Rd] = 0;
         break;
 
       case 0x8 :

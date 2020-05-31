@@ -1642,17 +1642,17 @@ const testLabels = {
   // runMemory tests are ran with the assumption that they have been checked, then parsed, and set into memory with previosuly tested functions
   // RUNMEMORY
     const runAllCommands = {
-      add : 'rrr', 
-      sub : 'rrr', 
-      mul : 'rrr', 
-      div : 'rrr', 
-      cmplt : 'rrr', 
-      cmpeq : 'rrr', 
-      cmpgt : 'rrr', 
-      and : 'rrr', 
-      or : 'rrr', 
-      xor : 'rrr',
-      trap : 'rrr',
+      // add : 'rrr', 
+      // sub : 'rrr', 
+      // mul : 'rrr', 
+      // div : 'rrr', 
+      // cmplt : 'rrr', 
+      // cmpeq : 'rrr', 
+      // cmpgt : 'rrr', 
+      // and : 'rrr', 
+      // or : 'rrr', 
+      // xor : 'rrr',
+      // trap : 'rrr',
 
       // cmp : 'rr', 
       // inv : 'rr',
@@ -1762,228 +1762,823 @@ const testLabels = {
       };
     }
 
-    var parsed;
-    var testRegisters;
-    var testMemory;
-    var testInput = 'Hello, Computer!';
-    var testOutput = '';
+    function updateControl( inputMemory, inputControl ) {
+      var outputControl = {};
+      outputControl['pc'] = inputControl['pc'] + 1;
+      outputControl['ir'] = inputMemory[inputControl['pc']];
+      outputControl['adr'] = ( Object.keys( inputMemory ).includes( '' + outputControl['pc'] ) ) ? inputMemory[outputControl['pc']] : 0x0000;
 
-    var resultRegisters;
-    var resultMemory;
-    var resultInput;
-    var resultOutput;
+      return outputControl;
+    }
+
+    function testFromChanges( inputs, outputs ) {
+      // INPUTS
+        var testControl = fresh()['control'];
+        var testMemory = fresh()['memory'];
+        var testRegisters = fresh()['registers'];
+        var testInput = 'Hello, Computer!';
+        var testOutput = '';
+
+        var i;
+
+        if ( inputs['control'] !== undefined ) {
+          for ( i = 0; i < Object.keys( inputs['control'] ).length; i++ ) {
+            testControl[ Object.keys( inputs['control'] )[i] ] = inputs['control'][ Object.keys( inputs['control'] )[i] ];
+          }
+        }
+
+        if ( inputs['registers'] !== undefined ) {
+          for ( i = 0; i < Object.keys( inputs['registers'] ).length; i++ ) {
+            testRegisters[ Object.keys( inputs['registers'] )[i] ] = inputs['registers'][ Object.keys( inputs['registers'] )[i] ];
+          }
+        }
+
+        if ( inputs['memory'] !== undefined ) {
+          for ( i = 0; i < Object.keys( inputs['memory'] ).length; i++ ) {
+            testMemory[ Object.keys( inputs['memory'] )[i] ] = inputs['memory'][ Object.keys( inputs['memory'] )[i] ];
+          }
+        }
+
+        if ( inputs['input'] !== undefined ) {
+          testInput = inputs['input'];
+        }
+
+        if ( inputs['output'] !== undefined ) {
+          testOutput = inputs['output'];
+        }
+
+      // OUTPUTS
+        var resultControl = Object.assign( {}, testControl );
+        var resultRegisters = Object.assign( {}, testRegisters );
+        var resultMemory = Object.assign( {}, testMemory );
+        var resultInput = testInput;
+        var resultOutput = testOutput;
+        var resultHalted = false;
+
+        if ( outputs['registers'] !== undefined ) {
+          for ( i = 0; i < Object.keys( outputs['registers'] ).length; i ++ ) {
+            resultRegisters[ Object.keys( outputs['registers'] )[i] ] = outputs['registers'][ Object.keys( outputs['registers'] )[i] ];
+          }
+        }
+
+        if ( outputs['memory'] !== undefined ) {
+          for ( i = 0; i < Object.keys( outputs['memory'] ).length; i ++ ) {
+            resultMemory[ Object.keys( outputs['memory'] )[i] ] = outputs['memory'][ Object.keys( outputs['memory'] )[i] ];
+          }
+        }
+
+        if ( outputs['control'] !== undefined ) {
+          for ( i = 0; i < Object.keys( outputs['control'] ).length; i ++ ) {
+            resultControl[ Object.keys( outputs['control'] )[i] ] = outputs['control'][ Object.keys( outputs['control'] )[i] ];
+          }
+        }
+
+        if ( outputs['input'] !== undefined ) {
+          resultInput = outputs['input'];
+        }
+
+        if ( outputs['output'] !== undefined ) {
+          resultOutput = outputs['output'];
+        }
+
+        if ( outputs['halted'] !== undefined ) {
+          resultHalted = outputs['halted'];
+        }
+
+      // TESTING
+        var parsed = Emulator.runMemory( testControl, testRegisters, testMemory, testInput, testOutput );
+        expect( parsed['control'] ).toStrictEqual( resultControl );
+        expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+        expect( parsed['memory'] ).toStrictEqual( resultMemory );
+        expect( parsed['input'] ).toBe( resultInput );
+        expect( parsed['output'] ).toBe( resultOutput );
+        expect( parsed['halted'] ).toBe( resultHalted );
+
+      return parsed;
+    }
+
     // RR
       test( 'RUN RR inv', () => {
-        // SETUP
-          testMemory = fresh()['memory'];
-          testRegisters = fresh()['registers'];
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
 
-          testMemory[0] = 0x8131; // inv r3,r1
-          testMemory[1] = 0x8142; // inv r4,r2
+        inputMemory[0] = 0x8331; // inv r3,r1 <- inv 3,0x0f0f <- r3 := 0xf0f0
+        inputMemory[1] = 0x8332; // inv r3,r2 <- inv 3,0x00ff <- r3 := 0xff00
 
-          testRegisters[1] = 0x0f0f;
-          testRegisters[2] = 0x00ff;
+        inputRegisters[1] = 0x0f0f;
+        inputRegisters[2] = 0x00ff;
 
-          resultRegisters = testRegisters;
+        var results = [
+          0xf0f0,
+          0xff00
+        ];
 
-          resultMemory = testMemory;
-          resultInput = testInput;
-          resultOutput = testOutput;
+        var outputControl = updateControl( inputMemory, fresh()['memory'] );
+        
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
 
-        // inv 0f0f
-          resultRegisters[3] = 0xf0f0;
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
 
-          parsed = Emulator.runMemory( fresh()['control'], testRegisters, testMemory, testInput, testOutput );
-          expect( parsed['control'] ).toStrictEqual( { 
-            pc : 1,
-            ir : 0x8131,
-            adr : 0x8142      
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'registers' : {
+              3 : results[i]
+            }
           } );
-          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-          expect( parsed['memory'] ).toStrictEqual( resultMemory );
-          expect( parsed['input'] ).toBe( resultInput );
-          expect( parsed['output'] ).toBe( resultOutput );
-          expect( parsed['halted'] ).toBe( false );
-
-        // inv 00ff
-          resultRegisters[4] = 0xff00;
-
-          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
-          expect( parsed['control'] ).toStrictEqual( { 
-            pc : 2,
-            ir : 0x8142,
-            adr : 0x0000      
-          } );
-          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-          expect( parsed['memory'] ).toStrictEqual( resultMemory );
-          expect( parsed['input'] ).toBe( resultInput );
-          expect( parsed['output'] ).toBe( resultOutput );
-          expect( parsed['halted'] ).toBe( false );
+        }
       } );
 
       test( 'RUN RR cmp', () => {
-        // SETUP
-          testMemory = fresh()['memory'];
-          testRegisters = fresh()['registers'];
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
 
-          testMemory[0] = 0x4112; // cmp r1,r2
-          testMemory[1] = 0x4111; // cmp r1,r1
-          testMemory[2] = 0x4110; // cmp r1,r0
+        inputMemory[0] = 0x4112; // cmp r1,r2 <- cmp 1,2 <- r15 := 0x1800
+        inputMemory[1] = 0x4111; // cmp r1,r1 <- cmp 1,1 <- r15 := 0x2000
+        inputMemory[2] = 0x4110; // cmp r1,r0 <- cmp 1,0 <- r15 := 0xc000
 
-          testMemory[3] = 0x4330; // cmp r3,r0
-          testMemory[4] = 0x4333; // cmp r3,r3
-          testMemory[5] = 0x4334; // cmp r3,r4
+        inputMemory[3] = 0x4330; // cmp r3,r0 <- cmp 0xffff,0 <- r15 := 0x9000
+        inputMemory[4] = 0x4333; // cmp r3,r3 <- cmp 0xffff,0xffff <- r15 := 0x2000
+        inputMemory[5] = 0x4334; // cmp r3,r4 <- cmp 0xffff,0xfffe <- r15 := 0xc000
 
-          testMemory[6] = 0x4332; // cmp r3,r2
-          testMemory[7] = 0x4000; // cmp r0,r0
-          testMemory[8] = 0x4223; // cmp r2,r3
+        inputMemory[6] = 0x4332; // cmp r3,r2 <- cmp 0xffff,2 <- r15 := 0x9000
+        inputMemory[7] = 0x4000; // cmp r0,r0 <- cmp 0,0 <- r15 := 0x2000
+        inputMemory[8] = 0x4223; // cmp r2,r3 <- cmp 0xffff,2 <- r15 := 0x4800
 
-          testRegisters[1] = 0x0001;
-          testRegisters[2] = 0x0002;
-          testRegisters[3] = 0xffff;
-          testRegisters[4] = 0xfffe;
+        inputMemory[9] = 0x4003; // cmp r0,r3 <- cmp 0,0xffff <- r15 := 0x4800
 
-          resultRegisters = testRegisters;
+        inputRegisters[1] = 0x0001;
+        inputRegisters[2] = 0x0002;
+        inputRegisters[3] = 0xffff;
+        inputRegisters[4] = 0xfffe;
 
-        // cmp 1,2 r15 := c000
-          resultRegisters[15] = 0xc000;
+        var results = [
+          0x1800,
+          0x2000,
+          0xc000,
+          0x9000,
+          0x2000,
+          0xc000,
+          0x9000,
+          0x2000,
+          0x4800,
+          0x4800
+        ];
 
-          resultMemory = testMemory;
-          resultInput = testInput;
-          resultOutput = testOutput;
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+        
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
 
-          parsed = Emulator.runMemory( fresh()['control'], testRegisters, testMemory, testInput, testOutput );
-          expect( parsed['control'] ).toStrictEqual( { 
-            pc : 1,
-            ir : testMemory[0],
-            adr : testMemory[1]      
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'registers' : {
+              15 : results[i]
+            }
           } );
-          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-          expect( parsed['memory'] ).toStrictEqual( resultMemory );
-          expect( parsed['input'] ).toBe( resultInput );
-          expect( parsed['output'] ).toBe( resultOutput );
-          expect( parsed['halted'] ).toBe( false );
-
-        // cmp 1,1 r15 := 2000
-          resultRegisters[15] = 0x2000;
-
-          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
-          expect( parsed['control'] ).toStrictEqual( { 
-            pc : 2,
-            ir : testMemory[1],
-            adr : testMemory[2]      
-          } );
-          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-          expect( parsed['memory'] ).toStrictEqual( resultMemory );
-          expect( parsed['input'] ).toBe( resultInput );
-          expect( parsed['output'] ).toBe( resultOutput );
-          expect( parsed['halted'] ).toBe( false );
-
-        // cmp 1,0 r15 := 1800
-          resultRegisters[15] = 0x1800;
-
-          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
-          expect( parsed['control'] ).toStrictEqual( { 
-            pc : 3,
-            ir : testMemory[2],
-            adr : testMemory[3]      
-          } );
-          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-          expect( parsed['memory'] ).toStrictEqual( resultMemory );
-          expect( parsed['input'] ).toBe( resultInput );
-          expect( parsed['output'] ).toBe( resultOutput );
-          expect( parsed['halted'] ).toBe( false );
-
-        // cmp -1,0 r15 := c000
-          resultRegisters[15] = 0xc000;
-
-          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
-          expect( parsed['control'] ).toStrictEqual( { 
-            pc : 4,
-            ir : testMemory[3],
-            adr : testMemory[4]      
-          } );
-          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-          expect( parsed['memory'] ).toStrictEqual( resultMemory );
-          expect( parsed['input'] ).toBe( resultInput );
-          expect( parsed['output'] ).toBe( resultOutput );
-          expect( parsed['halted'] ).toBe( false );
-
-        // cmp -1,-1 r15 := 2000
-          resultRegisters[15] = 0x2000;
-
-          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
-          expect( parsed['control'] ).toStrictEqual( { 
-            pc : 5,
-            ir : testMemory[4],
-            adr : testMemory[5]      
-          } );
-          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-          expect( parsed['memory'] ).toStrictEqual( resultMemory );
-          expect( parsed['input'] ).toBe( resultInput );
-          expect( parsed['output'] ).toBe( resultOutput );
-          expect( parsed['halted'] ).toBe( false );
-
-        // cmp -1,-2 r15 := 1800
-          resultRegisters[15] = 0x1800;
-
-          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
-          expect( parsed['control'] ).toStrictEqual( { 
-            pc : 6,
-            ir : testMemory[5],
-            adr : testMemory[6]      
-          } );
-          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-          expect( parsed['memory'] ).toStrictEqual( resultMemory );
-          expect( parsed['input'] ).toBe( resultInput );
-          expect( parsed['output'] ).toBe( resultOutput );
-          expect( parsed['halted'] ).toBe( false );
-
-        // cmp -1,2 r15 := c000
-          resultRegisters[15] = 0xc000;
-
-          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
-          expect( parsed['control'] ).toStrictEqual( { 
-            pc : 7,
-            ir : testMemory[6],
-            adr : testMemory[7]      
-          } );
-          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-          expect( parsed['memory'] ).toStrictEqual( resultMemory );
-          expect( parsed['input'] ).toBe( resultInput );
-          expect( parsed['output'] ).toBe( resultOutput );
-          expect( parsed['halted'] ).toBe( false );
-
-        // cmp 0,0 r15 := 2000
-          resultRegisters[15] = 0x2000;
-
-          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
-          expect( parsed['control'] ).toStrictEqual( { 
-            pc : 8,
-            ir : testMemory[7],
-            adr : testMemory[8]      
-          } );
-          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-          expect( parsed['memory'] ).toStrictEqual( resultMemory );
-          expect( parsed['input'] ).toBe( resultInput );
-          expect( parsed['output'] ).toBe( resultOutput );
-          expect( parsed['halted'] ).toBe( false );
-
-        // cmp 2,-1 r15 := 1800
-          resultRegisters[15] = 0x1800;
-
-          parsed = Emulator.runMemory( parsed['control'], testRegisters, testMemory, testInput, testOutput );
-          expect( parsed['control'] ).toStrictEqual( { 
-            pc : 9,
-            ir : testMemory[8],
-            adr : 0x0000      
-          } );
-          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-          expect( parsed['memory'] ).toStrictEqual( resultMemory );
-          expect( parsed['input'] ).toBe( resultInput );
-          expect( parsed['output'] ).toBe( resultOutput );
-          expect( parsed['halted'] ).toBe( false );
+        }
       } );
+
+    // RRR
+      test( 'RUN RRR add', () => {
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
+
+        inputMemory[0] = 0x0511; // add r5,r1,r1 <- add 5,1,1 <- r5 := 2, r15 := 0xc000
+        inputMemory[1] = 0x0500; // add r5,r0,r0 <- add 5,0,0 <- r5 := 0, r15 := 0x2000
+        inputMemory[2] = 0x0503; // add r5,r0,r3 <- add 5,0,0xffff <- r5 := 0xffff, r15 := 0x9000
+
+        inputMemory[3] = 0x0531; // add r5,r3,r1 <- add 5,0xffff,1 <- r5 := 0, r15 := 0x2500 <- ccC, ccV, ccE
+
+        inputMemory[4] = 0x0532; // add r5,r3,r2 <- add 5,0xffff,2 <- r5 := 1, r15 := 0xc500 <- ccC, ccV, ccG, ccg
+
+        inputMemory[5] = 0x0534; // add r5,r3,r4 <- add 5,0xffff,0xfffe <- r5 := 0xfffd, r15 := 0x9500 <- ccC, ccV, ccG, ccl
+
+        inputRegisters[1] = 0x0001;
+        inputRegisters[2] = 0x0002;
+        inputRegisters[3] = 0xffff;
+        inputRegisters[4] = 0xfffe;
+
+        var results = [
+          [ 0x0002, 0xc000 ],
+          [ 0x0000, 0x2000 ],
+          [ 0xffff, 0x9000 ],
+          [ 0x0000, 0x2500 ],
+          [ 0x0001, 0xc500 ],
+          [ 0xfffd, 0x9500 ]
+        ];
+
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+        
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
+
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'registers' : {
+              5 : results[i][0],
+              15 : results[i][1]
+            }
+          } );
+        }
+      } );
+  
+      test( 'RUN RRR sub', () => {
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
+
+        inputMemory[0] = 0x1411; // sub r4,r1,r1 <- sub 4,1,1 <- r4 := 0, r15 := 0x2000
+        inputMemory[1] = 0x1400; // sub r4,r0,r0 <- sub 4,0,0 <- r4 := 0, r15 := 0x2000
+        inputMemory[2] = 0x1402; // sub r4,r0,r2 <- sub 4,0,0xffff <- r4 := 1, r15 := 0xc000
+
+        inputMemory[3] = 0x1422; // sub r4,r2,r2 <- sub 4,0xffff,0xffff <- r4 := 0, r15 := 0x2000
+        inputMemory[4] = 0x1423; // sub r4,r2,r3 <- sub 4,0xffff,0xfffe <- r4 := 1, r15 := 0xc000
+
+        inputMemory[5] = 0x1421; // sub r4,r2,r1 <- sub 4,0xffff,1 <- r4 := fffe, r15 := 0x9200 <- ccv, ccG, ccl
+        inputMemory[6] = 0x1432; // sub r4,r3,r2 <- sub 4,0xfffe,0xffff <- r4 := ffff, r15 := 0x9200 <- ccv, ccG, ccl
+
+        inputRegisters[1] = 0x0001;
+        inputRegisters[2] = 0xffff;
+        inputRegisters[3] = 0xfffe;
+
+        var results = [
+          [ 0x0000, 0x2000 ],
+          [ 0x0000, 0x2000 ],
+          [ 0x0001, 0xc000 ],
+          [ 0x0000, 0x2000 ],
+          [ 0x0001, 0xc000 ],
+          [ 0xfffe, 0x9200 ],
+          [ 0xffff, 0x9200 ]
+        ];
+
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+        
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
+
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'registers' : {
+              4 : results[i][0],
+              15 : results[i][1]
+            }
+          } );
+        }
+      } );
+
+      test( 'RUN RRR mul', () => {
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
+
+        inputMemory[0] = 0x2511; // mul r5,r1,r1 <- mul 5,1,1 <- r5 := 1, r15 := 0xc000
+        inputMemory[1] = 0x2500; // mul r5,r0,r0 <- mul 5,0,0 <- r5 := 0, r15 := 0x2000
+        inputMemory[2] = 0x2501; // mul r5,r0,r1 <- mul 5,0,1 <- r5 := 0, r15 := 0x2000
+        inputMemory[3] = 0x2512; // mul r5,r1,r2 <- mul 5,1,2 <- r5 := 2, r15 := 0xc000
+        inputMemory[4] = 0x2513; // mul r5,r1,r3 <- mul 5,1,3 <- r5 := 0xffff, r15 := 0x9000
+        inputMemory[5] = 0x2523; // mul r5,r2,r3 <- mul 5,2,3 <- r5 := 0xfffe, r15 := 0x9400
+
+        inputMemory[6] = 0x2533; // mul r5,r3,r3 <- mul 5,3,3 <- r5 := 1, r15 := 0xc400 <- ccG, ccg, ccV
+        inputMemory[7] = 0x2543; // mul r5,r4,r3 <- mul 5,4,3 <- r5 := 0x0012, r15 := 0xc400 <- ccG, ccg, ccV
+
+        inputRegisters[1] = 0x0001;
+        inputRegisters[2] = 0x0002;
+        inputRegisters[3] = 0xffff;
+        inputRegisters[4] = 0xffee;
+
+        var results = [
+          [ 0x0001, 0xc000 ],
+          [ 0x0000, 0x2000 ],
+          [ 0x0000, 0x2000 ],
+          [ 0x0002, 0xc000 ],
+          [ 0xffff, 0x9000 ],
+          [ 0xfffe, 0x9400 ],
+          [ 0x0001, 0xc400 ],
+          [ 0x0012, 0xc400 ]
+        ];
+
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+        
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
+
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'registers' : {
+              5 : results[i][0],
+              15 : results[i][1]
+            }
+          } );
+        }
+      } );
+
+      test( 'RUN RRR div', () => {
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
+
+        inputMemory[0] = 0x3611; // div r6,r1,r1 <- div 6,1,1 <- r6 := 1, r15 := 0x0
+        inputMemory[1] = 0x3600; // div r6,r0,r0 <- div 6,0,0 <- r6 := 0, r15 := 0x0
+        inputMemory[2] = 0x3610; // div r6,r1,r0 <- div 6,1,0 <- r6 := 1, r15 := 0x0
+
+        inputMemory[3] = 0x3623; // div r6,r2,r3 <- div 6,0x0011,3 <- r6 := 5, r15 := 2
+        inputMemory[4] = 0x3f23; // div r15,r2,r3 <- div 15,0x0011,2 <- r6 := 5, r15 := 5
+
+        inputMemory[5] = 0x3643; // div r6,r4,r3 <- div 6,0xffef,3 <- r6 := 0xfffa, r15 := 0xfffe
+
+        inputMemory[6] = 0x3645; // div r6,r4,r5 <- div 6,0xffef,0xfffd <- r6 := 5, r15 := 0xfffe
+
+        inputRegisters[1] = 1;
+        inputRegisters[2] = 17;
+        inputRegisters[3] = 3;
+        inputRegisters[4] = 0xffef;
+        inputRegisters[5] = 0xfffd;
+
+        var results = [
+          [ 0x0001, 0x0000 ],
+          [ 0x0000, 0x0000 ],
+          [ 0x0001, 0x0000 ],
+          [ 0x0005, 0x0002 ],
+          [ 0x0005, 0x0005 ],
+          [ 0xfffa, 0xfffe ],
+          [ 0x0005, 0xfffe ]
+        ];
+
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+        
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
+
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'registers' : {
+              6 : results[i][0],
+              15 : results[i][1]
+            }
+          } );
+        }
+      } );
+
+      test( 'RUN RRR cmplt', () => {
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
+
+        inputMemory[0] = 0x5512; // cmplt r5,r1,r2 <- cmplt 5,1,2 <- r5 := 1
+        inputMemory[1] = 0x5511; // cmplt r5,r1,r1 <- cmplt 5,1,1 <- r5 := 0
+        inputMemory[2] = 0x5521; // cmplt r5,r2,r1 <- cmplt 5,2,1 <- r5 := 0
+
+        inputMemory[3] = 0x5534; // cmplt r5,r3,r4 <- cmplt 5,0xffff,0xfffe <- r5 := 0
+        inputMemory[4] = 0x5533; // cmplt r5,r3,r3 <- cmplt 5,0xffff,0xffff <- r5 := 0
+        inputMemory[5] = 0x5543; // cmplt r5,r4,r3 <- cmplt 5,0xfffe,0xffff <- r5 := 1
+        inputMemory[6] = 0x5530; // cmplt r5,r3,r0 <- cmplt 5,0xffff,0 <- r5 := 1
+
+        inputRegisters[1] = 1;
+        inputRegisters[2] = 2;
+        inputRegisters[3] = 0xffff;
+        inputRegisters[4] = 0xfffe;
+
+        var results = [
+          0x0001,
+          0x0000,
+          0x0000,
+          0x0000,
+          0x0000,
+          0x0001,
+          0x0001
+        ];
+
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+        
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
+
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'registers' : {
+              5 : results[i]
+            }
+          } );
+        }
+      } );
+
+      test( 'RUN RRR cmpeq', () => {
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
+
+        inputMemory[0] = 0x6512; // cmpeq r5,r1,r2 <- cmpeq 5,1,2 <- r5 := 0
+        inputMemory[1] = 0x6511; // cmpeq r5,r1,r1 <- cmpeq 5,1,1 <- r5 := 1
+        inputMemory[2] = 0x6521; // cmpeq r5,r2,r1 <- cmpeq 5,2,1 <- r5 := 0
+
+        inputMemory[3] = 0x6534; // cmpeq r5,r3,r4 <- cmpeq 5,0xffff,0xfffe <- r5 := 0
+        inputMemory[4] = 0x6533; // cmpeq r5,r3,r3 <- cmpeq 5,0xffff,0xffff <- r5 := 1
+        inputMemory[5] = 0x6543; // cmpeq r5,r4,r3 <- cmpeq 5,0xfffe,0xffff <- r5 := 0
+        inputMemory[6] = 0x6530; // cmpeq r5,r3,r0 <- cmpeq 5,0xffff,0 <- r5 := 0
+
+        inputRegisters[1] = 1;
+        inputRegisters[2] = 2;
+        inputRegisters[3] = 0xffff;
+        inputRegisters[4] = 0xfffe;
+
+        var results = [
+          0x0000,
+          0x0001,
+          0x0000,
+          0x0000,
+          0x0001,
+          0x0000,
+          0x0000
+        ];
+
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+        
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
+
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'registers' : {
+              5 : results[i]
+            }
+          } );
+        }
+      } );
+
+      test( 'RUN RRR cmpgt', () => {
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
+
+        inputMemory[0] = 0x7512; // cmpgt r5,r1,r2 <- cmpgt 5,1,2 <- r5 := 0
+        inputMemory[1] = 0x7511; // cmpgt r5,r1,r1 <- cmpgt 5,1,1 <- r5 := 0
+        inputMemory[2] = 0x7521; // cmpgt r5,r2,r1 <- cmpgt 5,2,1 <- r5 := 1
+
+        inputMemory[3] = 0x7534; // cmpgt r5,r3,r4 <- cmpgt 5,0xffff,0xfffe <- r5 := 1
+        inputMemory[4] = 0x7533; // cmpgt r5,r3,r3 <- cmpgt 5,0xffff,0xffff <- r5 := 0
+        inputMemory[5] = 0x7543; // cmpgt r5,r4,r3 <- cmpgt 5,0xfffe,0xffff <- r5 := 0
+        inputMemory[6] = 0x7530; // cmpgt r5,r3,r0 <- cmpgt 5,0xffff,0 <- r5 := 0
+
+        inputRegisters[1] = 1;
+        inputRegisters[2] = 2;
+        inputRegisters[3] = 0xffff;
+        inputRegisters[4] = 0xfffe;
+
+        var results = [
+          0x0000,
+          0x0000,
+          0x0001,
+          0x0001,
+          0x0000,
+          0x0000,
+          0x0000
+        ];
+
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+        
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
+
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'registers' : {
+              5 : results[i]
+            }
+          } );
+        }
+      } );
+
+      test( 'RUN RRR and', () => {
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
+
+        inputMemory[0] = 0x9412; // and r4,r1,r2 <- and 4,0x00ff,0x0f0f <- r4 := 0x000f
+        inputMemory[1] = 0x9413; // and r4,r1,r3 <- and 4,0x00ff,0xffff <- r4 := 0x00ff
+        inputMemory[2] = 0x9410; // and r4,r1,r0 <- and 4,0x00ff,0 <- r4 := 0x0000
+        inputMemory[3] = 0x9433; // and r4,r3,r0 <- and 4,0xffff,0xffff <- r4 := 0xffff
+
+        inputRegisters[1] = 0x00ff;
+        inputRegisters[2] = 0x0f0f;
+        inputRegisters[3] = 0xffff;
+
+        var results = [
+          0x000f,
+          0x00ff,
+          0x0000,
+          0xffff
+        ];
+
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+        
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
+
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'registers' : {
+              4 : results[i]
+            }
+          } );
+        }
+      } );
+
+      test( 'RUN RRR or', () => {
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
+
+        inputMemory[0] = 0xa412; // or r4,r1,r2 <- or 4,0x00ff,0x0f0f <- r4 := 0x0fff
+        inputMemory[1] = 0xa413; // or r4,r1,r3 <- or 4,0x00ff,0xffff <- r4 := 0xffff
+        inputMemory[2] = 0xa410; // or r4,r1,r0 <- or 4,0x00ff,0 <- r4 := 0x00ff
+        inputMemory[3] = 0xa433; // or r4,r3,r0 <- or 4,0xffff,0xffff <- r4 := 0xffff
+
+        inputRegisters[1] = 0x00ff;
+        inputRegisters[2] = 0x0f0f;
+        inputRegisters[3] = 0xffff;
+
+        var results = [
+          0x0fff,
+          0xffff,
+          0x00ff,
+          0xffff
+        ];
+
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+        
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
+
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'registers' : {
+              4 : results[i]
+            }
+          } );
+        }
+      } );
+
+      test( 'RUN RRR xor', () => {
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
+
+        inputMemory[0] = 0xb412; // xor r4,r1,r2 <- xor 4,0x00ff,0x0f0f <- r4 := 0x0ff0
+        inputMemory[1] = 0xb413; // xor r4,r1,r3 <- xor 4,0x00ff,0xffff <- r4 := 0xff00
+        inputMemory[2] = 0xb410; // xor r4,r1,r0 <- xor 4,0x00ff,0 <- r4 := 0x00ff
+        inputMemory[3] = 0xb433; // xor r4,r3,r0 <- xor 4,0xffff,0xffff <- r4 := 0x0000
+
+        inputRegisters[1] = 0x00ff;
+        inputRegisters[2] = 0x0f0f;
+        inputRegisters[3] = 0xffff;
+
+        var results = [
+          0x0ff0,
+          0xff00,
+          0x00ff,
+          0x0000
+        ];
+
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+        
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
+
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'registers' : {
+              4 : results[i]
+            }
+          } );
+        }
+      } );
+
+      test( 'RUN RRR nop', () => {
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
+
+        inputMemory[0] = 0xc123; // nop r1,r2,r3 <- nop 1,0x0f0f,0xffff <- NO CHANGE
+
+        inputRegisters[2] = 0x0f0f;
+        inputRegisters[3] = 0xffff;
+
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory
+        };
+
+        for ( var i = 0; i < Object.keys( inputMemory ).length; i++ ) {
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl
+          } );
+        }
+      } );
+
+      test( 'RUN RRR trap', () => {
+        var inputMemory = fresh()['memory'];
+        var inputRegisters = fresh()['registers'];
+
+        inputMemory[0] = 0xd123; // trap r1,r2,r3 <- trap 1,23,16 <- input := '', output := '>>Hello, Computer!', mem[16 -> 31] = charcodes
+        inputMemory[1] = 0xd456; // trap r4,r5,r6 <- trap 2,10,13 <- output := '>>Hello, Computer!Hello, World!'
+        inputMemory[2] = 0xd000; // trap r0,r0,r0 <- trap 0,0,0 <- halted = true
+        inputMemory[3] = 0xd123; // trap r1,r2,r3 <- trap 1,23,16 <- mem[16 -> 31] = 0
+
+        inputMemory[10] = 0x0048; // outputbuffer start -> H
+        inputMemory[11] = 0x0065; // -> e
+        inputMemory[12] = 0x006c; // -> l
+        inputMemory[13] = 0x006c; // -> l
+        inputMemory[14] = 0x006f; // -> o
+        inputMemory[15] = 0x002c; // -> ,
+        inputMemory[16] = 0x0020; // ->  
+        inputMemory[17] = 0x0057; // -> W
+        inputMemory[18] = 0x006f; // -> o
+        inputMemory[19] = 0x0072; // -> r
+        inputMemory[20] = 0x006c; // -> l
+        inputMemory[21] = 0x0064; // -> d
+        inputMemory[22] = 0x0021; // -> !
+
+        inputMemory[23] = 0x0000; // inputbuffer start -> *blank*
+
+        inputRegisters[1] = 1;
+        inputRegisters[2] = 23;
+        inputRegisters[3] = 16;
+        inputRegisters[4] = 2;
+        inputRegisters[5] = 10;
+        inputRegisters[6] = 13;
+
+        var outputControl = updateControl( inputMemory, fresh()['control'] );
+
+        var parsed = {
+          'control' : fresh()['control'],
+          'registers' : inputRegisters,
+          'memory' : inputMemory,
+          'input' : 'Hello, Computer!',
+          'output' : ''
+        };
+
+        // trap r1,r2,r3
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          var outputMemory = {
+            23 : 0x0048, // -> H
+            24 : 0x0065, // -> e
+            25 : 0x006c, // -> l
+            26 : 0x006c, // -> l
+            27 : 0x006f, // -> o
+            28 : 0x002c, // -> ,
+            29 : 0x0020, // ->  
+            30 : 0x0043, // -> C
+            31 : 0x006f, // -> o
+            32 : 0x006d, // -> m
+            33 : 0x0070, // -> p
+            34 : 0x0075, // -> u
+            35 : 0x0074, // -> t
+            36 : 0x0065, // -> e
+            37 : 0x0072, // -> r
+            38 : 0x0021 // -> !
+          };
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'memory' : outputMemory,
+            'input' : '',
+            'output' : '>>Hello, Computer!'
+          } );
+
+        // trap r4,r5,r6
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'output' : '>>Hello, Computer!Hello, World!'
+          } );
+
+        // trap r0,r0,r0
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'halted' : true
+          } );
+
+        // trap r1,r2,r3
+          outputControl = updateControl( inputMemory, parsed['control'] );
+
+          var outputMemory = {
+            23 : 0x0,
+            24 : 0x0,
+            25 : 0x0,
+            26 : 0x0,
+            27 : 0x0,
+            28 : 0x0,
+            29 : 0x0,
+            30 : 0x0,
+            31 : 0x0,
+            32 : 0x0,
+            33 : 0x0,
+            34 : 0x0,
+            35 : 0x0,
+            36 : 0x0,
+            37 : 0x0,
+            38 : 0x0
+          };
+
+          console.log( parsed['input'] )
+
+          parsed = testFromChanges( parsed,
+          {
+            'control' : outputControl,
+            'memory' : outputMemory,
+            'output' : '>>Hello, Computer!Hello, World!>>'
+          } );
+      } );
+
+
+
+
 
 
 
