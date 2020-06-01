@@ -76,8 +76,8 @@ This will start the local React.js development server and should open a windown 
 * √ - Tests for UTILS
 * √ - Tests for CHECKING
 * √ - Tests for PARSING
-* Tests for RUNNING
-* Finish tests for `Emulator.js`
+* √ - Tests for RUNNING
+* √ - Finish tests for `Emulator.js`
 
 6. Clean-Up
 * Write documentation that outlines function calls, i.e how to debug as an outsider.

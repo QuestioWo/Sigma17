@@ -1419,6 +1419,8 @@
   function processRXInstruction( control, registers, memory, Rd, Ra, Op, adr ) {
     var effectiveADR = registers[Ra] + adr;
 
+    while ( effectiveADR >= 0x10000 ) { effectiveADR -= 0x10000; };
+
     var jumped = false;
 
     switch ( Op ) {
@@ -1467,7 +1469,7 @@
 
       case 0x6 :
         // jumpf
-        if ( !( registers[Rd] === 1 ) ) {
+        if ( registers[Rd] === 0 ) {
           control['pc'] = effectiveADR;
           jumped = true;
         }
@@ -1490,7 +1492,7 @@
 
       case 0x9 :
         // testset
-        registers[Rd] = effectiveADR;
+        registers[Rd] = memory[effectiveADR];
         memory[effectiveADR] = 1;
 
         break;
@@ -1512,7 +1514,7 @@
     var jumped = false;
 
     var flagDict = getR15Dict();
-    var setR15 = true;
+    var setR15 = false;
 
     var ab = ( Ra * thirdColumn ) + Rb;
 
@@ -1603,6 +1605,7 @@
         switch ( g ) {
           case 1 :
             control['pc'] = registers[Rd];
+            jumped = true;
             break;
 
           case 2 :
@@ -1622,19 +1625,29 @@
         // execute
         instructionWords = 2;
 
-        var processed = runFromInstruction( control, registers, memory, input, output, registers[Re], registers[Rf] );
+        if ( !( registers[Re] === 0xe00c && registers[Rf] === adr ) ) {
 
-        control = processed['control'];
-        registers = processed['registers'];
-        memory = processed['memory'];
-        input = processed['input'];
-        output = processed['output'];
-        halted = processed['halted'];
-        jumped = processed['jumped'];
+          var processed = runFromInstruction( control, registers, memory, input, output, registers[Re], registers[Rf] );
 
-        // do not update control registers ir and adr as can make readig executed program confusing
-        // control['ir'] = registers[Re];
-        // control['adr'] = registers[Rf];
+          control = processed['control'];
+          registers = processed['registers'];
+          memory = processed['memory'];
+          input = processed['input'];
+          output = processed['output'];
+          halted = processed['halted'];
+          jumped = processed['jumped'];
+
+          // do not update control registers ir and adr as can make reading executed program confusing
+          // control['ir'] = registers[Re];
+          // control['adr'] = registers[Rf];
+
+          control['ir'] = 0xe00c;
+          control['adr'] = adr;
+
+          setR15 = true;
+        } else {
+          halted = true;
+        }
 
         break;
 
@@ -1771,21 +1784,21 @@
         switch ( g ) {
           case 1 :
             // andb
-            const bitToSetAnd = getBitFromRegister( registers[Re], h ) & getBitFromRegister( registers[Rf], h );
+            const bitToSetAnd = getBitFromRegister( registers[Re] & registers[Rf], h );
 
             registers[Rd] = setBitInRegister( registers[Rd], bitToSetAnd, h );
             break;
 
           case 6 :
             // xorb
-            const bitToSetXor = getBitFromRegister( registers[Re], h ) ^ getBitFromRegister( registers[Rf], h );
+            const bitToSetXor = getBitFromRegister( registers[Re] ^ registers[Rf], h );
 
             registers[Rd] = setBitInRegister( registers[Rd], bitToSetXor, h );
             break;
 
           case 7 :
             // orb
-            const bitToSetOr = getBitFromRegister( registers[Re], h ) | getBitFromRegister( registers[Rf], h );
+            const bitToSetOr = getBitFromRegister( registers[Re] | registers[Rf], h );
 
             registers[Rd] = setBitInRegister( registers[Rd], bitToSetOr, h );
             break;
@@ -1806,7 +1819,7 @@
         // getbit
         instructionWords = 2;
         
-        var bit = getBitFromRegister( registers[15], g );
+        const bit = getBitFromRegister( registers[15], g );
 
         registers[Rd] = bit;
 
@@ -1816,7 +1829,7 @@
         // getbiti
         instructionWords = 2;
 
-        var bitI = getBitFromRegister( registers[15], g );
+        const bitI = getBitFromRegister( registers[15], g );
 
         registers[Rd] = ( bitI ^ 1 );
         
@@ -1844,7 +1857,7 @@
         // addc
         instructionWords = 2;
 
-        var R15CarryBit = getBitFromRegister( registers[15], 7 );
+        const R15CarryBit = getBitFromRegister( registers[15], 7 );
         registers[Rd] = registers[Re] + registers[Rf] + R15CarryBit;
 
         if ( registers[Rd] >= 0x10000 ) {
@@ -1895,6 +1908,9 @@
 
     var flagDict = getR15Dict();
     var setR15 = false;
+
+    control['ir'] = instructionIr;
+    control['adr'] = instructionADR;
 
     switch ( Op ) {
       case 0x0 :
@@ -2089,9 +2105,6 @@
 
     // R0 holds constant 0
     registers[0] = 0;
-
-    control['ir'] = instructionIr;
-    control['adr'] = instructionADR;
 
     return {
       'control' : control,
