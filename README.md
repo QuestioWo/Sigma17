@@ -71,9 +71,15 @@ This will start the local React.js development server and should open a windown 
 * √ - Show code chunk of currently being executed program
 * √ - Display highlighting of lines being exectued in code chunk
 
-5. Clean-Up
-* Write testing framework for/how to set tests out
-* Write tests for `Emulator.js`
+5. Write Tests
+* √ - Write testing framework for/how to set tests out
+* √ - Tests for UTILS
+* √ - Tests for CHECKING
+* √ - Tests for PARSING
+* √ - Tests for RUNNING
+* √ - Finish tests for `Emulator.js`
+
+6. Clean-Up
 * Write documentation that outlines function calls, i.e how to debug as an outsider.
 * √ - Set up `githib.io` page for emulator
 * √ - Write 'Hello, World!' program to be default display

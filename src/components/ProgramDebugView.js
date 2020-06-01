@@ -641,7 +641,7 @@ export default class ProgramDebugView extends React.Component {
 
     if ( machineCode.length !== 0 ) {
       if ( !machineCode.includes( 0xd000 ) ) {
-        error = 'Cannot run code without a "trap R0,R0,R0" instruction. Can step-through.';
+        error = 'Cannot run code without a "trap R0,R0,R0" instruction. Can step-through. Restart execution to do so';
       }
     } else {
       // machine language is blank

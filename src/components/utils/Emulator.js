@@ -10,7 +10,6 @@
     and : 'rrr', 
     or : 'rrr', 
     xor : 'rrr',
-    nop : 'rrr',
     trap : 'rrr',
 
     cmp : 'rr', 
@@ -113,7 +112,6 @@
       and : 9,
       or : 0xa,
       xor : 0xb,
-      nop : 0xc,
       trap : 0xd
     };
 
@@ -125,16 +123,16 @@
       jumple : [ 4, 1 ],
       jumpne : [ 4, 2 ],
       jumpge : [ 4, 3 ],
-      jumpv : [ 4, 6 ],
-      jumpvu : [ 4, 5 ],
-      jumpco : [ 4, 7 ],
+      jumpnv : [ 4, 6 ],
+      jumpnvu : [ 4, 5 ],
+      jumpnco : [ 4, 7 ],
 
       jumplt : [ 5, 3 ],
       jumpeq : [ 5, 2 ],
       jumpgt : [ 5, 1 ],
-      jumpnv : [ 5, 6 ],
-      jumpnvu : [ 5, 5 ],
-      jumpnco : [ 5, 7 ]
+      jumpv : [ 5, 6 ],
+      jumpvu : [ 5, 5 ],
+      jumpco : [ 5, 7 ]
     };
     const kxCommands = {
       jumpc0 : 4,
@@ -235,17 +233,23 @@
 // UTIL FUNCTIONS
   export function readSignedHex( a ) {
     a = Number( a );
-    if ( ( a & 0x8000 ) > 0) {
-      a = a - 0x10000;
+    if ( a < 65536 && a >= -32768 ) {
+      if ( ( a & 0x8000 ) > 0) {
+        a = a - 0x10000;
+      }
+      return a;
     }
-    return a;
+    return 65536;
   }
 
   export function readUnsignedHex( a ) {
-    if ( a < 0 ) {
-      a = a + 0x10000;
+    if ( a < 65536 && a >= -32768 ) {
+      if ( a < 0 ) {
+        a = a + 0x10000;
+      }
+      return a;
     }
-    return a;
+    return 65536;
   }
 
   function readConstant( argument, labels ) {
@@ -275,15 +279,15 @@
     var num = 0;
 
     if ( !isNaN( numString ) ) {
-      num = parseInt( numString );
+      num = readUnsignedHex( parseInt( numString ) );
     } else if ( numString.startsWith( '$' ) ) {
       numString = numString.slice( 1, numString.length );
-      num = readSignedHex( parseInt( numString, 16 ) );
+      num = readUnsignedHex( parseInt( numString, 16 ) );
     } else {
       num = 65536;
     }
 
-    return ( num < 32768 && num >= -32768 ) ? true : false;
+    return ( num < 65536 && num >= 0 ) ? true : false;
   }
 
   function isValidNumberBit( numString ) {
@@ -399,7 +403,7 @@
 // CHECKING METHODS
   function checkRRCommand( rr ) {
     // check that rrr is in the form of rd,ra,rb
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9]))$/.test( rr ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9]))$/.test( rr ) ) ) {
       return 'arguments must be in the form of "Ra,Rb"';
     }
     return true;
@@ -407,7 +411,7 @@
 
   function checkRRRCommand( rrr ) {
     // check that rrr is in the form of rd,ra,rb
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9]))$/.test( rrr ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9]))$/.test( rrr ) ) ) {
       return 'arguments must be in the form of "Rd,Ra,Rb"';
     }
     return true;
@@ -415,7 +419,7 @@
 
   function checkJXCommand( jx, labels ) {
     // check that jx is in the form of disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( /^((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]$/.test( jx ) ) ) {
+    if ( !( /^((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[[rR]((1[0-5])|([0-9]))\]$/.test( jx ) ) ) {
       return 'arguments must be in the form of "disp[Ra]"';
     }
     var disp = jx.split( '[' )[0];
@@ -431,7 +435,7 @@
 
   function checkKXCommand( kx, labels ) {
     // check that kx is in the form of k,disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( /^((\$((\d)|([a-f]))+)|(\d)),((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]$/.test( kx ) ) ) {
+    if ( !( /^((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[[rR]((1[0-5])|([0-9]))\]$/.test( kx ) ) ) {
       return 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument';
     }
     var splat = kx.split( ',' );
@@ -453,7 +457,7 @@
 
   function checkRXCommand( rx, labels ) {
     // check that rx is in the form of rd,disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( /^r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[r((1[0-5])|([0-9]))\]$/.test( rx ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+\[[rR]((1[0-5])|([0-9]))\]$/.test( rx ) ) ) {
       return 'arguments must be in the form of "Rd,disp[Ra]"';
     }
     var disp = rx.split( ',' )[1].split( '[' )[0];
@@ -469,8 +473,12 @@
 
   function checkXCommand( x ) {
     // check that x is a number, either hex or decimal
+    if ( !( /^((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+$/.test( x ) ) ) {
+      return 'arguments must be in the form of "constant" up to 65535 and down to -32768';
+    }
+
     if ( !( isValidNumber( x ) ) ) {
-      return 'data must be followed by either a decimal or hex number <= 65535';
+      return 'data must be followed by either a decimal or hex number <= 65535 and >=-32768';
     }
     return true;
   }
@@ -482,7 +490,7 @@
 
   function checkRRXexpCommand( rrx ) {
     // check that rrx is in the form of re,rf,disp[rd], where disp can be either hex, or a decimal integer 
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+\[r((1[0-5])|([0-9]))\]$/.test( rrx ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+\[[rR]((1[0-5])|([0-9]))\]$/.test( rrx ) ) ) {
       return 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed';
     }
     var disp = rrx.split( ',' )[2].split( '[' )[0];
@@ -496,7 +504,7 @@
 
   function checkRCexpCommand( rc ) {
     // check that rc is in the form of rd,controlRegister, where controlRegister can be pc, ir, or adr
-    if ( !( /^(r((1[0-5])|([0-9])),((ir)|(pc)|(adr)))$/.test( rc ) ) ) {
+    if ( !( /^([rR]((1[0-5])|([0-9])),((ir)|(pc)|(adr)))$/.test( rc ) ) ) {
       return 'arguments must be in the form of "Rd,controlRegisterName"';
     }
 
@@ -505,50 +513,50 @@
 
   function checkRRKexpCommand( rrk ) {
     // check that rrk is in the form of re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 15
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rrk ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rrk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,g", negative integers not allowed';
     }
     var g = rrk.split( ',' )[2];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, or a hex value with decimal value between 0 and 15';
+      return 'g argument must either be a decimal, or a hex value between 0 and 15';
     }
     return true;
   }
 
   function checkRKexpCommand( rk ) {
     // check that rk is in the form of rd,g, where g can be either hex, or a decimal integer between 0 and 15
-    if ( !( /^r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rk ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rk ) ) ) {
       return 'arguments must be in the form of "Rd,g", negative integers not allowed';
     }
     var g = rk.split( ',' )[1];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, or a hex value with decimal value between 0 and 15';
+      return 'g argument must either be a decimal, or a hex value between 0 and 15';
     }
     return true;
   }
 
   function checkRKKexpCommand( rkk ) {
     // check that rrk is in the form of rd,g,h where g and h can be either hex, or a decimal integer between 0 and 15
-    if ( !( /^r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rkk ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rkk ) ) ) {
       return 'arguments must be in the form of "Rd,g,h", negative integers not allowed';
     }
     var g = rkk.split( ',' )[1];
     var h = rkk.split( ',' )[2];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, or a hex value with decimal value between 0 and 15';
+      return 'g argument must either be a decimal, or a hex value between 0 and 15';
     }
     if ( ! isValidNumberBit( h ) ) {
-      return 'h argument must either be a decimal, or a hex value with decimal value between 0 and 15';
+      return 'h argument must either be a decimal, or a hex value between 0 and 15';
     }
     return true;
   }
 
   function checkRRKKexpCommand( rrkk ) {
     // check that rrkk is in the form of rd,re,g,h, where g and h can be either hex, or a decimal integer between 0 and 15
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rrkk ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rrkk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed';
     }
     var splat = rrkk.split( ',' );
@@ -556,17 +564,17 @@
     var h = splat[3];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed';
+      return 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
     }
     if ( ! isValidNumberBit( h ) ) {
-      return 'h argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed';
+      return 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
     }
     return true;
   }
 
   function checkRRRKKexpCommand( rrrkk ) {
     // check that rrrkk is in the form of rd,re,rf,g,h, where g and h can be either hex, or a decimal integer between 0 and 15
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rrrkk ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+,((\$((\d)|([a-f]))+)|(\d))+$/.test( rrrkk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed';
     }
     var splat = rrrkk.split( ',' );
@@ -574,24 +582,24 @@
     var h = splat[4];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed';
+      return 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
     }
     if ( ! isValidNumberBit( h ) ) {
-      return 'h argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed';
+      return 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
     }
     return true;
   }
 
   function checkRRRKexpCommand( rrrk ) {
     // check that rrrk is in the form of rd,re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 255
-    if ( !( /^r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),r((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rrrk ) ) ) {
+    if ( !( /^[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),[rR]((1[0-5])|([0-9])),((\$((\d)|([a-f]))+)|(\d))+$/.test( rrrk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed';
     }
     var splat = rrrk.split( ',' );
     var g = splat[3];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed';
+      return 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
     }
     return true;
   }
@@ -757,7 +765,7 @@
         if ( argument ) {
           check = checkRRRKexpCommand( argument );
         } else {
-          check = command + ' must be followed by 3 registers and 1 constants in form Rx,Rx,Rx,k';
+          check = command + ' must be followed by 3 registers and a constant in form Rx,Rx,Rx,k';
         }
         break;
 
@@ -766,7 +774,7 @@
         if ( argument ) {
           check = checkRRRKexpCommand( argument );
         } else {
-          check = command + ' must be followed by 3 registers and 1 constants in form Rx,Rx,Rx,k';
+          check = command + ' must be followed by 3 registers and a constant in form Rx,Rx,Rx,k';
         }
         break;
 
@@ -835,8 +843,6 @@
             }
           }
           // just a label, therefore allowed and function returns true
-        } else {
-          error = 'first element of an instruction must be either a label or a command';
         }
       }
     }
@@ -1413,6 +1419,8 @@
   function processRXInstruction( control, registers, memory, Rd, Ra, Op, adr ) {
     var effectiveADR = registers[Ra] + adr;
 
+    while ( effectiveADR >= 0x10000 ) { effectiveADR -= 0x10000; };
+
     var jumped = false;
 
     switch ( Op ) {
@@ -1461,7 +1469,7 @@
 
       case 0x6 :
         // jumpf
-        if ( !( registers[Rd] === 1 ) ) {
+        if ( registers[Rd] === 0 ) {
           control['pc'] = effectiveADR;
           jumped = true;
         }
@@ -1484,7 +1492,7 @@
 
       case 0x9 :
         // testset
-        registers[Rd] = effectiveADR;
+        registers[Rd] = memory[effectiveADR];
         memory[effectiveADR] = 1;
 
         break;
@@ -1506,7 +1514,7 @@
     var jumped = false;
 
     var flagDict = getR15Dict();
-    var setR15 = true;
+    var setR15 = false;
 
     var ab = ( Ra * thirdColumn ) + Rb;
 
@@ -1597,6 +1605,7 @@
         switch ( g ) {
           case 1 :
             control['pc'] = registers[Rd];
+            jumped = true;
             break;
 
           case 2 :
@@ -1616,19 +1625,29 @@
         // execute
         instructionWords = 2;
 
-        var processed = runFromInstruction( control, registers, memory, input, output, registers[Re], registers[Rf] );
+        if ( !( registers[Re] === 0xe00c && registers[Rf] === adr ) ) {
 
-        control = processed['control'];
-        registers = processed['registers'];
-        memory = processed['memory'];
-        input = processed['input'];
-        output = processed['output'];
-        halted = processed['halted'];
-        jumped = processed['jumped'];
+          var processed = runFromInstruction( control, registers, memory, input, output, registers[Re], registers[Rf] );
 
-        // do not update control registers ir and adr as can make readig executed program confusing
-        // control['ir'] = registers[Re];
-        // control['adr'] = registers[Rf];
+          control = processed['control'];
+          registers = processed['registers'];
+          memory = processed['memory'];
+          input = processed['input'];
+          output = processed['output'];
+          halted = processed['halted'];
+          jumped = processed['jumped'];
+
+          // do not update control registers ir and adr as can make reading executed program confusing
+          // control['ir'] = registers[Re];
+          // control['adr'] = registers[Rf];
+
+          control['ir'] = 0xe00c;
+          control['adr'] = adr;
+
+          setR15 = true;
+        } else {
+          halted = true;
+        }
 
         break;
 
@@ -1765,21 +1784,21 @@
         switch ( g ) {
           case 1 :
             // andb
-            const bitToSetAnd = getBitFromRegister( registers[Re], h ) & getBitFromRegister( registers[Rf], h );
+            const bitToSetAnd = getBitFromRegister( registers[Re] & registers[Rf], h );
 
             registers[Rd] = setBitInRegister( registers[Rd], bitToSetAnd, h );
             break;
 
           case 6 :
             // xorb
-            const bitToSetXor = getBitFromRegister( registers[Re], h ) ^ getBitFromRegister( registers[Rf], h );
+            const bitToSetXor = getBitFromRegister( registers[Re] ^ registers[Rf], h );
 
             registers[Rd] = setBitInRegister( registers[Rd], bitToSetXor, h );
             break;
 
           case 7 :
             // orb
-            const bitToSetOr = getBitFromRegister( registers[Re], h ) | getBitFromRegister( registers[Rf], h );
+            const bitToSetOr = getBitFromRegister( registers[Re] | registers[Rf], h );
 
             registers[Rd] = setBitInRegister( registers[Rd], bitToSetOr, h );
             break;
@@ -1800,7 +1819,7 @@
         // getbit
         instructionWords = 2;
         
-        var bit = getBitFromRegister( registers[15], g );
+        const bit = getBitFromRegister( registers[15], g );
 
         registers[Rd] = bit;
 
@@ -1810,7 +1829,7 @@
         // getbiti
         instructionWords = 2;
 
-        var bitI = getBitFromRegister( registers[15], g );
+        const bitI = getBitFromRegister( registers[15], g );
 
         registers[Rd] = ( bitI ^ 1 );
         
@@ -1838,7 +1857,7 @@
         // addc
         instructionWords = 2;
 
-        var R15CarryBit = getBitFromRegister( registers[15], 7 );
+        const R15CarryBit = getBitFromRegister( registers[15], 7 );
         registers[Rd] = registers[Re] + registers[Rf] + R15CarryBit;
 
         if ( registers[Rd] >= 0x10000 ) {
@@ -1890,6 +1909,9 @@
     var flagDict = getR15Dict();
     var setR15 = false;
 
+    control['ir'] = instructionIr;
+    control['adr'] = instructionADR;
+
     switch ( Op ) {
       case 0x0 :
         // add
@@ -1910,16 +1932,19 @@
       case 0x1 :
         // sub
         instructionWords = 1;
+
+        RaValue = readSignedHex( RaValue );
+        RbValue = readSignedHex( RbValue );
         
         registers[Rd] = RaValue;
 
-        if ( readSignedHex( RaValue ) < readSignedHex( RbValue ) ) {
+        if ( RaValue < RbValue ) {
           flagDict['v'] = 1;
         }
 
         registers[Rd] -= RbValue;
         
-        flagDict = compareRegisters( registers[Rd], registers[0], flagDict );
+        flagDict = compareRegisters( readUnsignedHex( registers[Rd] ), registers[0], flagDict );
         setR15 = true;
 
         break;
@@ -1942,6 +1967,9 @@
       case 0x3 :
         // div
         instructionWords = 1;
+
+        RaValue = readSignedHex( RaValue );
+        RbValue = readSignedHex( RbValue );
 
         if ( RbValue !== 0 ) {
           registers[Rd] = Math.floor( RaValue / RbValue );
@@ -1970,20 +1998,20 @@
       case 0x5 :
         // cmplt
         instructionWords = 1;
-        ( RaValue < RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
+        ( readSignedHex( RaValue ) < readSignedHex( RbValue ) ) ? registers[Rd] = 1 : registers[Rd] = 0;
         
         break;
 
       case 0x6 :
         // cmpeq
         instructionWords = 1;
-        ( RaValue === RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
+        ( readSignedHex( RaValue ) === readSignedHex( RbValue ) ) ? registers[Rd] = 1 : registers[Rd] = 0;
         break;
 
       case 0x7 :
         // cmpgt
         instructionWords = 1;
-        ( RaValue > RbValue ) ? registers[Rd] = 1 : registers[Rd] = 0;
+        ( readSignedHex( RaValue ) > readSignedHex( RbValue ) ) ? registers[Rd] = 1 : registers[Rd] = 0;
         break;
 
       case 0x8 :
@@ -2077,9 +2105,6 @@
 
     // R0 holds constant 0
     registers[0] = 0;
-
-    control['ir'] = instructionIr;
-    control['adr'] = instructionADR;
 
     return {
       'control' : control,
