@@ -37,8 +37,6 @@ This will start the local React.js development server and should open a windown 
 1. Finish code editor
 * √ - Implement proper Sigma16 `CodeMirror` highlighting
 * √ - Add breakpoints so that they work and persist
-* ( Possible )
-* x - Add auto complete/code snippet shortcuts - not sure about difficulty since using port of CodeMirror
 
 2. Finish code builder
 * √ - Implement parser - remove need for whitespace with commands reccognition
