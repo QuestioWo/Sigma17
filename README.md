@@ -10,7 +10,7 @@ Sigma16 is a computer architecture designed for research and teaching in compute
 
 Currently, the emulator can be used by visiting the [Sigma17 website](https://questiowo.github.io/Sigma17) which is hosted by github as a `github.io` project site and is kept up to date with all major changes.
 
-Also, the emulator can be ran locally using npm and React from the source directory which will support more minor changes that will not effect the overall ability of the `github.io` site.
+Also, the emulator can be ran locally using npm and React.js from the source directory which will support more minor changes that will not effect the overall ability of the `github.io` site.
 
 ### Run in a browser
 
@@ -52,7 +52,7 @@ This will start the local React.js development server and should open a windown 
 * √ - Implement '`jumpAlias`' functions
 * √ - Implement full function of `trap` instruction
 * √ - Check that R15 updates correctly for each arithmetic `RRR` function.
-* √ - Implement all `EXP` functions ( except rfi as no interrupt registers )
+* √ - Implement all `EXP` functions ( except `rfi` as no interrupt registers )
 * √ - Small rewrite to use binary checking instead of string checking to increase performance further
 * √ - Link to webpage
 
@@ -79,6 +79,7 @@ This will start the local React.js development server and should open a windown 
 
 6. Clean-Up
 * Write documentation that outlines function calls, i.e how to debug as an outsider.
+* Write basic documentation for Sigma16 instructions.
 * √ - Set up `githib.io` page for emulator
 * √ - Write 'Hello, World!' program to be default display
 * Add download/copy buttons for machine code and Sigma16 code versions of the program on the editor.
