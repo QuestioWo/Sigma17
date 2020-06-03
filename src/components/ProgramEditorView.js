@@ -4,8 +4,8 @@ import 'codemirror/lib/codemirror.css';
 import './ProgramEditorView.css';
 
 import { Link } from 'react-router-dom';
-import { Alert, Button, ButtonGroup, Col, InputGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
-import { FaBug, FaCheck, FaHammer, FaPen, FaPlay, FaTimes } from 'react-icons/fa';
+import { Alert, Button, ButtonGroup, Col, InputGroup, Modal, OverlayTrigger, Row, ToggleButton, ToggleButtonGroup, Tooltip } from 'react-bootstrap';
+import { FaBug, FaCheck, FaChevronDown, FaDownload, FaHammer, FaPen, FaPlay, FaTimes } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
 import * as Emulator from './utils/Emulator';
@@ -35,6 +35,13 @@ export default class ProgramEditorView extends React.PureComponent {
       outputZoomed : false,
 
       inputModalShow : false,
+
+      downloadModalShow : false,
+      downloadAs : 0,
+      fileName : 'S16DownloadFile',
+
+      lineCompWarn : {},
+      lineCompError : {},
 
       machineCode : [],
       machineCodeUpdated : false,
@@ -73,13 +80,17 @@ export default class ProgramEditorView extends React.PureComponent {
 
   componentDidMount() {
     if ( this.props.location.state ) {
-      this.setState( { code : this.props.location.state.code } );
-      this.setState( { breakpoints : this.props.location.state.breakpoints } );
-      this.setState( { input : this.props.location.state.input } );
+      this.setState( { 
+        code : this.props.location.state.code, 
+        breakpoints : this.props.location.state.breakpoints, 
+        input : this.props.location.state.input 
+      } );
     } else if ( this.props.code !== undefined ) {
-      this.setState( { code : this.props.code } );
-      this.setState( { breakpoints : this.props.breakpoints } );
-      this.setState( { input : this.props.input } );
+      this.setState( { 
+        code : this.props.code, 
+        breakpoints : this.props.breakpoints, 
+        input : this.props.input 
+      } );
     }
   }
 
@@ -103,10 +114,58 @@ export default class ProgramEditorView extends React.PureComponent {
 
         if ( this.state.breakpoints.includes( i + 1 ) ) {
           className = className + ' active';
-        } if ( Object.keys( this.state.lineError ).includes( String( i + 1 ) ) ) {
+        } 
+
+        var error = '';
+
+        if ( Object.keys( this.state.lineError ).includes( String( i + 1 ) ) ) {
           className = className + ' error';
 
-          var error = this.state.lineError[String( i + 1 )];
+          error = this.state.lineError[String( i + 1 )];
+
+          breakpoints.push( 
+            <OverlayTrigger
+              key={className+' tooltip'}
+              placement={'right'}
+              overlay={
+                <Tooltip>
+                  {error}
+                </Tooltip>
+              }>
+              <div 
+                key={id}
+                id={id} 
+                className={className} 
+                style={{top : styleTop}} 
+                onClick={this.breakpointOnClick}/>
+            </OverlayTrigger>
+          );
+        } else if ( Object.keys( this.state.lineCompWarn ).includes( String( i + 1 ) ) ) {
+          className = className + ' compwarn';
+
+          error = this.state.lineCompWarn[String( i + 1 )]['warn'];
+
+          breakpoints.push( 
+            <OverlayTrigger
+              key={className+' tooltip'}
+              placement={'right'}
+              overlay={
+                <Tooltip>
+                  {error}
+                </Tooltip>
+              }>
+              <div 
+                key={id}
+                id={id} 
+                className={className} 
+                style={{top : styleTop}} 
+                onClick={this.breakpointOnClick}/>
+            </OverlayTrigger>
+          );
+        } else if ( Object.keys( this.state.lineCompError ).includes( String( i + 1 ) ) ) {
+          className = className + ' comperror';
+
+          error = this.state.lineCompError[String( i + 1 )]['error'];
 
           breakpoints.push( 
             <OverlayTrigger
@@ -156,7 +215,7 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   disableBreakpoints = button => {
-    this.setState( { breakpoints : [] } );
+    this.setState( { breakpoints : [], lineError : {}, lineCompWarn : {}, lineCompError : {} } );
   }
 
 // REGISTER/MEMORY METHODS
@@ -271,9 +330,7 @@ export default class ProgramEditorView extends React.PureComponent {
 
 // ALERT METHODS
   updateAlert( message, nature ) {
-    this.setState( { alertMessage : message } );
-    this.setState( { alertNature : nature } );
-    this.setState( { alertShow : true } );
+    this.setState( { alertMessage : message, alertNature : nature, alertShow : true } );
   }
 
   closeAlert = alert => {
@@ -386,8 +443,7 @@ export default class ProgramEditorView extends React.PureComponent {
           }
         }
       }
-      this.setState( { machineCode : machineCode } );
-      this.setState( { machineCodeUpdated : true } );
+      this.setState( { machineCode : machineCode, machineCodeUpdated : true } );
 
       this.updateAlert( 'Built successfully', 'success' );
     } else {
@@ -437,9 +493,7 @@ export default class ProgramEditorView extends React.PureComponent {
 
     var outputNew = '';
 
-    this.setState( { registers : registersNew } );
-    this.setState( { cpuControl : cpuControlNew } );
-    this.setState( { output : outputNew } );
+    this.setState( { registers : registersNew, cpuControl : cpuControlNew, output : outputNew } );
   }
 
   canRunCode( code, machineCode ) {
@@ -490,13 +544,14 @@ export default class ProgramEditorView extends React.PureComponent {
         if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
       }
 
-      this.setState( { cpuControl : localControl } );
-      this.setState( { registers : localRegisters } );
-      this.setState( { memory : localMemory } );
-      this.setState( { output : localOutput } );
-
-      this.setState( { outputZoomed : false } );
-      this.setState( { runModalShow : true } );
+      this.setState( { 
+        cpuControl : localControl, 
+        registers : localRegisters,
+        memory : localMemory, 
+        output : localOutput, 
+        outputZoomed : false, 
+        runModalShow : true 
+      } );
     } else {
       this.updateAlert( canRun, 'danger' );
     }
@@ -515,6 +570,330 @@ export default class ProgramEditorView extends React.PureComponent {
     this.setState( { inputModalShow : false } );
   }
 
+// DOWNLOADING METHODS
+  downloadFile( name, content, mimeType='text/plain' ) {
+    var element = document.createElement( 'a' );
+    element.setAttribute( 'href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent( content ) );
+    element.setAttribute( 'download', name );
+
+    element.style.display = 'none';
+    document.body.appendChild( element );
+
+    element.click();
+
+    document.body.removeChild( element );
+  }
+
+  downloadRaw = button => {
+    const check = this.checkCode( this.state.code );
+
+    if ( check[0] ) {
+      var textValue = this.state.fileName;
+      if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
+        if ( textValue.endsWith( '.asm' ) ) {
+          textValue += '.txt';
+        } else if ( !( textValue.endsWith( '.txt' ) ) ) {
+          textValue += '.asm.txt';
+        }
+      }
+
+      this.downloadFile( textValue, this.state.code );
+      this.updateAlert( 'Download successful', 'success' );
+    } else {
+      var keys = Object.keys( check[1] );
+      var keysString = '';
+
+      for ( var i = 0; i < keys.length; i++ ) {
+        if ( i !== 0 ) {
+          keysString += ', ';
+        }
+
+        keysString += keys[i];
+      }
+
+      this.updateAlert( 'Download cannot continue as code does not build and therefore will be uncompatible. Errors at line(s): ' + keysString, 'danger' );
+    }
+  }
+
+  downloadRawCompatible() {
+    const check = this.checkCode( this.state.code );
+
+    var i = 0;
+    var keys;
+    var keysString;
+
+    if ( check[0] ) {
+      const checkCompatible = Emulator.checkCodeIsCompatible( this.state.code );
+      if ( checkCompatible[0] ) {
+        var textValue = this.state.fileName;
+        if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
+          if ( textValue.endsWith( '.asm' ) ) {
+            textValue += '.txt';
+          } else if ( !( textValue.endsWith( '.txt' ) ) ) {
+            textValue += '.asm.txt';
+          }
+        }
+
+        this.downloadFile( textValue, Emulator.parseCodeToCompatible( this.state.code ) );
+
+        keys = Object.keys( checkCompatible[1] );
+        if ( keys.length ) {
+          keysString = '';
+
+          for ( i = 0; i < keys.length; i++ ) {
+            if ( i !== 0 ) {
+              keysString += ', ';
+            }
+
+            keysString += keys[i];
+          }
+
+          this.setState( { lineCompWarn : checkCompatible[1], lineCompError : checkCompatible[2] } );
+          this.updateAlert( 'Download shall continue however, some only partially compatible commands in code at line(s): ' + keysString, 'warning' );
+        } else {
+          this.setState( { lineCompWarn : {}, lineCompError : {} } );
+          this.updateAlert( 'Download successful', 'success' );
+        }
+      } else {
+        keys = Object.keys( checkCompatible[2] );
+        keysString = '';
+
+        for ( i = 0; i < keys.length; i++ ) {
+          if ( i !== 0 ) {
+            keysString += ', ';
+          }
+
+          keysString += keys[i];
+        }
+
+        this.setState( { lineCompWarn : checkCompatible[1], lineCompError : checkCompatible[2] } );
+        this.updateAlert( 'Download cannot continue as some fully non compatible commands in code at line(s): ' + keysString, 'danger' );
+      }
+    } else {
+      keys = Object.keys( check[1] );
+      keysString = '';
+
+      for ( i = 0; i < keys.length; i++ ) {
+        if ( i !== 0 ) {
+          keysString += ', ';
+        }
+
+        keysString += keys[i];
+      }
+
+      this.updateAlert( 'Download cannot continue as code does not build and therefore will be uncompatible. Errors at line(s): ' + keysString, 'danger' );
+    }
+  }
+
+  downloadBinary() {
+    const check = this.checkCode( this.state.code );
+
+    if ( check[0] ) {
+      var machineCode = this.parseCode();
+      var stream = '';
+
+      var currentLine = 0;
+        
+      for ( var i = 0; i < machineCode.length; i++ ) {
+        stream += Emulator.writeHex( machineCode[i] );
+        if ( currentLine === 7 ) {
+          stream += '\n';
+          currentLine = 0;
+        } else if ( i !== ( machineCode.length - 1 ) ) {
+          stream += ' ';
+          currentLine += 1;
+        }
+      }
+
+      var textValue = this.state.fileName;
+      textValue += '.bin';
+
+      this.downloadFile( textValue, stream, 'application/mac-binary' );
+      this.updateAlert( 'Download successful', 'success' );
+    } else {
+      var keys = Object.keys( check[1] );
+      var keysString = '';
+
+      for ( var it = 0; it < keys.length; it++ ) {
+        if ( it !== 0 ) {
+          keysString += ', ';
+        }
+
+        keysString += keys[it];
+      }
+
+      this.updateAlert( 'Download cannot continue as code does not build and therefore will be uncompatible. Errors at line(s): ' + keysString, 'danger' );
+    }
+  }
+
+  downloadHex() {
+    const check = this.checkCode( this.state.code );
+
+    if ( check[0] ) {
+      var machineCode = this.parseCode();
+      var stream = '';
+
+      for ( var i = 0; i < machineCode.length; i++ ) {
+        stream += 'data $' + Emulator.writeHex( machineCode[i] ) + '\n';
+      }
+
+      var textValue = this.state.fileName;
+      if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
+        if ( textValue.endsWith( '.asm' ) ) {
+          textValue += '.txt';
+        } else if ( !( textValue.endsWith( '.txt' ) ) ) {
+          textValue += '.asm.txt';
+        }
+      }
+
+      this.downloadFile( textValue, stream );
+      this.updateAlert( 'Download successful', 'success' );
+    } else {
+      var keys = Object.keys( check[1] );
+      var keysString = '';
+
+      for ( var it = 0; it < keys.length; it++ ) {
+        if ( it !== 0 ) {
+          keysString += ', ';
+        }
+
+        keysString += keys[it];
+      }
+
+      this.updateAlert( 'Download cannot continue as code does not build and therefore will be uncompatible. Errors at line(s): ' + keysString, 'danger' );
+    }
+  }
+
+  downloadHexCompatible() {
+    const check = this.checkCode( this.state.code );
+
+    var i = 0;
+    var keys;
+    var keysString;
+
+    if ( check[0] ) {
+      const checkCompatible = Emulator.checkCodeIsCompatible( this.state.code );
+      if ( checkCompatible[0] ) {
+        var machineCode = this.parseCode();
+        var stream = '';
+
+        for ( i = 0; i < machineCode.length; i++ ) {
+          stream += ' data $' + Emulator.writeHex( machineCode[i] ) + '\n';
+        }
+
+        var textValue = this.state.fileName;
+        if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
+          if ( textValue.endsWith( '.asm' ) ) {
+            textValue += '.txt';
+          } else if ( !( textValue.endsWith( '.txt' ) ) ) {
+            textValue += '.asm.txt';
+          }
+        }
+
+        this.downloadFile( textValue, stream );
+        this.updateAlert( 'Download successful', 'success' );
+
+        keys = Object.keys( checkCompatible[1] );
+        if ( keys.length ) {
+          keysString = '';
+
+          for ( i = 0; i < keys.length; i++ ) {
+            if ( i !== 0 ) {
+              keysString += ', ';
+            }
+
+            keysString += keys[i];
+          }
+
+          this.setState( { lineCompWarn : checkCompatible[1], lineCompError : checkCompatible[2] } );
+          this.updateAlert( 'Download can continue however, some only partially compatible commands in code at line(s): ' + keysString, 'warning' );
+        } else {
+          this.setState( { lineCompWarn : {}, lineCompError : {} } );
+          this.updateAlert( 'Download successful', 'success' );
+        }
+      } else {
+        keys = Object.keys( checkCompatible[2] );
+        keysString = '';
+
+        for ( i = 0; i < keys.length; i++ ) {
+          if ( i !== 0 ) {
+            keysString += ', ';
+          }
+
+          keysString += keys[i];
+        }
+
+        this.setState( { lineCompWarn : checkCompatible[1], lineCompError : checkCompatible[2] } );
+        this.updateAlert( 'Download cannot continue as some fully non compatible commands in code at line(s): ' + keysString, 'danger' );
+      }
+    } else {
+      keys = Object.keys( check[1] );
+      keysString = '';
+
+      for ( i = 0; i < keys.length; i++ ) {
+        if ( i !== 0 ) {
+          keysString += ', ';
+        }
+
+        keysString += keys[i];
+      }
+
+      this.updateAlert( 'Download cannot continue as code does not build and therefore will be uncompatible. Errors at line(s): ' + keysString, 'danger' );
+    }
+  }
+
+  fileNameUpdate = textarea => {
+    this.setState( { fileName : textarea.target.value } );
+  }
+
+  fileNameHandleKeyDown = e => {
+    if (e.key === 'Enter') {
+      this.downloadModalClose();
+    }
+  }
+
+  downloadModalClose = modal => {
+    switch ( this.state.downloadAs ) {
+      case 0 :
+        this.downloadRaw();
+        break;
+
+      case 1 :
+        this.downloadRawCompatible();
+        break;
+
+      case 2 :
+        this.downloadBinary();
+        break;
+
+      case 3 :
+        this.downloadHex();
+        break;
+
+      case 4 :
+        this.downloadHexCompatible();
+        break;
+
+      default :
+        this.updateAlert( 'Download cannot continue due to internal website error. Try to contact Jim Carty.', 'danger' );
+        break;
+    }
+
+    this.setState( { downloadModalShow : false } );
+  }
+
+  downloadModalCloseNon = modal => {
+    this.setState( { downloadModalShow : false } );
+  }
+
+  downloadModalOpen = button => {
+    this.setState( { downloadModalShow : true } );
+  }
+
+  downloadModalRadio = value => {
+    this.setState( { downloadAs : value } );
+  }
+
 // CODEMIRROR METHODS
   updateCode = newCode => {
     if ( !( newCode.split( '\n' ).length > 500 ) ) {
@@ -523,11 +902,10 @@ export default class ProgramEditorView extends React.PureComponent {
 
     // updating code based on contents of codemirror
     if ( newCode ) {
-      this.setState( { code : newCode } );
+      this.setState( { code : newCode, machineCodeUpdated : false } );
     } else {
-      this.setState( { code : ' ' } );
+      this.setState( { code : ' ', machineCodeUpdated : false } );
     }
-    this.setState( { machineCodeUpdated : false  } );
   }
 
 // CODE CHUNK METHODS
@@ -565,11 +943,10 @@ export default class ProgramEditorView extends React.PureComponent {
     }
 
     if ( divContent.target.value ) {
-      this.setState( { code : divContent.target.value } );
+      this.setState( { code : divContent.target.value, machineCodeUpdated : false } );
     } else {
-      this.setState( { code : ' ' } );
+      this.setState( { code : ' ', machineCodeUpdated : false } );
     }
-    this.setState( { machineCodeUpdated : false  } );
   }
 
   toggleHighlighting = button => {
@@ -654,6 +1031,67 @@ export default class ProgramEditorView extends React.PureComponent {
               <Button variant='outline-secondary' onClick={this.inputModalClose} style={{float : 'right'}}>
                 Set Input
               </Button>
+            </div>
+          </Modal.Body>
+        </Modal>
+
+        <Modal
+          show={this.state.downloadModalShow}
+          onHide={this.downloadModalCloseNon}
+          dialogClassName="downloadmodal"
+          animation={false} >
+          <Modal.Header closeButton>
+            <Modal.Title>
+              Export As...
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className='export-choices' style={{paddingBottom : '15px'}}>
+              <ToggleButtonGroup 
+                type='radio' 
+                name='export-choices' 
+                defaultValue={this.state.downloadAs} 
+                onChange={this.downloadModalRadio}>
+                <ToggleButton variant='outline-secondary' value={0}>
+                  Raw
+                </ToggleButton>
+                <ToggleButton variant='outline-secondary' value={1}>
+                  Raw compatible
+                </ToggleButton>
+                <ToggleButton variant='outline-secondary' value={2}>
+                  Binary
+                </ToggleButton>
+                <ToggleButton variant='outline-secondary' value={3}>
+                  Hex
+                </ToggleButton>
+                <ToggleButton variant='outline-secondary' value={4}>
+                  Hex compatible
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </div>
+            <div className='download-modal-column'>
+              <InputGroup
+                as='textarea'
+                id='download-modal-download'
+                className='download-modal-download'
+                value={this.state.fileName}
+                onChange={this.fileNameUpdate}
+                onKeyDown={this.fileNameHandleKeyDown}
+                autoFocus/>
+            </div>
+            <div style={{paddingTop : '15px'}}>
+              <OverlayTrigger
+                key={`download-tooltip`}
+                placement={'left'}
+                overlay={
+                  <Tooltip>
+                    {`Download also started by pressing enter in file name field`}
+                  </Tooltip>
+                }>
+                <Button variant='outline-secondary' onClick={this.downloadModalClose} style={{float : 'right'}}>
+                  <FaDownload/> Download 
+                </Button>
+              </OverlayTrigger>
             </div>
           </Modal.Body>
         </Modal>
@@ -747,6 +1185,34 @@ export default class ProgramEditorView extends React.PureComponent {
                   <FaCheck/>
                 </Button>
               </OverlayTrigger>
+              {' '}
+              <ButtonGroup>
+                <OverlayTrigger
+                  key={`export-tooltip`}
+                  placement={'top'}
+                  overlay={
+                    <Tooltip>
+                      {`Download current code as is`}
+                    </Tooltip>
+                  }>
+                  <Button variant='outline-secondary' size ='sm' onClick={this.downloadRaw}>
+                    <FaDownload/>
+                  </Button>
+                </OverlayTrigger>
+                <OverlayTrigger
+                  key={`export-choices-tooltip`}
+                  placement={'top'}
+                  overlay={
+                    <Tooltip>
+                      {`Download current code 
+                      chunk in different formats`}
+                    </Tooltip>
+                  }>
+                  <Button variant='outline-secondary' size ='sm' onClick={this.downloadModalOpen}>
+                    <FaChevronDown/>
+                  </Button>
+                </OverlayTrigger>
+              </ButtonGroup>
             </Col>
           </Row>
           <Row>
