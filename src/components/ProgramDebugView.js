@@ -87,18 +87,12 @@ export default class ProgramDebugView extends React.Component {
       code = this.props.location.state.code;
       breakpoints = this.props.location.state.breakpoints;
 
-      this.setState( { code : this.props.location.state.code } );
-      this.setState( { breakpoints : this.props.location.state.breakpoints } );
-      this.setState( { input : this.props.location.state.input } );
-      this.setState( { inputRan : this.props.location.state.input } );
+      this.setState( { code : this.props.location.state.code, breakpoints : this.props.location.state.breakpoints, input : this.props.location.state.input, inputRan : this.props.location.state.input } );
     } else if ( this.props.code !== undefined ) {
       code = this.props.code;
       breakpoints = this.props.breakpoints;
 
-      this.setState( { code : this.props.code } );
-      this.setState( { breakpoints : this.props.breakpoints } );
-      this.setState( { input : this.props.input } );
-      this.setState( { inputRan : this.props.input } );
+      this.setState( { code : this.props.code, breakpoints : this.props.breakpoints, input : this.props.input, inputRan : this.props.input } );
     }
     var machineCode = this.parseCode( code, breakpoints );
 
@@ -107,9 +101,7 @@ export default class ProgramDebugView extends React.Component {
 
 // ALERT METHODS
   updateAlert( message, nature ) {
-    this.setState( { alertMessage : message } );
-    this.setState( { alertNature : nature } );
-    this.setState( { alertShow : true } );
+    this.setState( { alertMessage : message, alertNature : nature, alertShow : true } );
   }
 
   closeAlert = alert => {
@@ -296,9 +288,8 @@ export default class ProgramDebugView extends React.Component {
   }
 
   disableBreakpoints = button => {
-    this.setState( { breakpoints : [] } );
-    this.setState( { breakpointsMachineCode : [] } );
-    this.parseCode( this.state.code, [] );
+    this.setState( { breakpoints : [], breakpointsMachineCode : [] } );
+    this.parseForBreakpoints( this.state.code, [] );
   }
 
 // CODE CHUNK METHODS
@@ -378,8 +369,7 @@ export default class ProgramDebugView extends React.Component {
   }
 
   toggleCodeChunk = button => {
-    this.setState( { showCodeChunk : !( this.state.showCodeChunk ) } );
-    this.setState( { renderCodeChunk : false } );
+    this.setState( { showCodeChunk : !( this.state.showCodeChunk ), renderCodeChunk : false } );
   }
 
 // LINE OVERLAY METHODS
@@ -541,10 +531,7 @@ export default class ProgramDebugView extends React.Component {
         }
       }
 
-      this.setState( { machineCode : machineCode } );
-      this.setState( { breakpointsMachineCode : breakpointsMachineCode } );
-      this.setState( { memoryToLine : memoryToLine } );
-      this.setState( { lineToMemory : lineToMemory } );
+      this.setState( { machineCode : machineCode, breakpointsMachineCode : breakpointsMachineCode, memoryToLine : memoryToLine, lineToMemory : lineToMemory } );
     } else {
       var keys = Object.keys( check[1] );
       var keysString = '';
@@ -630,10 +617,7 @@ export default class ProgramDebugView extends React.Component {
 
     var memoryNew = Emulator.setMemory( this.state.machineCode );
 
-    this.setState( { registers : registersNew } );
-    this.setState( { cpuControl : cpuControlNew } );
-    this.setState( { output : outputNew } );
-    this.setState( { memory : memoryNew } );
+    this.setState( { registers : registersNew, cpuControl : cpuControlNew, output : outputNew, memory : memoryNew } );
   }
 
   canRunCode( code, machineCode ) {
@@ -688,15 +672,15 @@ export default class ProgramDebugView extends React.Component {
         }
       }
 
-      this.setState( { cpuControl : localControl } );
-      this.setState( { registers : localRegisters } );
-      this.setState( { memory : localMemory } );
-      this.setState( { inputRan : localInput } );
-      this.setState( { output : localOutput } );
-
-      this.setState( { lastLine : lastRanLine } );
-      this.setState( { activeLine : localControl['pc'] } );
-      this.setState( { halted : ran['halted'] } );
+      this.setState( { cpuControl : localControl, 
+        registers : localRegisters, 
+        memory : localMemory, 
+        inputRan : localInput, 
+        output : localOutput, 
+        lastLine : lastRanLine,
+        activeLine : localControl['pc'],
+        halted : ran['halted']
+      } );
     } else {
       this.updateAlert( canRun, 'danger' );
       this.setState( { halted : true } );
@@ -726,15 +710,15 @@ export default class ProgramDebugView extends React.Component {
       // if ran out of commands
       if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
 
-      this.setState( { cpuControl : localControl } );
-      this.setState( { registers : localRegisters } );
-      this.setState( { memory : localMemory } );
-      this.setState( { inputRan : localInput } );
-      this.setState( { output : localOutput } );
-
-      this.setState( { lastLine : this.state.activeLine } );
-      this.setState( { activeLine : localControl['pc'] } );
-      this.setState( { halted : ran['halted'] } );
+      this.setState( { cpuControl : localControl, 
+        registers : localRegisters, 
+        memory : localMemory, 
+        inputRan : localInput, 
+        output : localOutput, 
+        lastLine : this.state.activeLine ,
+        activeLine : localControl['pc'],
+        halted : ran['halted']
+      } );
     } else {
       // machine language is blank
       this.updateAlert( 'Cannot run no code. Try building then running', 'danger' );
@@ -745,13 +729,13 @@ export default class ProgramDebugView extends React.Component {
   resetDebug = button => {
     this.resetCPUandMemory();
 
-    this.setState( { memory : Emulator.setMemory( this.state.machineCode ) } );
-
-    this.setState( { inputRan : this.state.input } );
-    
-    this.setState( { lastLine : 0 } );
-    this.setState( { activeLine : 0 } );
-    this.setState( { halted : false } );
+    this.setState( { 
+      memory : Emulator.setMemory( this.state.machineCode ),
+      inputRan : this.state.input ,
+      lastLine : 0,
+      activeLine : 0,
+      halted : false
+    } );
   }
 
 // MODAL METHODS
@@ -760,8 +744,7 @@ export default class ProgramDebugView extends React.Component {
   }
 
   inputUpdate = textarea => {
-    this.setState( { input : textarea.target.value } );
-    this.setState( { inputRan : textarea.target.value } );
+    this.setState( { input : textarea.target.value, inputRan : textarea.target.value } );
 
     this.resetDebug();
   }

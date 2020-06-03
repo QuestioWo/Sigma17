@@ -1,0 +1,44 @@
+.download-modal-column {
+  float: none;
+  box-sizing: border-box;
+  border-radius: 7px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #eaeef3;
+  background-color: #eaeef3;
+  height: unset;
+}
+
+.download-modal-download {
+  height: 38px;
+  width: 100%;
+  font-family: 'Fira Code', monospace;
+  resize: none;
+  border-radius: 7px;
+  border-width: 5px;
+  border-color: white;
+  white-space: pre;
+  outline: none;
+  color: black;
+  border-style: solid;
+}
+
+.breakpoint-column .breakpoint.compwarn {
+  width: 0px;
+  height: 0px;
+  border-top: 4px solid transparent;
+  border-left: 8px solid orange;
+  border-bottom: 4px solid transparent;
+  border-right: 0px;
+  border-radius: 0px;
+}
+
+.breakpoint-column .breakpoint.comperror {
+  width: 0px;
+  height: 0px;
+  border-top: 4px solid transparent;
+  border-left: 8px solid red;
+  border-bottom: 4px solid transparent;
+  border-radius: 0px;
+  border-right: 0px;
+}

@@ -83,7 +83,7 @@ This will start the local React.js development server and should open a windown 
 * Write documentation that outlines function calls, i.e how to debug as an outsider.
 * √ - Set up `githib.io` page for emulator
 * √ - Write 'Hello, World!' program to be default display
-* Add download/copy buttons for machine code and Sigma16 code versions of the program on the editor.
+* √ - Add download/copy buttons for machine code and Sigma16 code versions of the program on the editor.
 * Allow unhighlighted code chunk to have tabs used correctly.
 * √ - Make webiste display properly on Firefox and Safari
 * x - Make double clicking on output boxes work properly on Firefox

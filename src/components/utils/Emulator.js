@@ -8,12 +8,16 @@
     cmpeq : 'rrr', 
     cmpgt : 'rrr', 
     and : 'rrr', 
+    andold : 'rrr', 
     or : 'rrr', 
+    orold : 'rrr', 
     xor : 'rrr',
+    xorold : 'rrr',
     trap : 'rrr',
 
     cmp : 'rr', 
     inv : 'rr',
+    invold : 'rr',
 
     lea : 'rx', 
     load : 'rx', 
@@ -90,6 +94,97 @@
 
     invnew : 'logicAliasRR'
   };
+
+  // const fullyCompatibleCommands = [
+  //   'add',
+  //   'sub',
+  //   'mul',
+  //   'div',
+  //   'cmp',
+  //   'cmplt',
+  //   'cmpeq',
+  //   'cmpgt',
+  //   'inv',
+  //   'invold',
+  //   'and',
+  //   'andold',
+  //   'or',
+  //   'orold',
+  //   'xor',
+  //   'xorold',
+  //   'trap',
+
+  //   'lea',
+  //   'load',
+  //   'store',
+  //   'jump',
+  //   'jumpc0',
+  //   'jumpc1',
+  //   'jumpf',
+  //   'jumpt',
+  //   'jal',
+
+  //   'jumple',
+  //   'jumpne',
+  //   'jumpge',
+  //   'jumpnv',
+  //   'jumpnvu',
+  //   'jumpnco',
+
+  //   'jumplt',
+  //   'jumpeq',
+  //   'jumpgt',
+  //   'jumpv',
+  //   'jumpvu',
+  //   'jumpco',
+
+  //   'data',
+
+  //   'save',
+  //   'restore',
+
+  //   'shiftl',
+  //   'shiftr',
+
+  //   'extract',
+  //   'extracti',
+
+  //   'inject',
+  //   'injecti',
+  //   'logicb',
+
+  //   'logicw',
+
+  //   'andb',
+  //   'orb',
+  //   'xorb',
+
+  //   'invb'
+  // ];
+
+  const partiallyCompatibleCommands = { // recognised by assembler but has other effects
+    testset : 'Assembles but no functionality',
+    rfi : 'Assembles, but hangs when ran in a program',
+    execute : 'Assembles, however, not as per docs and has no functionality',
+    getctl : 'Assembles differently and has different range of functionality',
+    putctl : 'Assembles differently and has different range of functionality',
+    push : 'Assembles but no functionality',
+    pop : 'Assembles but no functionality',
+    top : 'Assembles but no functionality',
+    field : 'Assembler accepts but does not produce any codes',
+    andnew : 'Assembler does not recognise but same functionality can be had with "and"',
+    ornew : 'Assembler does not recognise but same functionality can be had with "or"',
+    xornew : 'Assembler does not recognise but same functionality can be had with "xor"',
+    invnew : 'Assembler does not recognise but same functionality can be had with "inv"'
+  };
+
+  const nonCompatibleCommands = [ // not even recognised by assembler
+    'addc',
+    'getbit',
+    'getbiti',
+    'putbit',
+    'putbiti'
+  ];
   
   const firstColumn = Math.pow( 16, 3 );
   const secondColumn = Math.pow( 16, 2 );
@@ -99,7 +194,8 @@
   // RRR
     const rrCommands = {
       cmp : 4,
-      inv : 8
+      inv : 8,
+      invold : 8
     };
     const rrrCommands = { 
       add : 0, 
@@ -110,8 +206,11 @@
       cmpeq : 6,
       cmpgt : 7,
       and : 9,
+      andold : 9,
       or : 0xa,
+      orold : 0xa,
       xor : 0xb,
+      xorold : 0xb,
       trap : 0xd
     };
 
@@ -262,13 +361,31 @@
       // number is either hex or string
       if ( isValidNumber( argument ) ) {
         argument = argument.slice( 1, argument.length );
-        info = parseInt( argument, 16);
+        info = parseInt( argument, 16 );
       } else {
         if ( labels && Object.keys( labels ).includes( argument ) ) {
           info = labels[argument];
         } else {
           info = argument;
         }
+      }
+    }
+
+    return info;
+  }
+
+  function readCompatibleConstant( argument ) {
+    var info = 0;
+
+    if ( ! isNaN( argument ) ) {
+      // number is in decimal
+      info = argument;
+    } else {
+      // number is either hex or string
+      if ( isValidNumber( argument ) ) {
+        info = '$' + writeHex( argument.slice( 1, argument.length ) );
+      } else {
+        info = argument;
       }
     }
 
@@ -851,6 +968,66 @@
     return error;
   }
 
+  function checkCommandIsCompatible( command ) {
+    var result = {
+      warn : '',
+      error : ''
+    };
+
+    if ( Object.keys( partiallyCompatibleCommands ).includes( command ) ) {
+      result['warn'] = partiallyCompatibleCommands[command]
+    } else if ( nonCompatibleCommands.includes( command ) ) {
+      result['error'] = 'Assembler does not recognise command at all and will return an error'
+    }
+    // else, is fully compatible
+
+    return result;
+  }
+
+  function checkLineIsComaptible( line ) {
+    var linesplit = line.trim().split( ';' )[0].split( /\s+/ );
+    var parsed = {
+      warn : '',
+      error : ''
+    };
+
+    if ( linesplit[0] ) {
+      // lines isnt empty
+      if ( Object.keys( allCommands ).includes( linesplit[0] ) ) {
+        // first word is a command
+        parsed = checkCommandIsCompatible( linesplit[0] ); // will return error is arguments not present so dont have to check
+      } else if ( /\w/.test( linesplit[0] ) && linesplit[1] && Object.keys( allCommands ).includes( linesplit[1] ) ) {    
+        parsed = checkCommandIsCompatible( linesplit[1] );
+      }
+    }
+
+    // return error, as it woud have updated to error message if probelm, otherwise, will have stayed positive
+    return parsed;
+  }
+
+  export function checkCodeIsCompatible( code ) {
+    var lines = code.split( '\n' );
+    var check = true;
+
+    var lineWarn = {};
+    var lineError = {};
+
+    var compatible = true;
+
+    for ( var i = 0; i < lines.length; i++ ) {
+      check = checkLineIsComaptible( lines[i] );
+
+      if ( check['warn'].length ) {
+        lineWarn[i + 1] = check;
+      } else if ( check['error'].length ) {
+        lineError[i + 1] = check;
+        compatible = false;
+      } 
+    }
+
+    return [compatible, lineWarn, lineError];
+  }
+
 // PARSING METHODS
   function findInstuctionInfo( command, argument ) {
     var result = {
@@ -1013,54 +1190,56 @@
       gh : 0
     };
 
+    var argumentList = [];
+
     switch ( allCommands[command] ) {
       case 'rr' :
-        var argumentListRR = argument.split( ',' );
-        result['a'] = Number( argumentListRR[0].slice( 1, argumentListRR[0].length ) );
-        result['b'] = Number( argumentListRR[1].slice( 1, argumentListRR[1].length ) );
+        argumentList = argument.split( ',' );
+        result['a'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['b'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
         
         result['d'] = result['a'];
         break;
         
       case 'rrr' :
-        var argumentListRRR = argument.split( ',' );
-        result['d'] = Number( argumentListRRR[0].slice( 1, argumentListRRR[0].length ) );
-        result['a'] = Number( argumentListRRR[1].slice( 1, argumentListRRR[1].length ) );
-        result['b'] = Number( argumentListRRR[2].slice( 1, argumentListRRR[2].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['a'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result['b'] = Number( argumentList[2].slice( 1, argumentList[2].length ) );
         break;
         
       case 'jx' :
-        var argumentListJX = argument.split( '[' );
-        result['a'] = Number( argumentListJX[1].slice( 1, argumentListJX[1].length - 1 ) ); // removes ']' from string
-        result['disp'] = readConstant( argumentListJX[0], labels );
+        argumentList = argument.split( '[' );
+        result['a'] = Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ); // removes ']' from string
+        result['disp'] = readConstant( argumentList[0], labels );
 
         result['d'] = 0;
         break;
         
       case 'jumpAlias' :
-        var argumentListJumpAlias = argument.split( '[' );
-        result['a'] = Number( argumentListJumpAlias[1].slice( 1, argumentListJumpAlias[1].length - 1 ) ); // removes ']' from string
-        result['disp'] = readConstant( argumentListJumpAlias[0], labels );
+        argumentList = argument.split( '[' );
+        result['a'] = Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ); // removes ']' from string
+        result['disp'] = readConstant( argumentList[0], labels );
 
         result['d'] = jumpAliasCommands[command][1];
         break;
         
       case 'kx' :
-        var argumentListKX = argument.split( ',' );
-        result['d'] = readConstant( argumentListKX[0], labels );
+        argumentList = argument.split( ',' );
+        result['d'] = readConstant( argumentList[0], labels );
 
-        argumentListKX = argumentListKX[1].split( '[' );
-        result['a'] = Number( argumentListKX[1].slice( 1, argumentListKX[1].length - 1 ) ); // removes ']' from string
-        result['disp'] = readConstant( argumentListKX[0], labels );
+        argumentList = argumentList[1].split( '[' );
+        result['a'] = Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ); // removes ']' from string
+        result['disp'] = readConstant( argumentList[0], labels );
         break;
         
       case 'rx' :
-        var argumentListRX = argument.split( ',' );
-        result['d'] = Number( argumentListRX[0].slice( 1, argumentListRX[0].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
 
-        argumentListRX = argumentListRX[1].split( '[' );
-        result['a'] = Number( argumentListRX[1].slice( 1, argumentListRX[1].length - 1 ) ); // removes ']' from string
-        result['disp'] = readConstant( argumentListRX[0], labels );
+        argumentList = argumentList[1].split( '[' );
+        result['a'] = Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ); // removes ']' from string
+        result['disp'] = readConstant( argumentList[0], labels );
         break;
         
       case 'x' :
@@ -1073,26 +1252,26 @@
 
       case 'rrEXP' :
         // copy of 'rr' case with a and b changed to d and e respectively
-        var argumentListRRexp = argument.split( ',' );
-        result['e'] = Number( argumentListRRexp[0].slice( 1, argumentListRRexp[0].length ) );
-        result['f'] = Number( argumentListRRexp[1].slice( 1, argumentListRRexp[1].length ) );
+        argumentList = argument.split( ',' );
+        result['e'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['f'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
         break;
 
       case 'rrxEXP' :
-        var argumentListRRXexp = argument.split( ',' );
-        result['e'] = Number( argumentListRRXexp[0].slice( 1, argumentListRRXexp[0].length ) );
-        result['f'] = Number( argumentListRRXexp[1].slice( 1, argumentListRRXexp[1].length ) );
+        argumentList = argument.split( ',' );
+        result['e'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['f'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
 
-        argumentListRRXexp = argumentListRRXexp[2].split( '[' );
-        result['d'] = Number( argumentListRRXexp[1].slice( 1, argumentListRRXexp[1].length - 1 ) ); // removes ']' from string
-        result['gh'] = readConstant( argumentListRRXexp[0], labels );
+        argumentList = argumentList[2].split( '[' );
+        result['d'] = Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ); // removes ']' from string
+        result['gh'] = readConstant( argumentList[0], labels );
         break;
 
       case 'rcEXP' :
-        var argumentListRCexp = argument.split( ',' );
-        result['d'] = Number( argumentListRCexp[0].slice( 1, argumentListRCexp[0].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
         
-        switch ( argumentListRCexp[1] ) {
+        switch ( argumentList[1] ) {
           case 'pc' :
             result['g'] = 1;
             break;
@@ -1113,100 +1292,100 @@
 
       case 'rrrEXP' :
         // copy of 'rrr' case with d, a, and b changed to d, e, and f respectively
-        var argumentListRRRexp = argument.split( ',' );
-        result['d'] = Number( argumentListRRRexp[0].slice( 1, argumentListRRRexp[0].length ) );
-        result['e'] = Number( argumentListRRRexp[1].slice( 1, argumentListRRRexp[1].length ) );
-        result['f'] = Number( argumentListRRRexp[2].slice( 1, argumentListRRRexp[2].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result['f'] = Number( argumentList[2].slice( 1, argumentList[2].length ) );
         break;
 
       case 'rrkEXP' :
-        var argumentListRRKexp = argument.split( ',' );
-        result['d'] = Number( argumentListRRKexp[0].slice( 1, argumentListRRKexp[0].length ) );
-        result['e'] = Number( argumentListRRKexp[1].slice( 1, argumentListRRKexp[1].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
         
-        result['g'] = readConstant( argumentListRRKexp[2], labels );
+        result['g'] = readConstant( argumentList[2], labels );
         break;
 
       case 'rkEXP' :
-        var argumentListRKexp = argument.split( ',' );
-        result['d'] = Number( argumentListRKexp[0].slice( 1, argumentListRKexp[0].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
         
-        result['g'] = readConstant( argumentListRKexp[1], labels );
+        result['g'] = readConstant( argumentList[1], labels );
         break;
 
       case 'rrkkEXP' :
-        var argumentListRRKKexp = argument.split( ',' );
-        result['d'] = Number( argumentListRRKKexp[0].slice( 1, argumentListRRKKexp[0].length ) );
-        result['e'] = Number( argumentListRRKKexp[1].slice( 1, argumentListRRKKexp[1].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
         
-        result['g'] = readConstant( argumentListRRKKexp[2], labels );
-        result['h'] = readConstant( argumentListRRKKexp[3], labels );
+        result['g'] = readConstant( argumentList[2], labels );
+        result['h'] = readConstant( argumentList[3], labels );
         break;
 
       case 'rrrkkEXP' :
-        var argumentListRRRKKexp = argument.split( ',' );
-        result['d'] = Number( argumentListRRRKKexp[0].slice( 1, argumentListRRRKKexp[0].length ) );
-        result['e'] = Number( argumentListRRRKKexp[1].slice( 1, argumentListRRRKKexp[1].length ) );
-        result['f'] = Number( argumentListRRRKKexp[2].slice( 1, argumentListRRRKKexp[2].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result['f'] = Number( argumentList[2].slice( 1, argumentList[2].length ) );
         
-        result['g'] = readConstant( argumentListRRRKKexp[3], labels );
-        result['h'] = readConstant( argumentListRRRKKexp[4], labels );
+        result['g'] = readConstant( argumentList[3], labels );
+        result['h'] = readConstant( argumentList[4], labels );
         break;
 
       case 'rrrkEXP' :
-        var argumentListRRRKexp = argument.split( ',' );
-        result['d'] = Number( argumentListRRRKexp[0].slice( 1, argumentListRRRKexp[0].length ) );
-        result['e'] = Number( argumentListRRRKexp[1].slice( 1, argumentListRRRKexp[1].length ) );
-        result['f'] = Number( argumentListRRRKexp[2].slice( 1, argumentListRRRKexp[2].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result['f'] = Number( argumentList[2].slice( 1, argumentList[2].length ) );
         
-        result['g'] = readConstant( argumentListRRRKexp[3], labels );
+        result['g'] = readConstant( argumentList[3], labels );
         break;
 
       case 'logicAliasRRRK' :
-        var argumentListLogicAliasRRRKexp = argument.split( ',' );
-        result['d'] = Number( argumentListLogicAliasRRRKexp[0].slice( 1, argumentListLogicAliasRRRKexp[0].length ) );
-        result['e'] = Number( argumentListLogicAliasRRRKexp[1].slice( 1, argumentListLogicAliasRRRKexp[1].length ) );
-        result['f'] = Number( argumentListLogicAliasRRRKexp[2].slice( 1, argumentListLogicAliasRRRKexp[2].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result['f'] = Number( argumentList[2].slice( 1, argumentList[2].length ) );
         
         result['g'] = logicAliasRRRKCommands[command][1];
-        result['h'] = readConstant( argumentListLogicAliasRRRKexp[3], labels );
+        result['h'] = readConstant( argumentList[3], labels );
         break;
 
       case 'logicAliasRRK' :
-        var argumentListLogicAliasRRKexp = argument.split( ',' );
-        result['d'] = Number( argumentListLogicAliasRRKexp[0].slice( 1, argumentListLogicAliasRRKexp[0].length ) );
-        result['e'] = Number( argumentListLogicAliasRRKexp[1].slice( 1, argumentListLogicAliasRRKexp[1].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
         
         result['g'] = logicAliasRRKCommands[command][1];
-        result['h'] = readConstant( argumentListLogicAliasRRKexp[2], labels );
+        result['h'] = readConstant( argumentList[2], labels );
         break;
 
       case 'logicAliasRRR' :
-        var argumentListLogicAliasRRRexp = argument.split( ',' );
-        result['d'] = Number( argumentListLogicAliasRRRexp[0].slice( 1, argumentListLogicAliasRRRexp[0].length ) );
-        result['e'] = Number( argumentListLogicAliasRRRexp[1].slice( 1, argumentListLogicAliasRRRexp[1].length ) );
-        result['f'] = Number( argumentListLogicAliasRRRexp[2].slice( 1, argumentListLogicAliasRRRexp[2].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result['f'] = Number( argumentList[2].slice( 1, argumentList[2].length ) );
         
         result['g'] = logicAliasRRRCommands[command][1];
         break;
 
       case 'logicAliasRR' :
-        var argumentListLogicAliasRRexp = argument.split( ',' );
-        result['d'] = Number( argumentListLogicAliasRRexp[0].slice( 1, argumentListLogicAliasRRexp[0].length ) );
-        result['e'] = Number( argumentListLogicAliasRRexp[1].slice( 1, argumentListLogicAliasRRexp[1].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
         
         result['g'] = logicAliasRRCommands[command][1];
         break;
 
       case 'injectIAlias' :
-        var argumentListInjectIAliasRKKexp = argument.split( ',' );
-        result['d'] = Number( argumentListInjectIAliasRKKexp[0].slice( 1, argumentListInjectIAliasRKKexp[0].length ) );
+        argumentList = argument.split( ',' );
+        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
         
         result['e'] = injectIAliasCommands[command][1];
         result['f'] = injectIAliasCommands[command][2];
         
-        result['g'] = readConstant( argumentListInjectIAliasRKKexp[1], labels );
-        result['h'] = readConstant( argumentListInjectIAliasRKKexp[2], labels );
+        result['g'] = readConstant( argumentList[1], labels );
+        result['h'] = readConstant( argumentList[2], labels );
         break;
 
       default :
@@ -1326,6 +1505,270 @@
     }
 
     return machineCode;
+  }
+
+  function findLineInfo( line ) {
+    var linesplit = line.trim().split( ';' )[0].split( /\s+/ );
+    var lineResult = {
+      label : ' ',
+      command : '',
+      argument : '',
+      comment : ''
+    };
+
+    if ( line.includes( ';' ) ) lineResult['comment'] = ';' + line.trim().split( ';' )[1];
+
+    if ( linesplit[0] && linesplit[0] !== '' ) {
+      // lines isnt empty
+      if ( Object.keys( allCommands ).includes( linesplit[0] ) ) {
+        // first word is a command
+        lineResult['command'] = linesplit[0];
+        lineResult['argument'] = linesplit[1];
+      } else {
+        // first word is not a command
+        if ( /\w/.test( linesplit[0] ) ) {
+          // first word is a label
+          lineResult['label'] = linesplit[0] + ' ';
+          if ( linesplit[1] ) {
+            // theres more after label
+            if ( Object.keys( allCommands ).includes( linesplit[1] ) ) {
+              lineResult['command'] = linesplit[1];
+              lineResult['argument'] = linesplit[2];
+            }
+          } else {
+            // is just a label
+            lineResult['label'] = linesplit[0] + ' ';
+          }
+        }
+      }
+    }
+
+    return lineResult;
+  }
+
+  function infoToLine( lineResult ) {
+    var line = lineResult['label'];
+
+    var argumentList = [];
+
+    if ( lineResult['command'].length ) {
+      line += lineResult['command'] + ' ';
+
+      switch ( allCommands[lineResult['command']] ) {
+        case 'rr' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          break;
+          
+        case 'rrr' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          line += ',';
+          line += 'R' + argumentList[2].slice( 1, argumentList[2].length );
+          break;
+          
+        case 'jx' :
+          argumentList = lineResult['argument'].split( '[' );
+          line += readCompatibleConstant( argumentList[0] );
+          line += '[';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          break;
+          
+        case 'jumpAlias' :
+          argumentList = lineResult['argument'].split( '[' );
+          line += readCompatibleConstant( argumentList[0] );
+          line += '[';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          break;
+          
+        case 'kx' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += argumentList[0];
+          line += ',';
+
+          argumentList = argumentList[1].split( '[' );
+          line += readCompatibleConstant( argumentList[0] );
+          line += '[';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          break;
+          
+        case 'rx' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+
+          argumentList = argumentList[1].split( '[' );
+          line += readCompatibleConstant( argumentList[0] );
+          line += '[';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          break;
+          
+        case 'x' :
+          line += readCompatibleConstant( lineResult['argument'] );
+          break;
+
+        case 'noEXP' :
+          // no need for lineResult['argument'] handling as exp0 takes no arguments
+          break;
+
+        case 'rrEXP' :
+          // copy of 'rr' case with a and b changed to d and e respectively
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          break;
+
+        case 'rrxEXP' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          line += ',';
+
+          argumentList = argumentList[2].split( '[' );
+          line += readCompatibleConstant( argumentList[0] );
+          line += '[';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          break;
+
+        case 'rcEXP' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += argumentList[1];
+          break;
+
+        case 'rrrEXP' :
+          // copy of 'rrr' case with d, a, and b changed to d, e, and f respectively
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          line += ',';
+          line += 'R' + argumentList[2].slice( 1, argumentList[2].length );
+          break;
+
+        case 'rrkEXP' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          line += ',';
+          line += argumentList[2];
+          break;
+
+        case 'rkEXP' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += argumentList[1];
+          break;
+
+        case 'rrkkEXP' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          line += ',';
+          line += argumentList[2];
+          line += ',';
+          line += argumentList[3];
+          break;
+
+        case 'rrrkkEXP' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          line += ',';
+          line += 'R' + argumentList[2].slice( 1, argumentList[2].length );
+          line += ',';
+          line += argumentList[3];
+          line += ',';
+          line += argumentList[4];
+          break;
+
+        case 'rrrkEXP' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          line += ',';
+          line += 'R' + argumentList[2].slice( 1, argumentList[2].length );
+          line += ',';
+          line += argumentList[3];
+          break;
+
+        case 'logicAliasRRRK' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          line += ',';
+          line += 'R' + argumentList[2].slice( 1, argumentList[2].length );
+          line += ',';
+          line += argumentList[3];
+          break;
+
+        case 'logicAliasRRK' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          line += ',';
+          line += argumentList[2];
+          break;
+
+        case 'logicAliasRRR' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          line += ',';
+          line += 'R' + argumentList[2].slice( 1, argumentList[2].length );
+          break;
+
+        case 'logicAliasRR' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
+          break;
+
+        case 'injectIAlias' :
+          argumentList = lineResult['argument'].split( ',' );
+          line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
+          line += ',';
+          line += argumentList[1];
+          line += ',';
+          line += argumentList[2];
+          break;
+
+        default :
+          break;
+      }
+    }
+
+    line += lineResult['comment'];
+
+    return line;
+  }
+
+  export function parseCodeToCompatible( code ) {
+    var lines = code.split( '\n' );
+
+    var codeResult = '';
+
+    for ( var i = 0; i < lines.length; i++ ) {
+      codeResult += infoToLine( findLineInfo( lines[i] ) ) + '\n';
+    }
+
+    return codeResult;
   }
 
 // RUNNING FUNCTIONS
