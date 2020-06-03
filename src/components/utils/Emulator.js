@@ -1007,7 +1007,7 @@
 
   export function checkCodeIsCompatible( code ) {
     var lines = code.split( '\n' );
-    var check = true;
+    var check;
 
     var lineWarn = {};
     var lineError = {};
