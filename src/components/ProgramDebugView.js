@@ -87,12 +87,22 @@ export default class ProgramDebugView extends React.Component {
       code = this.props.location.state.code;
       breakpoints = this.props.location.state.breakpoints;
 
-      this.setState( { code : this.props.location.state.code, breakpoints : this.props.location.state.breakpoints, input : this.props.location.state.input, inputRan : this.props.location.state.input } );
+      this.setState( { 
+        code : this.props.location.state.code, 
+        breakpoints : this.props.location.state.breakpoints, 
+        input : this.props.location.state.input, 
+        inputRan : this.props.location.state.input 
+      } );
     } else if ( this.props.code !== undefined ) {
       code = this.props.code;
       breakpoints = this.props.breakpoints;
 
-      this.setState( { code : this.props.code, breakpoints : this.props.breakpoints, input : this.props.input, inputRan : this.props.input } );
+      this.setState( { 
+        code : this.props.code, 
+        breakpoints : this.props.breakpoints, 
+        input : this.props.input, 
+        inputRan : this.props.input 
+      } );
     }
     var machineCode = this.parseCode( code, breakpoints );
 
@@ -427,7 +437,7 @@ export default class ProgramDebugView extends React.Component {
 // CHECKING METHOD
   checkCode( code ) {
     var lines = code.toLowerCase().split( '\n' );
-    var check = true;
+    var check;
 
     var lineErrorCopy = {};
 
@@ -672,7 +682,8 @@ export default class ProgramDebugView extends React.Component {
         }
       }
 
-      this.setState( { cpuControl : localControl, 
+      this.setState( { 
+        cpuControl : localControl, 
         registers : localRegisters, 
         memory : localMemory, 
         inputRan : localInput, 
@@ -688,9 +699,7 @@ export default class ProgramDebugView extends React.Component {
   }
 
   stepForward = button => {
-    var ran = {
-      halted : false
-    };
+    var ran;
 
     if ( this.state.machineCode.length !== 0 ) {
       var localControl = this.state.cpuControl;
@@ -710,7 +719,8 @@ export default class ProgramDebugView extends React.Component {
       // if ran out of commands
       if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
 
-      this.setState( { cpuControl : localControl, 
+      this.setState( { 
+        cpuControl : localControl, 
         registers : localRegisters, 
         memory : localMemory, 
         inputRan : localInput, 

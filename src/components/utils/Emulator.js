@@ -722,7 +722,7 @@
   }
 
   function checkCommands( command, argument, labels ) {
-    var check = true;
+    var check;
     switch ( allCommands[command] ) {
       case 'rr' :
         // first word is an rr command
@@ -1969,7 +1969,7 @@
     var g = Math.floor( gh / thirdColumn );
     var h = Math.floor( ( gh - ( g * thirdColumn ) ) / fourthColumn );
 
-    var instructionWords = 1;
+    var instructionWords;
 
     switch ( ab ) {
       case 0x0 :
