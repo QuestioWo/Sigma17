@@ -80,7 +80,7 @@ This will start the local React.js development server and should open a windown 
 6. Clean-Up
 * Write documentation that outlines function calls, i.e how to debug as an outsider.
 * Write basic documentation for Sigma16 instructions.
-* √ - Set up `githib.io` page for emulator
+* √ - Set up `github.io` page for emulator
 * √ - Write 'Hello, World!' program to be default display
 * √ - Add download/copy buttons for machine code and Sigma16 code versions of the program on the editor.
 * √ - Add import functionality for binary exports
