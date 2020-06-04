@@ -359,7 +359,7 @@ export default class ProgramEditorView extends React.PureComponent {
 // CHECKING METHOD
   checkCode( code ) {
     var lines = code.split( '\n' );
-    var check = true;
+    var check;
 
     var lineErrorCopy = {};
 
