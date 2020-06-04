@@ -5,7 +5,7 @@ import './ProgramEditorView.css';
 
 import { Link } from 'react-router-dom';
 import { Alert, Button, ButtonGroup, Col, InputGroup, Modal, OverlayTrigger, Row, ToggleButton, ToggleButtonGroup, Tooltip } from 'react-bootstrap';
-import { FaBug, FaCheck, FaChevronDown, FaDownload, FaHammer, FaPen, FaPlay, FaTimes } from 'react-icons/fa';
+import { FaBug, FaCheck, FaChevronDown, FaDownload, FaHammer, FaPen, FaPlay, FaTimes, FaUpload } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
 import * as Emulator from './utils/Emulator';
@@ -894,6 +894,34 @@ export default class ProgramEditorView extends React.PureComponent {
     this.setState( { downloadAs : value } );
   }
 
+// UPLOADING METHODS
+  uploadDisplay = button => {
+    document.getElementById( 'binary-upload' ).click();
+  }
+
+  uploadFile = e => {
+    e.target.files[0].text()
+      .then( data => {
+        var newCode = '';
+        var binarySplit = data.split( /\s+/ );
+
+        for ( var i = 0; i < binarySplit.length; i++ ) {
+          newCode += 'data $' + binarySplit[i];
+          if ( i !== ( binarySplit.length - 1 ) ) {
+            newCode += '\n'
+          }
+        }
+
+        this.updateCode( newCode );
+
+        // highlighting toggles required as CodeMirror component does not update properly
+        if ( this.state.highlightedCodeChunk ) {
+          this.toggleHighlighting();
+          this.toggleHighlighting();
+        }
+      } );
+  }
+
 // CODEMIRROR METHODS
   updateCode = newCode => {
     if ( !( newCode.split( '\n' ).length > 500 ) ) {
@@ -1213,13 +1241,32 @@ export default class ProgramEditorView extends React.PureComponent {
                   </Button>
                 </OverlayTrigger>
               </ButtonGroup>
+              {' '}
+              <input
+                type='file'
+                id='binary-upload'
+                onChange={this.uploadFile}
+                style={{display : 'none'}}
+                accept='.bin'/>
+              <OverlayTrigger
+                key={`upload-tooltip`}
+                placement={'top'}
+                overlay={
+                  <Tooltip>
+                    {`Upload a .bin file`}
+                  </Tooltip>
+                }>
+                <Button variant='outline-secondary' size='sm' onClick={this.uploadDisplay}>
+                  <FaUpload/>
+                </Button>
+              </OverlayTrigger>
             </Col>
           </Row>
           <Row>
             <Col>
               <div id="code-area" className='code-area'> 
                 <div id='breakpoint-column' className='breakpoint-column'>
-                  {this.breakpointsColumn(this.state.code)}
+                  {this.breakpointsColumn( this.state.code )}
                 </div>
                 <div className='line-number-column'>
                   {this.createLineNumberColumn()}
