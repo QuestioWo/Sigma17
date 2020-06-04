@@ -981,6 +981,93 @@ export default class ProgramEditorView extends React.PureComponent {
     this.setState( { highlightedCodeChunk : !( this.state.highlightedCodeChunk ) } );
   }
 
+  codeChunkHandleKeyDown = e => {
+    var element = document.getElementById( 'code-chunk-column' );
+    var text = element.value;
+    var handled = false;
+
+    // Enter Key?
+    if ( e.keyCode === 13 ) {
+      // selection?
+      if ( element.selectionStart === element.selectionEnd ) {
+        // find start of the current line
+        var sel = element.selectionStart;
+        while ( sel > 0 && text[sel-1] !== '\n' ) sel--;
+
+        var lineStart = sel;
+        while ( text[sel] === ' ' || text[sel] === '\t' ) sel++;
+
+        if ( sel > lineStart ) {
+          // Insert carriage return and indented text
+          document.execCommand( 'insertText', false, "\n" + text.substr( lineStart, sel - lineStart ) );
+
+          // Scroll caret visible
+          element.blur();
+          handled = true;
+        }
+      }
+    }
+
+    // Tab key?
+    if( e.keyCode === 9 ) {
+      // selection?
+      if ( element.selectionStart === element.selectionEnd ) {
+        // These single character operations are undoable
+        if ( !e.shiftKey ) {
+          document.execCommand( 'insertText', false, "  " );
+          handled = true;
+        } else {
+          if ( element.selectionStart > 0 && text[element.selectionStart-1] === '\t' ) {
+            document.execCommand( 'delete' );
+            handled = true;
+          } else if ( element.selectionStart > 0 && text.slice( element.selectionStart - 2, element.selectionStart ) === '  ' ) {
+            document.execCommand( 'delete' );
+            document.execCommand( 'delete' );
+            handled = true;
+          }
+        }
+      } else {
+        // Block indent/unindent trashes undo stack.
+        // Select whole lines
+        var selStart = element.selectionStart;
+        var selEnd = element.selectionEnd;
+        while ( selStart > 0 && text[selStart-1] !== '\n' ) selStart--;
+        while ( selEnd > 0 && text[selEnd-1] !== '\n' && selEnd < text.length ) selEnd++;
+
+        // Get selected text
+        var lines = text.substr( selStart, selEnd - selStart ).split( '\n' );
+
+        // Insert tabs
+        for ( var i = 0; i < lines.length; i++ ) {
+          // Don't indent last line if cursor at start of line
+          if ( i === lines.length - 1 && lines[i].length === 0) continue;
+
+          // Tab or Shift+Tab?
+          if ( e.shiftKey ) {
+            if ( lines[i].startsWith( '\t' ) ) {
+              lines[i] = lines[i].substr( 1 );
+            } else if ( lines[i].startsWith( "  " ) ) {
+              lines[i] = lines[i].substr( 2 );
+            }
+          } else {
+            lines[i] = "  " + lines[i];
+          }
+        }
+        lines = lines.join( '\n' );
+
+        // Update the text area
+        element.value = text.substr( 0, selStart ) + lines + text.substr( selEnd );
+        element.selectionStart = selStart;
+        element.selectionEnd = selStart + lines.length; 
+        handled = true;
+      }
+    }
+
+    if ( handled ) e.preventDefault();
+
+    element.focus();
+  }
+
 // RENDER
   render() {
     return(
@@ -1283,9 +1370,11 @@ export default class ProgramEditorView extends React.PureComponent {
                     : 
                       <InputGroup
                         as='textarea'
+                        id='code-chunk-column'
                         className='code-chunk-column'
                         value={this.state.code}
                         onChange={this.codeBlockEdit}
+                        onKeyDown={this.codeChunkHandleKeyDown}
                         autoFocus/>
                     }
                   </React.Fragment>
