@@ -4,7 +4,7 @@ import 'codemirror/lib/codemirror.css';
 import './ProgramEditorView.css';
 
 import { Link } from 'react-router-dom';
-import { Alert, Button, ButtonGroup, Col, InputGroup, Modal, OverlayTrigger, Row, ToggleButton, ToggleButtonGroup, Tooltip } from 'react-bootstrap';
+import { Alert, Button, ButtonGroup, Col, FormControl, InputGroup, Modal, OverlayTrigger, Row, ToggleButton, ToggleButtonGroup, Tooltip } from 'react-bootstrap';
 import { FaBug, FaCheck, FaChevronDown, FaDownload, FaHammer, FaPen, FaPlay, FaTimes, FaUpload } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
@@ -590,11 +590,7 @@ export default class ProgramEditorView extends React.PureComponent {
     if ( check[0] ) {
       var textValue = this.state.fileName;
       if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
-        if ( textValue.endsWith( '.asm' ) ) {
-          textValue += '.txt';
-        } else if ( !( textValue.endsWith( '.txt' ) ) ) {
-          textValue += '.asm.txt';
-        }
+        textValue += '.asm.txt';
       }
 
       this.downloadFile( textValue, this.state.code );
@@ -627,11 +623,7 @@ export default class ProgramEditorView extends React.PureComponent {
       if ( checkCompatible[0] ) {
         var textValue = this.state.fileName;
         if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
-          if ( textValue.endsWith( '.asm' ) ) {
-            textValue += '.txt';
-          } else if ( !( textValue.endsWith( '.txt' ) ) ) {
-            textValue += '.asm.txt';
-          }
+          textValue += '.asm.txt';
         }
 
         this.downloadFile( textValue, Emulator.parseCodeToCompatible( this.state.code ) );
@@ -739,11 +731,7 @@ export default class ProgramEditorView extends React.PureComponent {
 
       var textValue = this.state.fileName;
       if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
-        if ( textValue.endsWith( '.asm' ) ) {
-          textValue += '.txt';
-        } else if ( !( textValue.endsWith( '.txt' ) ) ) {
-          textValue += '.asm.txt';
-        }
+        textValue += '.asm.txt';
       }
 
       this.downloadFile( textValue, stream );
@@ -783,11 +771,7 @@ export default class ProgramEditorView extends React.PureComponent {
 
         var textValue = this.state.fileName;
         if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
-          if ( textValue.endsWith( '.asm' ) ) {
-            textValue += '.txt';
-          } else if ( !( textValue.endsWith( '.txt' ) ) ) {
-            textValue += '.asm.txt';
-          }
+          textValue += '.asm.txt';
         }
 
         this.downloadFile( textValue, stream );
@@ -892,6 +876,37 @@ export default class ProgramEditorView extends React.PureComponent {
 
   downloadModalRadio = value => {
     this.setState( { downloadAs : value } );
+  }
+
+  getExtension() {
+    var result = '';
+
+    switch ( this.state.downloadAs ) {
+      case 0 :
+        result = '.asm.txt';
+        break;
+
+      case 1 :
+        result = '.asm.txt';
+        break;
+
+      case 2 :
+        result = '.bin';
+        break;
+
+      case 3 :
+        result = '.asm.txt';
+        break;
+
+      case 4 :
+        result = '.asm.txt';
+        break;
+
+      default :
+        this.updateAlert( 'Download cannot continue due to internal website error. Try to contact Jim Carty.', 'danger' );
+    }
+
+    return result;
   }
 
 // UPLOADING METHODS
@@ -1184,16 +1199,17 @@ export default class ProgramEditorView extends React.PureComponent {
                 </ToggleButton>
               </ToggleButtonGroup>
             </div>
-            <div className='download-modal-column'>
-              <InputGroup
-                as='textarea'
+            <InputGroup className='download-modal-column'>
+              <FormControl
                 id='download-modal-download'
-                className='download-modal-download'
                 value={this.state.fileName}
                 onChange={this.fileNameUpdate}
                 onKeyDown={this.fileNameHandleKeyDown}
                 autoFocus/>
-            </div>
+              <InputGroup.Append>
+                <InputGroup.Text>{this.getExtension()}</InputGroup.Text>
+              </InputGroup.Append>
+            </InputGroup>
             <div style={{paddingTop : '15px'}}>
               <OverlayTrigger
                 key={`download-tooltip`}

@@ -10,7 +10,7 @@
 }
 
 .download-modal-download {
-  height: 38px;
+  /*height: 38px !important;*/
   width: 100%;
   font-family: 'Fira Code', monospace;
   resize: none;
