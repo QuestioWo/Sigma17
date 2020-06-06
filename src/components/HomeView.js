@@ -79,7 +79,7 @@ export default class HomeView extends React.Component {
           <Row>
             <Col>
               <div className="click-editor">
-                <a href="https://github.com/QuestioWo/Sigma17">
+                <a href="https://github.com/QuestioWo/Sigma17" target='_blank' rel='noopener noreferrer'>
                   View Source Directory on GitHub
                 </a>
               </div>
