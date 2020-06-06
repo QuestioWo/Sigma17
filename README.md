@@ -42,6 +42,10 @@ This will start the local React.js development server and should open a windown 
 * √ - Implement parser - remove need for whitespace with commands reccognition
 * √ - Display errors in `CodeMirror` chunk for syntax errors
 * √ - Have parser translate to machine code
+* Allow multiple data statements to be strung together, e.g `data $30,$40`
+* Stricter requirements for labels to be accepted.
+* Binary accepted as integers.
+* Abstract RegEx for checking statements.
 
 3. Finish code runner
 * √ - Add window for displaying register output, memory values and I/O of program after running
@@ -68,6 +72,8 @@ This will start the local React.js development server and should open a windown 
 * √ - Add double click back to output box
 * √ - Show code chunk of currently being executed program
 * √ - Display highlighting of lines being exectued in code chunk
+* Make the code debugger follow the line that was executed
+* Highlighting for effected/used memory values and registers.
 
 5. Write Tests
 * √ - Write testing framework for/how to set tests out
@@ -90,13 +96,7 @@ This will start the local React.js development server and should open a windown 
 * √ - Allow unhighlighted code chunk to have tabs used correctly.
 * √ - Make webiste display properly on Firefox and Safari
 * x - Make double clicking on output boxes work properly on Firefox
-* Allow multiple data statements to be strung together, e.g `data $30,$40`
-* Make the code debugger follow the line that was executed
-* Highlighting for effected/used memory values and registers.
 * √ - Stricter requirements for comments to be accepted.
-* Stricter requirements for labels to be accepted.
-* Abstract RegEx for checking statements.
-* Binary accepted as integers.
 * √ - Binary files properly generate and import.
 
 ## Author
