@@ -77,9 +77,12 @@ This will start the local React.js development server and should open a windown 
 * √ - Tests for RUNNING
 * √ - Finish tests for `Emulator.js`
 
-6. Clean-Up
-* Write documentation that outlines function calls, i.e how to debug as an outsider.
-* Write basic documentation for Sigma16 instructions.
+6. Write Documentation
+* Write documentation that outlines function calls, i.e how to debug as an outsider. *Possibly on repos rather than in actual website.*
+* Write documentation for Sigma16 instructions.
+* Have a contents or a search functionality to make navigating easier.
+
+7. Clean-Up
 * √ - Set up `github.io` page for emulator
 * √ - Write 'Hello, World!' program to be default display
 * √ - Add download/copy buttons for machine code and Sigma16 code versions of the program on the editor.
@@ -87,6 +90,12 @@ This will start the local React.js development server and should open a windown 
 * √ - Allow unhighlighted code chunk to have tabs used correctly.
 * √ - Make webiste display properly on Firefox and Safari
 * x - Make double clicking on output boxes work properly on Firefox
+* Allow multiple data statements to be strung together, e.g `data $30,$40`
+* Make the code debugger follow the line that was executed
+* Highlighting for effected/used memory values and registers.
+* Stricter requirements for labels to be accepted.
+* Binary accepted as integers.
+* Abstract RegEx for checking statements.
 
 ## Author
 

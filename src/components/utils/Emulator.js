@@ -38,6 +38,7 @@
     jumpnv : 'jumpAlias',
     jumpnvu : 'jumpAlias',
     jumpnco : 'jumpAlias',
+    jumpnso : 'jumpAlias',
 
     jumplt : 'jumpAlias',
     jumpeq : 'jumpAlias',
@@ -45,6 +46,7 @@
     jumpv : 'jumpAlias',
     jumpvu : 'jumpAlias',
     jumpco : 'jumpAlias',
+    jumpso : 'jumpAlias',
 
     data : 'x',
 
@@ -183,7 +185,9 @@
     'getbit',
     'getbiti',
     'putbit',
-    'putbiti'
+    'putbiti',
+    'jumpnso',
+    'jumpso'
   ];
   
   const firstColumn = Math.pow( 16, 3 );
@@ -225,13 +229,15 @@
       jumpnv : [ 4, 6 ],
       jumpnvu : [ 4, 5 ],
       jumpnco : [ 4, 7 ],
+      jumpnso : [ 4, 8 ],
 
       jumplt : [ 5, 3 ],
       jumpeq : [ 5, 2 ],
       jumpgt : [ 5, 1 ],
       jumpv : [ 5, 6 ],
       jumpvu : [ 5, 5 ],
-      jumpco : [ 5, 7 ]
+      jumpco : [ 5, 7 ],
+      jumpso : [ 5, 8 ]
     };
     const kxCommands = {
       jumpc0 : 4,
@@ -1993,7 +1999,9 @@
 
         for ( var iSave = Re; iSave <= ( Re + diffSave ); iSave++ ) {
           var regNoSave = iSave % 16;
-          memory[effectiveADRsave + ( iSave - Re )] = registers[regNoSave];
+          var validMemorySave = effectiveADRsave + ( iSave - Re );
+          if ( validMemorySave >= 0x10000 ) validMemorySave -= 0x10000;
+          memory[validMemorySave] = registers[regNoSave];
         }
 
         break;
@@ -2012,8 +2020,12 @@
 
         for ( var iRestore = Re; iRestore <= ( Re + diffRestore ); iRestore++ ) {
           var regNoRestore = iRestore % 16;
-          if ( memory[effectiveADRrestore + ( iRestore - Re )] ) {
-            registers[regNoRestore] = memory[effectiveADRrestore + ( iRestore - Re )];
+
+          var validMemoryRestore = effectiveADRrestore + ( iRestore - Re );
+          if ( validMemoryRestore >= 0x10000 ) validMemoryRestore -= 0x10000;
+
+          if ( memory[validMemoryRestore] ) {
+            registers[regNoRestore] = memory[validMemoryRestore];
           } else {
             registers[regNoRestore] = 0;
           }

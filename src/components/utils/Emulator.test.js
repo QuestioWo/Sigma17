@@ -102,7 +102,9 @@ const nonCompatibleCommands = [ // not even recognised by assembler
   'getbit',
   'getbiti',
   'putbit',
-  'putbiti'
+  'putbiti',
+  'jumpnso',
+  'jumpso'
 ];
 
 // UTIL FUNCTIONS
@@ -1397,6 +1399,17 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpnco $100[r0]', testLabels ) ).toStrictEqual( [ 0xf704, 0x0100 ] );
         } );
 
+      // JUMPNSO
+        test( 'PARSE JUMPALIAS jumpnso', () => {
+          expect( Emulator.parseLineForMachineCode( 'jumpnso test[r0]', testLabels ) ).toStrictEqual( [ 0xf804, testLabels['test'] ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpnso test[R2]', testLabels ) ).toStrictEqual( [ 0xf824, testLabels['test'] ] );
+
+          expect( Emulator.parseLineForMachineCode( 'jumpnso test[r0]', testLabels ) ).toStrictEqual( [ 0xf804, testLabels['test'] ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpnso 100[r0]', testLabels ) ).toStrictEqual( [ 0xf804, 100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpnso -100[r0]', testLabels ) ).toStrictEqual( [ 0xf804, 0xff9c ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpnso $100[r0]', testLabels ) ).toStrictEqual( [ 0xf804, 0x0100 ] );
+        } );
+
       // JUMPLT
         test( 'PARSE JUMPALIAS jumplt', () => {
           expect( Emulator.parseLineForMachineCode( 'jumplt test[r0]', testLabels ) ).toStrictEqual( [ 0xf305, testLabels['test'] ] );
@@ -1461,6 +1474,17 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpco 100[r0]', testLabels ) ).toStrictEqual( [ 0xf705, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpco -100[r0]', testLabels ) ).toStrictEqual( [ 0xf705, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpco $100[r0]', testLabels ) ).toStrictEqual( [ 0xf705, 0x0100 ] );
+        } );
+
+      // JUMPSO
+        test( 'PARSE JUMPALIAS jumpnso', () => {
+          expect( Emulator.parseLineForMachineCode( 'jumpso test[r0]', testLabels ) ).toStrictEqual( [ 0xf805, testLabels['test'] ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpso test[R2]', testLabels ) ).toStrictEqual( [ 0xf825, testLabels['test'] ] );
+
+          expect( Emulator.parseLineForMachineCode( 'jumpso test[r0]', testLabels ) ).toStrictEqual( [ 0xf805, testLabels['test'] ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpso 100[r0]', testLabels ) ).toStrictEqual( [ 0xf805, 100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpso -100[r0]', testLabels ) ).toStrictEqual( [ 0xf805, 0xff9c ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpso $100[r0]', testLabels ) ).toStrictEqual( [ 0xf805, 0x0100 ] );
         } );
 
     // X
