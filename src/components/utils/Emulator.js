@@ -945,14 +945,18 @@
   }
 
   export function checkLine( line, labels ) {
-    var linesplit = line.trim().split( ';' )[0].split( /\s+/ );
+    var linesplit = line.trim().split( ';' )[0].trim().split( /\s+/ );
     var error = true;
 
     if ( linesplit[0] ) {
       // lines isnt empty
       if ( Object.keys( allCommands ).includes( linesplit[0] ) ) {
         // first word is a command
-        error = checkCommands( linesplit[0], linesplit[1], labels ); // will return error is arguments not present so dont have to check
+        if ( linesplit.length <= 2 ) {
+          error = checkCommands( linesplit[0], linesplit[1], labels ); // will return error is arguments not present so dont have to check
+        } else {
+          error = 'non-comment after arguments';
+        }
       } else {
         // first word is not a command
         if ( /\w/.test( linesplit[0] ) ) {
@@ -960,7 +964,11 @@
           if ( linesplit[1] ) {
             // theres more after label
             if ( Object.keys( allCommands ).includes( linesplit[1] ) ) {
-              error = checkCommands( linesplit[1], linesplit[2], labels );
+              if ( linesplit.length <= 3 ) {
+                error = checkCommands( linesplit[1], linesplit[2], labels );
+              } else {
+                error = 'non-comment after arguments';
+              }
             } else {
               error = 'not a valid command following label';
             }

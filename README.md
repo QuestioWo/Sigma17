@@ -93,6 +93,7 @@ This will start the local React.js development server and should open a windown 
 * Allow multiple data statements to be strung together, e.g `data $30,$40`
 * Make the code debugger follow the line that was executed
 * Highlighting for effected/used memory values and registers.
+* √ - Stricter requirements for comments to be accepted.
 * Stricter requirements for labels to be accepted.
 * Binary accepted as integers.
 * Abstract RegEx for checking statements.
