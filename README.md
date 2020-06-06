@@ -95,8 +95,9 @@ This will start the local React.js development server and should open a windown 
 * Highlighting for effected/used memory values and registers.
 * √ - Stricter requirements for comments to be accepted.
 * Stricter requirements for labels to be accepted.
-* Binary accepted as integers.
 * Abstract RegEx for checking statements.
+* Binary accepted as integers.
+* √ - Binary files properly generate and import.
 
 ## Author
 

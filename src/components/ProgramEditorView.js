@@ -682,25 +682,30 @@ export default class ProgramEditorView extends React.PureComponent {
 
     if ( check[0] ) {
       var machineCode = this.parseCode();
-      var stream = '';
-
-      var currentLine = 0;
-        
-      for ( var i = 0; i < machineCode.length; i++ ) {
-        stream += Emulator.writeHex( machineCode[i] );
-        if ( currentLine === 7 ) {
-          stream += '\n';
-          currentLine = 0;
-        } else if ( i !== ( machineCode.length - 1 ) ) {
-          stream += ' ';
-          currentLine += 1;
-        }
-      }
 
       var textValue = this.state.fileName;
       textValue += '.bin';
 
-      this.downloadFile( textValue, stream, 'application/mac-binary' );
+      var stream = new Uint16Array( machineCode.length );
+      for ( var i = 0; i < machineCode.length; i++ ) {
+        stream[i] = machineCode[i];
+      }
+
+      var blob = new Blob( [stream], {type : "application/octet-stream"} ), 
+        url = window.URL.createObjectURL(blob);
+      
+      var element = document.createElement( 'a' );
+      element.setAttribute( 'href', url );
+      element.setAttribute( 'download', textValue );
+
+      element.style.display = 'none';
+
+      document.body.appendChild(element);
+
+      element.click();
+      
+      document.body.removeChild( element );
+
       this.updateAlert( 'Download successful', 'success' );
     } else {
       var keys = Object.keys( check[1] );
@@ -915,26 +920,28 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   uploadFile = e => {
-    e.target.files[0].text()
-      .then( data => {
-        var newCode = '';
-        var binarySplit = data.split( /\s+/ );
+    var reader = new FileReader();
+    reader.onload = () => {
+      var array = new Uint16Array( reader.result )
+      var newCode = '';
 
-        for ( var i = 0; i < binarySplit.length; i++ ) {
-          newCode += 'data $' + binarySplit[i];
-          if ( i !== ( binarySplit.length - 1 ) ) {
-            newCode += '\n'
-          }
+      for ( var i = 0; i < array.length; i++ ) {
+        newCode += 'data $' + Emulator.writeHex( array[i] );
+        if ( i !== ( array.length - 1 ) ) {
+          newCode += '\n'
         }
+      }
 
-        this.updateCode( newCode );
+      this.updateCode( newCode );
 
-        // highlighting toggles required as CodeMirror component does not update properly
-        if ( this.state.highlightedCodeChunk ) {
-          this.toggleHighlighting();
-          this.toggleHighlighting();
-        }
-      } );
+      // highlighting toggles required as CodeMirror component does not update properly
+      if ( this.state.highlightedCodeChunk ) {
+        this.toggleHighlighting();
+        this.toggleHighlighting();
+      }
+    }
+
+    reader.readAsArrayBuffer( e.target.files[0] );
   }
 
 // CODEMIRROR METHODS
