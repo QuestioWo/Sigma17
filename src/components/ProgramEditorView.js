@@ -434,11 +434,12 @@ export default class ProgramEditorView extends React.PureComponent {
         if ( trimmed !== '' && trimmed.split( ';' )[0] !== '' ) {
           parsed = Emulator.parseLineForMachineCode( lines[it], labels );
           if ( parsed ) {
-            machineCode.push( parsed[0] );
-            
-            // if two word instruction
-            if ( Emulator.isValidNumber( Emulator.readSignedHex( parsed[1] ) ) ) {
-              machineCode.push( parsed[1] );
+            for ( var iter = 0; iter < parsed.length; iter++ ) {
+              if ( Emulator.isValidNumber( Emulator.readSignedHex( parsed[iter] ) ) ) {
+                machineCode.push( parsed[iter] );
+              } else {
+                break;
+              }
             }
           }
         }

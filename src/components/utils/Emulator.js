@@ -596,12 +596,17 @@
 
   function checkXCommand( x ) {
     // check that x is a number, either hex or decimal
-    if ( !( /^((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+$/.test( x ) ) ) {
-      return 'arguments must be in the form of "constant" up to 65535 and down to -32768';
-    }
+    const xsplit = x.split( ',' );
+    for ( var i = 0; i < xsplit.length; i++ ) {
+      var xtest = xsplit[i];
 
-    if ( !( isValidNumber( x ) ) ) {
-      return 'data must be followed by either a decimal or hex number <= 65535 and >=-32768';
+      if ( !( /^((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+$/.test( xtest ) ) ) {
+        return 'arguments must be in the form of "constant" up to 65535 and down to -32768';
+      }
+
+      if ( !( isValidNumber( xtest ) ) ) {
+        return 'data must be followed by either a decimal or hex number <= 65535 and >=-32768';
+      }
     }
     return true;
   }
@@ -1257,7 +1262,14 @@
         break;
         
       case 'x' :
-        result['disp'] = readConstant( argument, labels );
+        result['disp'] = [];
+        const xsplit = argument.split( ',' );
+
+        for ( var i = 0; i < xsplit.length; i++ ) {
+          var x = xsplit[i];
+
+          result['disp'].push( readConstant( x, labels ) );
+        }
         break;
 
       case 'noEXP' :
@@ -1410,48 +1422,49 @@
   }
 
   function generateMachineCode( command, argument, labels ) {
-    var machineCode = 0;
-    var machineCodeSecond = 65536;
+    var result = [];
 
     var commandInfo = findInstuctionInfo( command, argument );
     var argumentInfo = findArgumentInfo( command, argument, labels );
 
     switch ( commandInfo['type'] ) {
       case 'rrr' :
-        machineCode += commandInfo['op']*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + argumentInfo['b']*fourthColumn;
+        result.push( commandInfo['op']*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + argumentInfo['b']*fourthColumn );
         break;
 
       case 'rx' :
-        machineCode += 0xf*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + commandInfo['op']*fourthColumn;
+        result.push( 0xf*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + commandInfo['op']*fourthColumn );
 
-        machineCodeSecond = argumentInfo['disp'];
+        result.push( argumentInfo['disp'] );
         break;
 
       case 'x' :
-        machineCode += argumentInfo['disp'];
+        for ( var i = 0; i < argumentInfo['disp'].length; i++ ) {
+          result.push( argumentInfo['disp'][i] );
+        }
         break;
 
       case 'exp0' :
-        machineCode += 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn;
+        result.push( 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn );
         break;
 
       case 'exp4' :
-        machineCode += 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn;
+        result.push( 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn );
         
-        machineCodeSecond = argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['g']*thirdColumn + argumentInfo['h']*fourthColumn;
+        result.push( argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['g']*thirdColumn + argumentInfo['h']*fourthColumn );
         break;
 
       case 'exp8' :
-        machineCode += 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn;
+        result.push( 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn );
         
-        machineCodeSecond = argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['gh']*fourthColumn;
+        result.push( argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['gh']*fourthColumn );
         break;
 
       default :
         break;
     }
 
-    return [ machineCode, machineCodeSecond ];
+    return result;
   }
 
   export function parseLineForLabels( line ) {
@@ -1491,7 +1504,7 @@
   }
 
   export function parseLineForMachineCode( line, labels ) {
-    var machineCode = [ 0, 65536 ];
+    var machineCode;
 
     var linesplit = line.trim().split( ';' )[0].split( /\s+/ );
 
