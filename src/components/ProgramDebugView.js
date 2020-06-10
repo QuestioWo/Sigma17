@@ -507,14 +507,32 @@ export default class ProgramDebugView extends React.Component {
         currentLine += parsed['instructionWords'];
       }
 
+      var nextLineBreakpoint = false;
+      var breakpointsMachineCode = [];
+
+      var memoryToLine = {};
+      var lineToMemory = {};
+
       for ( var it = 0; it < lines.length; it++ ) {
         var trimmed = lines[it].trim();
+
+        if ( breakpoints.includes( it+1 ) ) nextLineBreakpoint = true; 
 
         if ( trimmed !== '' && trimmed.split( ';' )[0] !== '' ) {
           parsed = Emulator.parseLineForMachineCode( lines[it], labels );
           if ( parsed ) {
             for ( var iter = 0; iter < parsed.length; iter++ ) {
               if ( Emulator.isValidNumber( Emulator.readSignedHex( parsed[iter] ) ) ) {
+                var mcLength = machineCode.length;
+                if ( nextLineBreakpoint ) {
+                  breakpointsMachineCode.push( mcLength );
+                  nextLineBreakpoint = false;
+                }
+
+                memoryToLine[mcLength] = it;
+                lineToMemory[it] = [];
+                lineToMemory[it].push( mcLength );
+
                 machineCode.push( parsed[iter] );
               } else {
                 break;
@@ -524,7 +542,12 @@ export default class ProgramDebugView extends React.Component {
         }
       }
 
-      this.setState( { machineCode : machineCode } );
+      this.setState( { 
+        machineCode : machineCode, 
+        breakpointsMachineCode : breakpointsMachineCode, 
+        memoryToLine : memoryToLine, 
+        lineToMemory : lineToMemory
+      } );
     } else {
       var keys = Object.keys( check[1] );
       var keysString = '';
