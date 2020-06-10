@@ -3077,47 +3077,6 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         }
       } );
 
-      test( 'RUN RX jumpf', () => {
-        var inputMemory = fresh()['memory'];
-        var inputRegisters = fresh()['registers'];
-
-        inputMemory[0] = 0xf106; // jumpf r1,------[r0]
-        inputMemory[1] = 0x0010; // jumpf r1,0x0010[r0] <- jumpf 1,0x0010,0 <- pc := mem[0x0010]
-        inputMemory[2] = 0xf206; // jumpf r2,------[r0] 
-        inputMemory[3] = 0x0010; // jumpf r2,0x0010[r0] <- jumpf 2,0x0010,0 <- pc := mem[0x0010]
-        inputMemory[4] = 0xf326; // jumpf r3,------[r2] 
-        inputMemory[5] = 0x0010; // jumpf r3,0x0010[r2] <- jumpf 3,0x0010,2 <- pc := mem[0x0012]
-
-        inputRegisters[1] = 1;
-        inputRegisters[2] = 2;
-        inputRegisters[3] = 0;
-
-        var results = [
-          0x0002,
-          0x0004,
-          0x0012
-        ];
-
-        var outputControl = updateControl( inputMemory, fresh()['control'] );
-        
-        var parsed = {
-          'control' : fresh()['control'],
-          'registers' : inputRegisters,
-          'memory' : inputMemory
-        };
-
-        for ( var i = 0; i < results.length; i++ ) {
-          outputControl = updateControlDouble( inputMemory, parsed['control'] );
-
-          outputControl['pc'] = results[i];
-
-          parsed = testFromChanges( parsed,
-          {
-            'control' : outputControl
-          } );
-        }
-      } );
-
       test( 'RUN RX jumpt', () => {
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
@@ -3164,9 +3123,9 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         var inputRegisters = fresh()['registers'];
 
         inputMemory[0] = 0xfd08; // jal r13,------[r0]
-        inputMemory[1] = 0x0010; // jal r13,0x0010[r0] <- jal 13,0x0010,0 <- r13 := 0x0010, pc := mem[0x0010]
+        inputMemory[1] = 0x0010; // jal r13,0x0010[r0] <- jal 13,0x0010,0 <- r13 := 0x0002, pc := mem[0x0010]
         inputMemory[16] = 0xfd18; // jal r13,------[r0] 
-        inputMemory[17] = 0x0020; // jal r13,0x0020[r0] <- jal 13,0x0020,0 <- r13 := 0x0022, pc := mem[0x0010]
+        inputMemory[17] = 0x0020; // jal r13,0x0020[r0] <- jal 13,0x0020,0 <- r13 := 0x0012, pc := mem[0x0010]
 
         inputRegisters[1] = 2;
 

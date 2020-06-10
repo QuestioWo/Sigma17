@@ -59,7 +59,7 @@ export default class DocumentationView extends React.Component {
               'jumpt', // jumpt
               'jal', // jal
               'testset', // testset
-              'Conditionaljumps', // Conditional jumps
+              'Conditional jumps', // Conditional jumps
             'EXP', // EXP
               'EXP0', // EXP0
                 'rfi', // rfi
@@ -192,7 +192,7 @@ export default class DocumentationView extends React.Component {
       );
     }
 
-    machineCode( command, argument, opcode ) {
+    machineCode( command, argument, opCode, opCodeName='op' ) {
       const compiledCommands = Emulator.parseLineForMachineCode( command + ' ' + argument, this.state.labels );
 
       var writtenCommands = '';
@@ -206,7 +206,7 @@ export default class DocumentationView extends React.Component {
 
       return (
         <React.Fragment>
-          <code>{command + ' ' + argument}</code> := <code>{writtenCommands}</code>, since the <strong>op</strong> code of <code>{command}</code> is <strong>{opcode.toString( 16 )}</strong>
+          <code>{command + ' ' + argument}</code> := <code>{writtenCommands}</code>, since the <strong>{opCodeName}</strong> code of <code>{command}</code> is <strong>{opCode.toString( 16 )}</strong>
         </React.Fragment>
       );
     }
@@ -214,7 +214,7 @@ export default class DocumentationView extends React.Component {
     wrongGroupings( command, is, why, groupedAs ) {
       return(
         <React.Fragment>
-          <code>{command}</code> is technically an <strong>{is}</strong> command since it takes <strong>{why}</strong>, however, its <strong>machine code representation</strong> it that of an <strong>{groupedAs}</strong> command, therefore, it is grouped as such
+          <code>{command}</code> is technically <strong>{is}</strong> command since it takes <strong>{why}</strong>, however, its <strong>machine code representation</strong> it that of <strong>{groupedAs}</strong> command, therefore, it is grouped as such
         </React.Fragment>
       );
     }
@@ -245,6 +245,24 @@ export default class DocumentationView extends React.Component {
       this.setState( displayCopy );
     }
 
+    setDisplaysAs( as ) {
+      let displayCopy = this.state.display;
+
+      for ( var i = 0; i < this.state.subHeadings.length; i++ ) {
+        displayCopy[this.state.subHeadings[i].replace( /\s+/g, '' )] = as;
+      }
+
+      this.setState( { display : displayCopy } );
+    }
+
+    setDisplaysClose = e => {
+      this.setDisplaysAs( false );
+    }
+
+    setDisplaysOpen = e => {
+      this.setDisplaysAs( true );
+    }
+
   // RENDER
     render() {
       var subHeadings = [];
@@ -269,12 +287,26 @@ export default class DocumentationView extends React.Component {
                     here
                   </a>
                 . All of this emulator and command set works the same, except anything to do with the linker, e.g modules.
-                <Select
-                  isSearchable={true}
-                  options={subHeadings}
-                  theme={{borderRadius : 7}}
-                  onChange={this.searchChoose}
-                />
+                <Row>
+                  <Col md={10}>
+                    <Select
+                      isSearchable={true}
+                      options={subHeadings}
+                      theme={{borderRadius : 7}}
+                      onChange={this.searchChoose}
+                    />
+                  </Col>
+                  <Col md={2}>
+                    <Button variant='outline-secondary' size='md' onClick={this.setDisplaysClose}>
+                      <FaChevronUp/>
+                    </Button>
+                    <div style={{float : 'right'}}>
+                      <Button variant='outline-secondary' size='md' onClick={this.setDisplaysOpen}>
+                        <FaChevronDown/>
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
                 <InfoArea state={this.state} title={'To know before coding'} depth={1}>
                   <InfoArea state={this.state} title={'Introduction to language'} depth={2}>
                     <div className='info-bodywhite'>
@@ -301,6 +333,9 @@ export default class DocumentationView extends React.Component {
                           <li>show the first machine code instruction being executed is - the <strong>Instruction 'ir'</strong> register</li>
                           <li>show the second <strong>sometimes omitted</strong> machine code instruction being executed is - the <strong>Address 'adr'</strong> register</li>
                         </ul>
+                        These control registers are sometimes <strong>accessed</strong> or <strong>altered</strong> by instructions and in such cases, the <strong>psuedo-code</strong> representation for this will be <strong>control[control register name]</strong><br/>
+                        i.e, <strong>control[pc]</strong> for accessing the Program Counter register
+
                       </div>
                     </InfoArea>
                     <InfoArea state={this.state} title={'Registers'} depth={3}>
@@ -308,6 +343,10 @@ export default class DocumentationView extends React.Component {
                         The registers of Sigma16 are shown by the values labelled <strong>R0 -> R15</strong><br/>
                         <br/>
                         These registers are what most instructions are affecting and relying on to produce an output of the program<br/>
+                        <br/>
+                        Sometimes only specific bits of these registers will be required though.<br/>
+                        In Sigma16, bits are counted from the most important, <strong>left-most</strong>, to the least important, <strong>right-most</strong>, sides.<br/>
+                        i.e <strong>R15.0</strong> will be the <strong>left-most</strong> bit and <strong>R15.15</strong> the <strong>right-most</strong><br/>
                         <br/>
                         Most registers just hold a value, however, there are <strong>special registers</strong> built in that have very specific purposes :<br/>
                       </div>
@@ -320,9 +359,6 @@ export default class DocumentationView extends React.Component {
                         <strong>Will have different values based on certain instructions</strong><br/>
                         <br/>
                         R15's value relies on different <strong>flags</strong> being set in it. These flags represent bits in the registers 16-bit word. This means that when a flag equals 1, the corresponding bit in R15 will be set to 1<br/>
-                        <br/>
-                        Bits in Sigma16 are counted from the most important, left-most, to the least important, right-most, sides.<br/>
-                        i.e <strong>R15.0</strong> will be the <strong>left-most</strong> bit and <strong>R15.15</strong> the <strong>right-most</strong><br/>
                         <br/>
                         The flags, their corresponding bits and the meanings behind the flags are :<br/>
                         <Table bordered hover size='sm'>
@@ -388,8 +424,9 @@ export default class DocumentationView extends React.Component {
                         The memory is an array of words that are accessed by address<br/>
                         <br/>
                         <strong>A memory address is a 16-bit word</strong>, and there is one memory location corresponding to each address, so there are <strong>2^16 - 64k - memory locations</strong><br/>
+                        These memory addresses can be used to <strong>access</strong> and <strong>update</strong> memory values by the <strong>psuedo-code</strong> notation of <strong>memory[address]</strong><br/>
                         <br/>
-                        Each memory location is a 16-bit word.<br/>
+                        Each memory location is also a 16-bit word.<br/>
                       </div>
                     </InfoArea>
                   </InfoArea>
@@ -397,14 +434,14 @@ export default class DocumentationView extends React.Component {
                 <InfoArea state={this.state} title={'Instruction set'} depth={1}>
                   <InfoArea state={this.state} title={'RRR'} depth={2}>
                     <div className='info-bodywhite' style={{marginBottom : '7px'}}>
-                      Compiled RRR instructions take up one word in memory, or one memory cell/location.<br/>
+                      Compiled RRR instructions take up one word in memory, or one memory cell/location<br/>
                       <br/>
                       Their compiled states can be broken down into :<br/>
                       <ul>
                         <li>op - the <strong>operation code</strong>, signifies which operation to execute on the passed-in arguments</li>
-                        <li>d - the number of the destination register, <strong>Rd</strong></li>
-                        <li>a - the number of first argument register, <strong>Ra</strong></li>
-                        <li>b - the number of second argument register, <strong>Rb</strong></li>
+                        <li>d - the number of the <strong>destination register</strong>, <strong>Rd</strong></li>
+                        <li>a - the number of <strong>first argument</strong> register, <strong>Ra</strong></li>
+                        <li>b - the number of <strong>second argument</strong> register, <strong>Rb</strong></li>
                       </ul>
                       These components make up a machine code word by setting the <strong>first</strong> letter, <strong>0-9 and a-f</strong>, of the 4 letter hex word as the <strong>op</strong> code<br/>
                       Then the <strong>d</strong> code as the <strong>second</strong> letter<br/>
@@ -478,7 +515,7 @@ export default class DocumentationView extends React.Component {
                         {this.machineCode( 'cmp', 'R1,R2', 4 )}
                         <br/>
                         Note :<br/>
-                        {this.wrongGroupings( 'cmp', 'RR', 'two register arguments', 'RRR' )}
+                        {this.wrongGroupings( 'cmp', 'an RR', 'two register arguments', 'an RRR' )}
                       </div>
                     </InfoArea>
                     <InfoArea state={this.state} title={'cmplt'} depth={3}>
@@ -600,9 +637,290 @@ export default class DocumentationView extends React.Component {
                     </InfoArea>
                   </InfoArea>
                   <InfoArea state={this.state} title={'RX'} depth={2}>
-                    <div className='info-bodywhite'>
-                      RX stuff
+                    <div className='info-bodywhite' style={{marginBottom : '7px'}}>
+                      Compiled RX instructions take up two word in memory, or two memory cells/locations<br/>
+                      <br/>
+                      Their compiled states can be broken down into :<br/>
+                      <ul>
+                        <li>op - the <strong>operation code</strong>, like RRR instructions, however, <strong>is always f</strong> for RX instructions</li>
+                        <li>d - has <strong>several uses</strong>, depending on the function being performed</li>
+                        <li>a - the number of the <strong>index register</strong>, <strong>Ra</strong></li>
+                        <li>b - the <strong>secondary operation code</strong>, like the op code for RRR instructions, this specifies which function to perform, based on the passed-in arguments</li>
+                        <li>disp - the <strong>displacement</strong>, the second word of the RX instruction</li>
+                      </ul>
+                      These components make up a machine code word by setting the <strong>first</strong> letter, <strong>0-9 and a-f</strong>, of the first 4 letter hex word as the <strong>op</strong> code<br/>
+                      Then the <strong>d</strong> code as the <strong>second</strong> letter<br/>
+                      The <strong>a</strong> code as the <strong>third</strong> letter<br/>
+                      And, the <strong>b</strong> code is set as the <strong>fourth</strong> letter<br/>
+                      <br/>
+                      Next, the second word is set to the <strong>memory value</strong> of the <strong>label</strong> in the <strong>disp</strong> field, or to the <strong>constant</strong> in its place<br/>
+                      <br/>
+                      RX instructions all access memory. They do this through <strong>effective addresses</strong>. Effective addresses are calculated by <strong>adding</strong> the <strong>value of Ra</strong> and the <strong>disp field</strong> before any RX instruction is run. If this addition <strong>exceeds</strong> $ffff, it wraps around to <strong>0</strong>.<br/>
+                      i.e, <strong>effective address := Ra + disp</strong><br/>
+                      <br/>
+                      Note :<br/>
+                      All machine code examples will involve passing in 'test' as the disp argument. 'test' has an <strong>arbitrary</strong> memory <strong>address</strong> of $0010.<br/>
                     </div>
+                    <InfoArea state={this.state} title={'lea'} depth={3}>
+                      <div className='info-bodywhite'>
+                        Use:<br/>
+                        <code>lea Rd,disp[Ra]</code><br/>
+                        Effects:<br/>
+                        <ul>
+                          <li>Rd := effective address</li>
+                        </ul>
+                        Machine code :<br/>
+                        {this.machineCode( 'lea', 'R1,test[R2]', 0, 'b' )}<br/>
+                        <br/>
+                        Note :<br/>
+                        <code>lea</code> stands for <strong>load effective address</strong>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'load'} depth={3}>
+                      <div className='info-bodywhite'>
+                        Use:<br/>
+                        <code>load Rd,disp[Ra]</code><br/>
+                        Effects:<br/>
+                        <ul>
+                          <li>Rd := memory[effective address]</li>
+                        </ul>
+                        Machine code :<br/>
+                        {this.machineCode( 'load', 'R1,test[R2]', 1, 'b' )}<br/>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'store'} depth={3}>
+                      <div className='info-bodywhite'>
+                        Use:<br/>
+                        <code>store Rd,disp[Ra]</code><br/>
+                        Effects:<br/>
+                        <ul>
+                          <li>memory[effective address] := Rd</li>
+                        </ul>
+                        Machine code :<br/>
+                        {this.machineCode( 'store', 'R1,test[R2]', 2, 'b' )}<br/>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'jump'} depth={3}>
+                      <div className='info-bodywhite'>
+                        Use:<br/>
+                        <code>jump disp[Ra]</code><br/>
+                        Effects:<br/>
+                        <ul>
+                          <li>control[pc] := memory[effective address]</li>
+                        </ul>
+                        Machine code :<br/>
+                        {this.machineCode( 'jump', 'test[R2]', 3, 'b' )}<br/>
+                        <br/>
+                        Note :<br/>
+                        {this.wrongGroupings( 'jump', 'a JX', 'a disp field and an Ra argument', 'an RX' )}
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'jumpc0'} depth={3}>
+                      <div className='info-bodywhite'>
+                        Use:<br/>
+                        <code>jumpc0 k,disp[Ra]</code><br/>
+                        Effects:<br/>
+                        <ul>
+                          <li>Gets the value of the <strong>bit</strong> R15.k</li>
+                          <li>If this bit is equal to <strong>0</strong>, control[pc] := memory[effective address]</li>
+                        </ul>
+                        Machine code :<br/>
+                        {this.machineCode( 'jumpc0', '1,test[R2]', 4, 'b' )}<br/>
+                        <br/>
+                        Note :<br/>
+                        {this.wrongGroupings( 'jumpc0', 'a KX', 'a 4-bit constant ( 0 - 15 ), a disp field, and, an Ra argument', 'an RX' )}
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'jumpc1'} depth={3}>
+                      <div className='info-bodywhite'>
+                        Use:<br/>
+                        <code>jumpc1 k,disp[Ra]</code><br/>
+                        Effects:<br/>
+                        <ul> 
+                          <li>Gets the value of the <strong>bit</strong> R15.k</li>
+                          <li>If this bit is equal to <strong>1</strong>, control[pc] := memory[effective address]</li>
+                        </ul>
+                        Machine code :<br/>
+                        {this.machineCode( 'jumpc1', '1,test[R2]', 5, 'b' )}<br/>
+                        <br/>
+                        Note :<br/>
+                        {this.wrongGroupings( 'jumpc1', 'a KX', 'a 4-bit constant ( 0 - 15 ), a disp field, and, an Ra argument', 'an RX' )}
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'jumpf'} depth={3}>
+                      <div className='info-bodywhite'>
+                        Use:<br/>
+                        <code>jumpf Rd,disp[Ra]</code><br/>
+                        Effects:<br/>
+                        <ul>
+                          <li>If the value of Rd is equal to <strong>0</strong>, control[pc] := memory[effective address]</li>
+                        </ul>
+                        Machine code :<br/>
+                        {this.machineCode( 'jumpf', 'R1,test[R2]', 6, 'b' )}<br/>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'jumpt'} depth={3}>
+                      <div className='info-bodywhite'>
+                        Use:<br/>
+                        <code>jumpt Rd,disp[Ra]</code><br/>
+                        Effects:<br/>
+                        <ul>
+                          <li>If the value of Rd is equal to <strong>1</strong>, control[pc] := memory[effective address]</li>
+                        </ul>
+                        Machine code :<br/>
+                        {this.machineCode( 'jumpt', 'R1,test[R2]', 7, 'b' )}<br/>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'jal'} depth={3}>
+                      <div className='info-bodywhite'>
+                        Use:<br/>
+                        <code>jal Rd,disp[Ra]</code><br/>
+                        Effects:<br/>
+                        <ul>
+                          <li>Rd := control[pc] <strong>+ 2</strong></li>
+                          <li>control[pc] := memory[effective address]</li>
+                        </ul>
+                        Machine code :<br/>
+                        {this.machineCode( 'jal', 'R13,test[R2]', 8, 'b' )}<br/>
+                        <br/>
+                        Note :<br/>
+                        <code>jal</code> stands for <strong>jump and link</strong><br/>
+                        <br/>
+                        It is also standard to use R13 as the destination register for <code>jal</code> commands.<br/>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'testset'} depth={3}>
+                      <div className='info-bodywhite'>
+                        Use:<br/>
+                        <code>testset Rd,disp[Ra]</code><br/>
+                        Effects:<br/>
+                        <ul>
+                          <li>Rd := memory[effective address]</li>
+                          <li>memory[effective address] := 1</li>
+                        </ul>
+                        Machine code :<br/>
+                        {this.machineCode( 'testset', 'R1,test[R2]', 9, 'b' )}<br/>
+                        <br/>
+                        Note :<br/>
+                        <code>testset</code> is not implemented in the{'\xa0'/**&nbsp*/}
+                        <a
+                          href='https://jtod.github.io/home/Sigma16/'
+                          target='_blank'
+                          rel='noopener noreferrer'>
+                            original emulator 
+                        </a>
+                        , however, this implementation does fulfil its intended purpose as per the{'\xa0'/**&nbsp*/}
+                        <a 
+                          href='https://jtod.github.io/home/Sigma16/releases/3.1.3/docs/html/userguide/userguide.html' 
+                          target='_blank' 
+                          rel='noopener noreferrer'>
+                            original documentation
+                        </a>
+                        .
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'Conditional jumps'} depth={3}>
+                      <div className='info-bodywhite'>
+                        There are a number of <strong>conditional jumps</strong> that act as <strong>aliases</strong> of the <code>jumpc0</code> and <code>jumpc1</code> commands :<br/>
+                        <br/>
+                        <Table bordered hover size='sm'>
+                          <thead>
+                            <tr>
+                              <th>Command</th>
+                              <th>Jumps to effective address if...</th>
+                              <th>Alias of</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>jumple disp[Ra]</code></td>
+                              <td>...signed <strong>less than</strong> or <strong>equal to</strong></td>
+                              <td><code>jumpc0 1,disp[Ra]</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>jumplt disp[Ra]</code></td>
+                              <td>...signed <strong>less than</strong></td>
+                              <td><code>jumpc1 3,disp[Ra]</code></td>
+                            </tr>
+
+                            <tr>
+                              <td><code>jumpne disp[Ra]</code></td>
+                              <td>...not <strong>equal to</strong></td>
+                              <td><code>jumpc0 2,disp[Ra]</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>jumpeq disp[Ra]</code></td>
+                              <td>...<strong>equal to</strong></td>
+                              <td><code>jumpc1 2,disp[Ra]</code></td>
+                            </tr>
+
+                            <tr>
+                              <td><code>jumpgt disp[Ra]</code></td>
+                              <td>...signed <strong>greater than</strong></td>
+                              <td><code>jumpc1 1,disp[Ra]</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>jumpge disp[Ra]</code></td>
+                              <td>...signed <strong>greater than</strong> or <strong>equal to</strong></td>
+                              <td><code>jumpc0 3,disp[Ra]</code></td>
+                            </tr>
+
+                            <tr>
+                              <td><code>jumpvu disp[Ra]</code></td>
+                              <td>...<strong>unsigned overflow</strong></td>
+                              <td><code>jumpc1 5,disp[Ra]</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>jumpnvu disp[Ra]</code></td>
+                              <td>...no <strong>unsigned overflow</strong></td>
+                              <td><code>jumpc0 5,disp[Ra]</code></td>
+                            </tr>
+
+                            <tr>
+                              <td><code>jumpv disp[Ra]</code></td>
+                              <td>...<strong>signed overflow</strong></td>
+                              <td><code>jumpc1 6,disp[Ra]</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>jumpnv disp[Ra]</code></td>
+                              <td>...no <strong>signed overflow</strong></td>
+                              <td><code>jumpc0 6,disp[Ra]</code></td>
+                            </tr>
+
+                            <tr>
+                              <td><code>jumpco disp[Ra]</code></td>
+                              <td>...<strong>carry output</strong></td>
+                              <td><code>jumpc1 7,disp[Ra]</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>jumpnco disp[Ra]</code></td>
+                              <td>...no <strong>carry output</strong></td>
+                              <td><code>jumpc0 7,disp[Ra]</code></td>
+                            </tr>
+
+                            <tr>
+                              <td><code>jumpso disp[Ra]</code></td>
+                              <td>...<strong>stack overflow</strong></td>
+                              <td><code>jumpc1 8,disp[Ra]</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>jumpnso disp[Ra]</code></td>
+                              <td>...no <strong>stack overflow</strong></td>
+                              <td><code>jumpc0 8,disp[Ra]</code></td>
+                            </tr>                            
+                          </tbody>
+                        </Table>
+                        Note :<br/>
+                        <code>jumpso</code> and <code>jumpnso</code> are not a part of the{'\xa0'/**&nbsp*/}
+                        <a
+                          href='https://jtod.github.io/home/Sigma16/'
+                          target='_blank'
+                          rel='noopener noreferrer'>
+                            original emulator 
+                        </a>
+                        {'\xa0'/**&nbsp*/}as the associated flags in R15 are not implemented either.
+                      </div>
+                    </InfoArea>
                   </InfoArea>
                   <InfoArea state={this.state} title={'EXP'} depth={2}>
                     <InfoArea state={this.state} title={'EXP0'} depth={3}>
