@@ -15,12 +15,10 @@ code {
   border-style: solid;
   outline: none;
 
-  margin-top: 5px;
+  margin-top: 7px;
 
   display: flex;
   flex-direction: column;
-
-  margin-top: 15px;
 }
 
 .info-title {
@@ -54,6 +52,10 @@ code {
   -moz-tab-size : 2;
   -o-tab-size : 2;
   tab-size : 2;
+}
+
+.info-body .table-sm {
+  white-space: break-spaces;
 }
 
 

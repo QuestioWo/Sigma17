@@ -25,6 +25,7 @@ export default class DocumentationView extends React.Component {
         subHeadings : [
           'To know before coding', // To know before coding
             'Introduction to language', // Introduction to language
+              'Constants', // Constants
             'Introduction to machine code', // Introduction to machine code
             'Overview of architecture', // Overview of architecture
               'CPU', // CPU
@@ -34,6 +35,7 @@ export default class DocumentationView extends React.Component {
               'Memory', // Memory
 
           'Instruction set', // Instruction set
+            'data', // data
             'RRR', // RRR
               'add', // add
               'sub', // sub
@@ -89,6 +91,7 @@ export default class DocumentationView extends React.Component {
               'EXP8', // EXP8
                 'save', // save
                 'restore', // restore
+            'All instructions', // All instructions
 
           'Using the IDE', // Using the IDE
             'Editing a program', // Editing a program
@@ -102,6 +105,7 @@ export default class DocumentationView extends React.Component {
           'Toknowbeforecoding', // To know before coding
 
           'Toknowbeforecoding/Introductiontolanguage', // Introduction to language
+          'Toknowbeforecoding/Introductiontolanguage/Constants', // Constants
 
           'Toknowbeforecoding/Introductiontomachinecode', // Introduction to machine code
 
@@ -114,6 +118,8 @@ export default class DocumentationView extends React.Component {
 
 
           'Instructionset', // Instruction set
+
+          'Instructionset/data', // data
 
           'Instructionset/RRR', // RRR
           'Instructionset/RRR/add', // add
@@ -174,6 +180,9 @@ export default class DocumentationView extends React.Component {
           'Instructionset/EXP/EXP8/save', // save
           'Instructionset/EXP/EXP8/restore', // restore
 
+          'Instructionset/Allinstructions', // All instructions
+
+
           'UsingtheIDE', // Using the IDE
 
           'UsingtheIDE/Editingaprogram', // Editing a program
@@ -187,9 +196,7 @@ export default class DocumentationView extends React.Component {
           'UsingtheIDE/Importingaprogram', // Importing a program
         ],
 
-        //"andold", "orold", "xorold", "invold", 
-        //"data", 
-        //"rfi", "execute", "save", "restore", "getctl", "putctl", "push", "pop", "top", "addc", "shiftl", "shiftr", "getbit", "getbiti", "putbit", "putbiti", "field", "extract", "extracti", "inject", "injecti", "logicb", "logicw", "andb", "orb", "xorb", "invb", "andnew", "ornew", "xornew", "invnew"
+        //"data",
 
         labels : {
           'test' : 0x0010
@@ -247,7 +254,7 @@ export default class DocumentationView extends React.Component {
       for ( var i = 0; i < compiledCommands.length; i++ ) {
         writtenCommands += '$' + Emulator.writeHex( compiledCommands[i] );
         if ( i !== compiledCommands.length - 1 ) {
-          writtenCommands += ', ';
+          writtenCommands += ',';
         }
       }
 
@@ -285,6 +292,27 @@ export default class DocumentationView extends React.Component {
         <React.Fragment>        
           Since <code>{command}</code> takes <strong>{argument}</strong>, it is parsed as a <strong>{parsedAs}</strong> command
         </React.Fragment>
+      );
+    }
+
+    summaryTableRow( command, func, toMc ) {
+      const compiledCommands = Emulator.parseLineForMachineCode( toMc, this.state.labels );
+
+      var writtenCommands = '';
+
+      for ( var i = 0; i < compiledCommands.length; i++ ) {
+        writtenCommands += '$' + Emulator.writeHex( compiledCommands[i] );
+        if ( i !== compiledCommands.length - 1 ) {
+          writtenCommands += ',';
+        }
+      }
+
+      return (
+        <tr>
+          <td><code>{command}</code></td>
+          <td>{func}</td>
+          <td><code>{toMc}</code> := <code>{writtenCommands}</code></td>
+        </tr>
       );
     }
 
@@ -383,6 +411,17 @@ export default class DocumentationView extends React.Component {
                       <br/>
                       Like other languages, Sigma16 takes the assembly code provided and compiles it to machine code which is then set to memory and iterated over to execute a program<br/>
                     </div>
+                    <InfoArea state={this.state} title={'Constants'} depth={3}>
+                      <div className='info-body white'>
+                        Constants in Sigma16 can either be written as <strong>decimal</strong> or <strong>hexadecimal</strong> - hex for short<br/>
+                        <br/>
+                        <strong>Decimal</strong> representation in Sigma16 comes as just regular numbers with <strong>no prefix</strong> :<br/>
+                        <code>10</code> represents <strong>decimal</strong> 10<br/> 
+                        <br/>
+                        <strong>Hexadecimal</strong> representation in Sigma16 comes as as <strong>hex</strong> number, number characters <strong>0-9</strong> and <strong>a-f</strong>, with a <strong>$</strong> prefix :<br/>
+                        <code>$10</code> represents <strong>decimal</strong> 16<br/>
+                      </div>
+                    </InfoArea>
                   </InfoArea>
                   <InfoArea state={this.state} title={'Introduction to machine code'} depth={2}>
                     <div className='info-body white'>
@@ -505,6 +544,19 @@ export default class DocumentationView extends React.Component {
                   </InfoArea>
                 </InfoArea>
                 <InfoArea state={this.state} title={'Instruction set'} depth={1}>
+                  <InfoArea state={this.state} title={'data'} depth={2}>
+                    <div className='info-body white'>
+                      Use :<br/>
+                      <code>data constant</code><br/>
+                      Effects :<br/>
+                      <ul>
+                        <li>The value in memory corresponding to the line is set as the passed-in constant</li>
+                      </ul>
+
+                      Machine code :<br/>
+                      <code>data $0010</code> := <code>$0010</code>, since <code>data</code> is parsed so that the <strong>constant</strong> is set into the line's <strong>corresponding memory cell/location</strong>
+                    </div>
+                  </InfoArea>
                   <InfoArea state={this.state} title={'RRR'} depth={2}>
                     <div className='info-body white' style={{marginBottom : '7px'}}>
                       Compiled RRR instructions take up one word in memory, or one memory cell/location<br/>
@@ -568,11 +620,14 @@ export default class DocumentationView extends React.Component {
                         <code>div Rd,Ra,Rb</code><br/>
                         Effects :<br/>
                         <ul>
-                          <li>Rd := Ra * Rb</li>
+                          <li>Rd := Ra / Rb</li>
                           <li>R15 := Ra % Rb, unless Rd is R15</li>
                         </ul>
                         Machine code :<br/>
-                        {this.machineCode( 'div', 'R1,R2,R3', 3 )}
+                        {this.machineCode( 'div', 'R1,R2,R3', 3 )}<br/>
+                        <br/>
+                        Note :<br/>
+                        <strong>Floor</strong> division is <strong>always</strong> performed, even on <strong>negative</strong> numbers. i.e -10 / 3 := <strong>-4</strong>
                       </div>
                     </InfoArea>
                     <InfoArea state={this.state} title={'cmp'} depth={3}>
@@ -1558,7 +1613,7 @@ export default class DocumentationView extends React.Component {
                         EXP8 commands' compiled states can be broken down into :<br/>
                         <ul>
                           <li>op - the <strong>operation code</strong>, <strong>is always e</strong> for EXP commands</li>
-                          <li>d - the number of <strong>a register</strong> which has <strong>several uses</strong> depending on which function is being perfomed, however, is <strong>mostly</strong> treated as a <strong>destination</strong> register</li>
+                          <li>d - the number of <strong>a register</strong> which has <strong>several uses</strong> depending on which function is being performed, however, is <strong>mostly</strong> treated as a <strong>destination</strong> register</li>
                           <li>ab - the <strong>secondary operation code</strong>, like the op code for RRR instructions, this specifies which function to perform, based on the passed-in arguments. This field also takes up <strong>two hex numbers</strong>, i.e <strong>8-bits</strong>. This allows for <strong>256</strong> different EXP commands to be implemented</li>
                           <li>e - the number of the <strong>first argument register</strong></li>
                           <li>f - the number of the <strong>second argument register</strong></li>
@@ -1634,6 +1689,96 @@ export default class DocumentationView extends React.Component {
                         </div>
                       </InfoArea>
                     </InfoArea>
+                  </InfoArea>
+                  <InfoArea state={this.state} title={'All instructions'} depth={2}>
+                    <div className='info-body white'>
+                      <Table bordered hover size='sm'>
+                        <thead>
+                          <tr>
+                            <th>Command</th>
+                            <th>Summary of function</th>
+                            <th>Machine Code</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {this.summaryTableRow( 'data', 'memory cell of line := constant', 'data $001f' )}
+                          {this.summaryTableRow( 'add', 'Rd := Ra + Rb; R15 flags set', 'add R1,R2,R3' )}
+                          {this.summaryTableRow( 'sub', 'Rd := Ra - Rb; R15 flags set', 'sub R1,R2,R3' )}
+                          {this.summaryTableRow( 'mul', 'Rd := Ra * Rb; R15 flags set', 'mul R1,R2,R3' )}
+                          {this.summaryTableRow( 'div', 'Rd := Ra / Rb; R15 := Ra % Rb', 'div R1,R2,R3' )}
+                          {this.summaryTableRow( 'cmp', 'R15 flags set', 'cmp R1,R2' )}
+                          {this.summaryTableRow( 'cmplt', 'Rd := Ra < Rb', 'cmplt R1,R2,R3' )}
+                          {this.summaryTableRow( 'cmpeq', 'Rd := Ra == Rb', 'cmpeq R1,R2,R3' )}
+                          {this.summaryTableRow( 'cmpgt', 'Rd := Ra > Rb', 'cmpgt R1,R2,R3' )}
+                          {this.summaryTableRow( 'inv', 'Rd := ~ Ra', 'inv R1,R2' )}
+                          {this.summaryTableRow( 'invold', 'Rd := ~ Ra', 'invold R1,R2' )}
+                          {this.summaryTableRow( 'and', 'Rd := Ra & Rb', 'and R1,R2,R3' )}
+                          {this.summaryTableRow( 'andold', 'Rd := Ra & Rb', 'andold R1,R2,R3' )}
+                          {this.summaryTableRow( 'or', 'Rd := Ra | Rb', 'or R1,R2,R3' )}
+                          {this.summaryTableRow( 'orold', 'Rd := Ra | Rb', 'orold R1,R2,R3' )}
+                          {this.summaryTableRow( 'xor', 'Rd := Ra ^ Rb', 'xor R1,R2,R3' )}
+                          {this.summaryTableRow( 'xorold', 'Rd := Ra ^ Rb', 'xorold R1,R2,R3' )}
+                          {this.summaryTableRow( 'trap', 'Terminates, reads in, or, writes out', 'trap R1,R2,R3' )}
+
+                          {this.summaryTableRow( 'rfi', 'nop', 'rfi' )}
+                          {this.summaryTableRow( 'save', 'Stores registers Re -> Rf in memory[disp + Rd + iteration]', 'save R1,R2,3[R4]' )}
+                          {this.summaryTableRow( 'restore', 'Loads registers Re -> Rf with memory[disp + Rd + iteration]', 'restore R1,R2,3[R4]' )}
+                          {this.summaryTableRow( 'getctl', 'Rd := control[cR]', 'getctl R1,pc' )}
+                          {this.summaryTableRow( 'putctl', 'control[cR] := Rd', 'putctl R1,pc' )}
+                          {this.summaryTableRow( 'execute', 'Executes Re and Rf as machine code', 'execute R1,R2' )}
+                          {this.summaryTableRow( 'push', 'Pushes to defined stack; R15 flags set', 'push R1,R2,R3' )}
+                          {this.summaryTableRow( 'pop', 'Pops from defined stack', 'pop R1,R2,R3' )}
+                          {this.summaryTableRow( 'top', 'Peeks at top of defined stack', 'top R1,R2,R3' )}
+                          {this.summaryTableRow( 'shiftl', 'Rd := Re << g', 'shiftl R1,R2,3' )}
+                          {this.summaryTableRow( 'shiftr', 'Rd := Re >> g', 'shiftr R1,R2,3' )}
+                          {this.summaryTableRow( 'extract', 'Rd := Re >> g; Rd := Rd << 15 - h + g', 'extract R1,R2,3,4' )}
+                          {this.summaryTableRow( 'extracti', 'Rd := ~ Re; Rd := Rd >> g; Rd := Rd << 15 - h + g', 'extracti R1,R2,3,4' )}
+                          {this.summaryTableRow( 'inject', 'Rd := Re injected with bits g -> h from Rf', 'inject R1,R2,R3,4,5' )}
+                          {this.summaryTableRow( 'injecti', 'Rd := Re injected with inverted bits g -> h from Rf', 'injecti R1,R2,R3,4,5' )}
+                          {this.summaryTableRow( 'field', 'Rd.g -> Rd.h := 1', 'field R1,2,3' )}
+                          {this.summaryTableRow( 'logicw', 'Bit-wise logic operation performed on Re and Rf based on g', 'logicw R1,R2,R3,4' )}
+                          {this.summaryTableRow( 'invnew', 'Rd := ~ Re', 'invnew R1,R2' )}
+                          {this.summaryTableRow( 'andnew', 'Rd := Re & Rf', 'andnew R1,R2,R3' )}
+                          {this.summaryTableRow( 'ornew', 'Rd := Re | Rf', 'ornew R1,R2,R3' )}
+                          {this.summaryTableRow( 'xornew', 'Rd := Re ^ Rf', 'xornew R1,R2,R3' )}
+                          {this.summaryTableRow( 'logicb', 'Bit logic operation performed on Re.h and Rf.h based on g', 'logicb R1,R2,R3,4,5' )}
+                          {this.summaryTableRow( 'invb', 'Rd.h := ~ Re.h', 'invb R1,R2,3' )}
+                          {this.summaryTableRow( 'andb', 'Rd.h := Re.h & Rf.h', 'andb R1,R2,R3,4' )}
+                          {this.summaryTableRow( 'orb', 'Rd.h := Re.h | Rf.h', 'orb R1,R2,R3,4' )}
+                          {this.summaryTableRow( 'xorb', 'Rd.h := Re.h ^ Rf.h', 'xorb R1,R2,R3,4' )}
+                          {this.summaryTableRow( 'getbit', 'Rd.g := R15.g', 'getbit R1,2' )}
+                          {this.summaryTableRow( 'getbiti', 'Rd.g := ~ R15.g', 'getbiti R1,2' )}
+                          {this.summaryTableRow( 'putbit', 'R15.g := Rd.g', 'putbit R1,2' )}
+                          {this.summaryTableRow( 'putbiti', 'R15.g := ~ Rd.g', 'putbiti R1,2' )}
+                          {this.summaryTableRow( 'addc', 'Rd := Re + Rf + R15.7; R15 flags set', 'addc R1,R2,R3' )}
+
+                          {this.summaryTableRow( 'lea', 'Rd := disp + Ra', 'lea R1,test[R3]' )}
+                          {this.summaryTableRow( 'load', 'Rd := memory[disp + Ra]', 'load R1,test[R3]' )}
+                          {this.summaryTableRow( 'store', 'memory[disp + Ra] := Rd', 'store R1,test[R3]' )}
+                          {this.summaryTableRow( 'jump', 'control[pc] := disp + Ra', 'jump test[R1]' )}
+                          {this.summaryTableRow( 'jumpc0', 'If R15.d := 0, control[pc] := disp + Ra', 'jumpc0 1,test[R2]' )}
+                          {this.summaryTableRow( 'jumple', 'If R15.1 := 0, control[pc] := disp + Ra', 'jumple test[R1]' )}
+                          {this.summaryTableRow( 'jumpne', 'If R15.2 := 0, control[pc] := disp + Ra', 'jumpne test[R1]' )}
+                          {this.summaryTableRow( 'jumpge', 'If R15.3 := 0, control[pc] := disp + Ra', 'jumpge test[R1]' )}
+                          {this.summaryTableRow( 'jumpnvu', 'If R15.5 := 0, control[pc] := disp + Ra', 'jumpnvu test[R1]' )}
+                          {this.summaryTableRow( 'jumpnv', 'If R15.6 := 0, control[pc] := disp + Ra', 'jumpnv test[R1]' )}
+                          {this.summaryTableRow( 'jumpnco', 'If R15.7 := 0, control[pc] := disp + Ra', 'jumpnco test[R1]' )}
+                          {this.summaryTableRow( 'jumpnso', 'If R15.8 := 0, control[pc] := disp + Ra', 'jumpnso test[R1]' )}
+                          {this.summaryTableRow( 'jumpc1', 'If R15.d := 1, control[pc] := disp + Ra', 'jumpc1 1,test[R2]' )}
+                          {this.summaryTableRow( 'jumpgt', 'If R15.1 := 1, control[pc] := disp + Ra', 'jumpgt test[R1]' )}
+                          {this.summaryTableRow( 'jumpeq', 'If R15.2 := 1, control[pc] := disp + Ra', 'jumpeq test[R1]' )}
+                          {this.summaryTableRow( 'jumplt', 'If R15.3 := 1, control[pc] := disp + Ra', 'jumplt test[R1]' )}
+                          {this.summaryTableRow( 'jumpvu', 'If R15.5 := 1, control[pc] := disp + Ra', 'jumpvu test[R1]' )}
+                          {this.summaryTableRow( 'jumpv', 'If R15.6 := 1, control[pc] := disp + Ra', 'jumpv test[R1]' )}
+                          {this.summaryTableRow( 'jumpco', 'If R15.7 := 1, control[pc] := disp + Ra', 'jumpco test[R1]' )}
+                          {this.summaryTableRow( 'jumpso', 'If R15.8 := 1, control[pc] := disp + Ra', 'jumpso test[R1]' )}
+                          {this.summaryTableRow( 'jumpf', 'If Rd := 0, control[pc] := disp + Ra', 'jumpf R1,test[R2]' )}
+                          {this.summaryTableRow( 'jumpt', 'If Rd := 1, control[pc] := disp + Ra', 'jumpt R1,test[R2]' )}
+                          {this.summaryTableRow( 'jal', 'Rd := control[pc] + 2; control[pc] := disp + Ra', 'jal R1,test[R2]' )}
+                          {this.summaryTableRow( 'testset', 'Rd := memory[disp + Ra]; memory[disp + Ra] := 1', 'testset R1,test[R2]' )}
+                        </tbody>
+                      </Table>
+                    </div>
                   </InfoArea>
                 </InfoArea>
                 <InfoArea state={this.state} title={'Using the IDE'} depth={1}>
