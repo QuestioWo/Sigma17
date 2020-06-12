@@ -85,7 +85,9 @@ This will start the local React.js development server and should open a windown 
 
 6. Write Documentation
 * Write documentation that outlines function calls, i.e how to debug as an outsider. *Possibly on repos rather than in actual website.*
-* Write documentation for Sigma16 instructions.
+* √ - Write documentation for Sigma16 instructions.
+* Write documentation for how to use the emulator.
+* Write a full list of all of the instructions, aliases and all.
 * √ - Have a contents or a search functionality to make navigating easier.
 
 7. Clean-Up
