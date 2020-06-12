@@ -173,11 +173,7 @@
     push : 'Assembles but no functionality',
     pop : 'Assembles but no functionality',
     top : 'Assembles but no functionality',
-    field : 'Assembler accepts but does not produce any codes',
-    andnew : 'Assembler does not recognise but same functionality can be had with "and"',
-    ornew : 'Assembler does not recognise but same functionality can be had with "or"',
-    xornew : 'Assembler does not recognise but same functionality can be had with "xor"',
-    invnew : 'Assembler does not recognise but same functionality can be had with "inv"'
+    field : 'Assembler accepts but does not produce any codes'
   };
 
   const nonCompatibleCommands = [ // not even recognised by assembler
@@ -187,7 +183,11 @@
     'putbit',
     'putbiti',
     'jumpnso',
-    'jumpso'
+    'jumpso',
+    'andnew',
+    'ornew',
+    'xornew',
+    'invnew'
   ];
   
   const firstColumn = Math.pow( 16, 3 );
