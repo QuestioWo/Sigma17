@@ -521,17 +521,17 @@ export default class ProgramDebugView extends React.Component {
         if ( trimmed !== '' && trimmed.split( ';' )[0] !== '' ) {
           parsed = Emulator.parseLineForMachineCode( lines[it], labels );
           if ( parsed ) {
+            var mcLengthBefore = machineCode.length;
             for ( var iter = 0; iter < parsed.length; iter++ ) {
               if ( Emulator.isValidNumber( Emulator.readSignedHex( parsed[iter] ) ) ) {
-                var mcLength = machineCode.length;
                 if ( nextLineBreakpoint ) {
-                  breakpointsMachineCode.push( mcLength );
+                  breakpointsMachineCode.push( mcLengthBefore );
                   nextLineBreakpoint = false;
                 }
 
-                memoryToLine[mcLength] = it;
-                lineToMemory[it] = [];
-                lineToMemory[it].push( mcLength );
+                memoryToLine[mcLengthBefore] = it;
+                if ( lineToMemory[it] === undefined ) lineToMemory[it] = [];
+                lineToMemory[it].push( machineCode.length );
 
                 machineCode.push( parsed[iter] );
               } else {
@@ -541,6 +541,8 @@ export default class ProgramDebugView extends React.Component {
           }
         }
       }
+
+      console.log( lineToMemory )
 
       this.setState( { 
         machineCode : machineCode, 
