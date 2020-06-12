@@ -542,8 +542,6 @@ export default class ProgramDebugView extends React.Component {
         }
       }
 
-      console.log( lineToMemory )
-
       this.setState( { 
         machineCode : machineCode, 
         breakpointsMachineCode : breakpointsMachineCode, 
