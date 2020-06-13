@@ -528,9 +528,6 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( ' data $01' ) ).toBe( true );
         expect( Emulator.checkLine( '     data $01;comment' ) ).toBe( true );
         expect( Emulator.checkLine( '     data $01;comment;doublecomment' ) ).toBe( true );
-
-        expect( Emulator.checkLine( '     data $01comment' ) ).toBe( true );
-        expect( Emulator.checkLine( '     data $01comment;doublecomment' ) ).toBe( true );
       } );
 
       test( 'CHECK X false', () => {
@@ -538,6 +535,9 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'data $-12' ) ).toBe( 'arguments must be in the form of "constant" up to 65535 and down to -32768' );
         expect( Emulator.checkLine( 'data 65536' ) ).toBe( 'data must be followed by either a decimal or hex number <= 65535 and >=-32768' );
         expect( Emulator.checkLine( 'data -32769' ) ).toBe( 'data must be followed by either a decimal or hex number <= 65535 and >=-32768' );
+
+        expect( Emulator.checkLine( '     data $01comment' ) ).toBe( 'arguments must be in the form of "constant" up to 65535 and down to -32768' );
+        expect( Emulator.checkLine( '     data $01comment;doublecomment' ) ).toBe( 'arguments must be in the form of "constant" up to 65535 and down to -32768' );
       } );
 
     // NOEXP
