@@ -920,7 +920,7 @@ export default class ProgramDebugView extends React.Component {
                 placement={'top'}
                 overlay={
                   <Tooltip>
-                    {`Hide the codechunk`}
+                    {`Hide the code chunk`}
                   </Tooltip>
                 }>
                 <Button variant='outline-secondary' size='sm' onClick={this.toggleCodeChunk} active={!(this.state.showCodeChunk)}>
