@@ -950,7 +950,7 @@
   }
 
   export function checkLine( line, labels ) {
-    var linesplit = line.trim().split( ';' )[0].trim().split( /\s+/ );
+    var linesplit = line.split( ';' )[0].trim().split( /\s+/ );
     var error = true;
 
     if ( linesplit[0] ) {
