@@ -127,7 +127,7 @@ export default class DocumentationView extends React.Component {
               'Using the IDE/Exporting a program/Exporting - Hex', // Exporting - Hex
               'Using the IDE/Exporting a program/Exporting - Hex Compatible', // Exporting - Hex Compatible
 
-            'Using the IDE/Importing a program', // Importing a program
+            'Using the IDE/Importing a program' // Importing a program
         ],
 
         labels : {
