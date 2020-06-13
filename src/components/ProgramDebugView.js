@@ -107,8 +107,6 @@ export default class ProgramDebugView extends React.Component {
     var machineCode = this.parseCode( code, breakpoints );
 
     this.setState( { memory : Emulator.setMemory( machineCode ) } );
-
-    this.parseForBreakpoints( this.state.code, breakpoints );
   }
 
 // ALERT METHODS
