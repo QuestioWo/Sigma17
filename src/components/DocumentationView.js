@@ -22,203 +22,112 @@ export default class DocumentationView extends React.Component {
 
         display : {},
 
-        subHeadings : [
-          'Contents', // Contents
-          'To know before coding', // To know before coding
-            'Introduction to language', // Introduction to language
-              'Constants', // Constants
-            'Introduction to machine code', // Introduction to machine code
-            'Overview of architecture', // Overview of architecture
-              'CPU', // CPU
-              'Registers', // Registers
-                'R0', // R0
-                'R15', // R15
-              'Memory', // Memory
-
-          'Instruction set', // Instruction set
-            'data', // data
-            'RRR', // RRR
-              'add', // add
-              'sub', // sub
-              'mul', // mul
-              'div', // div
-              'cmp', // cmp
-              'cmplt', // cmplt
-              'cmpeq', // cmpeq
-              'cmpgt', // cmpgt
-              'inv', // inv
-              'and', // and
-              'or', // or
-              'xor', // xor
-              'trap', // trap
-            'RX', // RX
-              'lea', // lea
-              'load', // load
-              'store', // store
-              'jump', // jump
-              'jumpc0', // jumpc0
-              'jumpc1', // jumpc1
-              'jumpf', // jumpf
-              'jumpt', // jumpt
-              'jal', // jal
-              'testset', // testset
-              'Conditional jumps', // Conditional jumps
-            'EXP', // EXP
-              'EXP0', // EXP0
-                'rfi', // rfi
-              'EXP4', // EXP4
-
-                'execute', // execute
-                'getctl', // getctl
-                'putctl', // putctl
-                'push', // push
-                'pop', // pop
-                'top', // top
-                'addc', // addc
-                'shiftl', // shiftl
-                'shiftr', // shiftr
-                'getbit', // getbit
-                'getbiti', // getbiti
-                'putbit', // putbit
-                'putbiti', // putbiti
-                'extract', // extract
-                'extracti', // extracti
-                'inject', // inject
-                'injecti', // injecti
-                'field', // field
-                'logicw', // logicw
-                'logicb', // logicb
-                'Logic aliases', // Logic aliases
-              'EXP8', // EXP8
-                'save', // save
-                'restore', // restore
-            'All instructions', // All instructions
-
-          'Using the IDE', // Using the IDE
-            'Notes about the IDE that are unbelievably important', // Notes about the IDE that are unbelievably important
-            'Editing a program', // Editing a program
-              'Input editing', // Input editing
-              'Highlighting', // Highlighting
-            'Running a program', // Running a program
-            'Debugging a program', // Debugging a program
-              'Syntax errors', // Syntax errors
-              'Semantic errors - Debugger', // Semantic errors
-              'Breakpoints', // Breakpoints
-            'Exporting a program', // Exporting a program
-              'Exporting - Raw', // Exporting - Raw
-              'Exporting - Raw Compatible', // Exporting - Raw Compatible
-              'Exporting - Binary', // Exporting - Binary
-              'Exporting - Hex', // Exporting - Hex
-              'Exporting - Hex Compatible', // Exporting - Hex Compatible
-            'Importing a program', // Importing a program
-        ],
-
         searchSubHeadings : [
           'Contents', // Contents
 
-          'Toknowbeforecoding', // To know before coding
+          'To know before coding', // To know before coding
 
-          'Toknowbeforecoding/Introductiontolanguage', // Introduction to language
-          'Toknowbeforecoding/Introductiontolanguage/Constants', // Constants
+          'Toknow before coding/Introduction to language', // Introduction to language
+            'Toknow before coding/Introduction to language/Constants', // Constants
 
-          'Toknowbeforecoding/Introductiontomachinecode', // Introduction to machine code
+          'Toknow before coding/Introduction to machine code', // Introduction to machine code
 
-          'Toknowbeforecoding/Overviewofarchitecture', // Overview of architecture
-          'Toknowbeforecoding/Overviewofarchitecture/CPU', // CPU
-          'Toknowbeforecoding/Overviewofarchitecture/Registers', // Registers
-          'Toknowbeforecoding/Overviewofarchitecture/Registers/R0', // R0
-          'Toknowbeforecoding/Overviewofarchitecture/Registers/R15', // R15
-          'Toknowbeforecoding/Overviewofarchitecture/Memory', // Memory
-
-
-          'Instructionset', // Instruction set
-
-          'Instructionset/data', // data
-
-          'Instructionset/RRR', // RRR
-          'Instructionset/RRR/add', // add
-          'Instructionset/RRR/sub', // sub
-          'Instructionset/RRR/mul', // mul
-          'Instructionset/RRR/div', // div
-          'Instructionset/RRR/cmp', // cmp
-          'Instructionset/RRR/cmplt', // cmplt
-          'Instructionset/RRR/cmpeq', // cmpeq
-          'Instructionset/RRR/cmpgt', // cmpgt
-          'Instructionset/RRR/inv', // inv
-          'Instructionset/RRR/and', // and
-          'Instructionset/RRR/or', // or
-          'Instructionset/RRR/xor', // xor
-          'Instructionset/RRR/trap', // trap
-
-          'Instructionset/RX', // RX
-          'Instructionset/RX/lea', // lea
-          'Instructionset/RX/load', // load
-          'Instructionset/RX/store', // store
-          'Instructionset/RX/jump', // jump
-          'Instructionset/RX/jumpc0', // jumpc0
-          'Instructionset/RX/jumpc1', // jumpc1
-          'Instructionset/RX/jumpf', // jumpf
-          'Instructionset/RX/jumpt', // jumpt
-          'Instructionset/RX/jal', // jal
-          'Instructionset/RX/testset', // testset
-          'Instructionset/RX/Conditionaljumps', // Conditional jumps
-
-          'Instructionset/EXP', // EXP
-          'Instructionset/EXP/EXP0', // EXP0
-          'Instructionset/EXP/EXP0/rfi', // rfi
-
-          'Instructionset/EXP/EXP4', // EXP4
-          'Instructionset/EXP/EXP4/execute', // execute
-          'Instructionset/EXP/EXP4/getctl', // getctl
-          'Instructionset/EXP/EXP4/putctl', // putctl
-          'Instructionset/EXP/EXP4/push', // push
-          'Instructionset/EXP/EXP4/pop', // pop
-          'Instructionset/EXP/EXP4/top', // top
-          'Instructionset/EXP/EXP4/addc', // addc
-          'Instructionset/EXP/EXP4/shiftl', // shiftl
-          'Instructionset/EXP/EXP4/shiftr', // shiftr
-          'Instructionset/EXP/EXP4/getbit', // getbit
-          'Instructionset/EXP/EXP4/getbiti', // getbiti
-          'Instructionset/EXP/EXP4/putbit', // putbit
-          'Instructionset/EXP/puP4i/getbit', // putbiti
-          'Instructionset/EXP/EXP4/extract', // extract
-          'Instructionset/EXP/EXP4/extracti', // extracti
-          'Instructionset/EXP/EXP4/inject', // inject
-          'Instructionset/EXP/EXP4/injecti', // injecti
-          'Instructionset/EXP/EXP4/field', // field
-          'Instructionset/EXP/EXP4/logicw', // logicw
-          'Instructionset/EXP/EXP4/logicb', // logicb
-          'Instructionset/EXP/EXP4/Logicaliases', // Logic aliases
-
-          'Instructionset/EXP/EXP8', // EXP8
-          'Instructionset/EXP/EXP8/save', // save
-          'Instructionset/EXP/EXP8/restore', // restore
-
-          'Instructionset/Allinstructions', // All instructions
+          'Toknow before coding/Overview of architecture', // Overview of architecture
+            'Toknow before coding/Overview of architecture/CPU', // CPU
+            'Toknow before coding/Overview of architecture/Registers', // Registers
+              'Toknow before coding/Overview of architecture/Registers/R0', // R0
+              'Toknow before coding/Overview of architecture/Registers/R15', // R15
+            'Toknow before coding/Overview of architecture/Memory', // Memory
 
 
-          'UsingtheIDE', // Using the IDE
-          'UsingtheIDE/NotesabouttheIDEthatareunbelievablyimportant', // Notes about the IDE that are unbelievably important
+          'Instruction set', // Instruction set
 
-          'UsingtheIDE/Editingaprogram', // Editing a program
-          'UsingtheIDE/Editingaprogram/Input editing', // Input editing
-          'UsingtheIDE/Editingaprogram/Highlighting', // Highlighting
+            'Instruction set/data', // data
 
-          'UsingtheIDE/Runningaprogram', // Running a program
-          
-          'UsingtheIDE/Debuggingaprogram', // Debugging a program
-          'UsingtheIDE/Debuggingaprogram/Syntaxerrors', // Syntax errors
-          'UsingtheIDE/Debuggingaprogram/Semanticerrors-Debugger', // Semantic errors - Debugger
-          'UsingtheIDE/Debuggingaprogram/Semanticerrors-Debugger/Breakpoints', // Breakpoints
+            'Instruction set/RRR', // RRR
+              'Instruction set/RRR/add', // add
+              'Instruction set/RRR/sub', // sub
+              'Instruction set/RRR/mul', // mul
+              'Instruction set/RRR/div', // div
+              'Instruction set/RRR/cmp', // cmp
+              'Instruction set/RRR/cmplt', // cmplt
+              'Instruction set/RRR/cmpeq', // cmpeq
+              'Instruction set/RRR/cmpgt', // cmpgt
+              'Instruction set/RRR/inv', // inv
+              'Instruction set/RRR/and', // and
+              'Instruction set/RRR/or', // or
+              'Instruction set/RRR/xor', // xor
+              'Instruction set/RRR/trap', // trap
 
-          'UsingtheIDE/Exportingaprogram', // Exporting a program
-          'UsingtheIDE/Exportingaprogram/Exporting-Raw', // Exporting - Raw
-          'UsingtheIDE/Exportingaprogram/Exporting-RawCompatible', // Exporting - Raw Compatible
-          'UsingtheIDE/Exportingaprogram/Exporting-Binary', // Exporting - Binary
-          'UsingtheIDE/Exportingaprogram/Exporting-Hex', // Exporting - Hex
-          'UsingtheIDE/Exportingaprogram/Exporting-HexCompatible', // Exporting - Hex Compatible
+            'Instruction set/RX', // RX
+              'Instruction set/RX/lea', // lea
+              'Instruction set/RX/load', // load
+              'Instruction set/RX/store', // store
+              'Instruction set/RX/jump', // jump
+              'Instruction set/RX/jumpc0', // jumpc0
+              'Instruction set/RX/jumpc1', // jumpc1
+              'Instruction set/RX/jumpf', // jumpf
+              'Instruction set/RX/jumpt', // jumpt
+              'Instruction set/RX/jal', // jal
+              'Instruction set/RX/testset', // testset
+              'Instruction set/RX/Conditional jumps', // Conditional jumps
 
-          'UsingtheIDE/Importingaprogram', // Importing a program
+            'Instruction set/EXP', // EXP
+              'Instruction set/EXP/EXP0', // EXP0
+                'Instruction set/EXP/EXP0/rfi', // rfi
+
+              'Instruction set/EXP/EXP4', // EXP4
+                'Instruction set/EXP/EXP4/execute', // execute
+                'Instruction set/EXP/EXP4/getctl', // getctl
+                'Instruction set/EXP/EXP4/putctl', // putctl
+                'Instruction set/EXP/EXP4/push', // push
+                'Instruction set/EXP/EXP4/pop', // pop
+                'Instruction set/EXP/EXP4/top', // top
+                'Instruction set/EXP/EXP4/addc', // addc
+                'Instruction set/EXP/EXP4/shiftl', // shiftl
+                'Instruction set/EXP/EXP4/shiftr', // shiftr
+                'Instruction set/EXP/EXP4/getbit', // getbit
+                'Instruction set/EXP/EXP4/getbiti', // getbiti
+                'Instruction set/EXP/EXP4/putbit', // putbit
+                'Instruction set/EXP/puP4i/getbit', // putbiti
+                'Instruction set/EXP/EXP4/extract', // extract
+                'Instruction set/EXP/EXP4/extracti', // extracti
+                'Instruction set/EXP/EXP4/inject', // inject
+                'Instruction set/EXP/EXP4/injecti', // injecti
+                'Instruction set/EXP/EXP4/field', // field
+                'Instruction set/EXP/EXP4/logicw', // logicw
+                'Instruction set/EXP/EXP4/logicb', // logicb
+                'Instruction set/EXP/EXP4/Logic aliases', // Logic aliases
+
+              'Instruction set/EXP/EXP8', // EXP8
+                'Instruction set/EXP/EXP8/save', // save
+                'Instruction set/EXP/EXP8/restore', // restore
+
+            'Instruction set/All instructions', // All instructions
+
+
+          'Using the IDE', // Using the IDE
+            'Using the IDE/Notes about the IDE that are unbelievably important', // Notes about the IDE that are unbelievably important
+
+            'Using the IDE/Editing a program', // Editing a program
+              'Using the IDE/Editing a program/Input editing', // Input editing
+              'Using the IDE/Editing a program/Highlighting', // Highlighting
+
+            'Using the IDE/Running a program', // Running a program
+            
+            'Using the IDE/Debugging a program', // Debugging a program
+              'Using the IDE/Debugging a program/Syntax errors', // Syntax errors
+              'Using the IDE/Debugging a program/Semantic errors - Debugger', // Semantic errors - Debugger
+                'Using the IDE/Debugging a program/Semantic errors - Debugger/Breakpoints', // Breakpoints
+
+            'Using the IDE/Exporting a program', // Exporting a program
+              'Using the IDE/Exporting a program/Exporting - Raw', // Exporting - Raw
+              'Using the IDE/Exporting a program/Exporting - Raw Compatible', // Exporting - Raw Compatible
+              'Using the IDE/Exporting a program/Exporting - Binary', // Exporting - Binary
+              'Using the IDE/Exporting a program/Exporting - Hex', // Exporting - Hex
+              'Using the IDE/Exporting a program/Exporting - Hex Compatible', // Exporting - Hex Compatible
+
+            'Using the IDE/Importing a program', // Importing a program
         ],
 
         labels : {
@@ -229,8 +138,10 @@ export default class DocumentationView extends React.Component {
         scrollTo : ''
       };
 
-      for ( var i = 0; i < this.state.subHeadings.length; i++ ) {
-        this.state.display[this.state.subHeadings[i].replace( /\s+/g, '' )] = true;
+      for ( var i = 0; i < this.state.searchSubHeadings.length; i++ ) {
+        const splat = this.state.searchSubHeadings[i].replace( /\s+/g, '' ).split( '/' );
+        const showName = splat[splat.length - 1];
+        this.state.display[showName] = true;
       }
 
       this.state.setParentState = this.setParentState.bind( this );
@@ -356,7 +267,7 @@ export default class DocumentationView extends React.Component {
         let displayCopy = this.state.display;
 
         for ( var i = 0; i < this.state.searchSubHeadings.length; i++ ) {
-          var displayNameList = this.state.searchSubHeadings[i].split( '/' );
+          var displayNameList = this.state.searchSubHeadings[i].replace( /\s+/g, '' ).split( '/' );
 
           if ( displayNameList[displayNameList.length - 1] === e['value'] ) {
 
@@ -381,7 +292,7 @@ export default class DocumentationView extends React.Component {
         let displayCopy = this.state.display;
 
         for ( var i = 0; i < this.state.searchSubHeadings.length; i++ ) {
-          var displayNameList = this.state.searchSubHeadings[i].split( '/' );
+          var displayNameList = this.state.searchSubHeadings[i].replace( /\s+/g, '' ).split( '/' );
 
           if ( displayNameList[displayNameList.length - 1] === sliced ) {
 
@@ -416,8 +327,10 @@ export default class DocumentationView extends React.Component {
     setDisplaysAs( as ) {
       let displayCopy = this.state.display;
 
-      for ( var i = 0; i < this.state.subHeadings.length; i++ ) {
-        displayCopy[this.state.subHeadings[i].replace( /\s+/g, '' )] = as;
+      for ( var i = 0; i < this.state.searchSubHeadings.length; i++ ) {
+        const splat = this.state.searchSubHeadings[i].replace( /\s+/g, '' ).split( '/' );
+        const showName = splat[splat.length - 1];
+        displayCopy[showName] = as;
       }
 
       this.setState( { display : displayCopy } );
@@ -434,11 +347,13 @@ export default class DocumentationView extends React.Component {
   // RENDER
     render() {
       var subHeadings = [];
-      for ( var i = 0; i < this.state.subHeadings.length; i++ ) {
+      for ( var i = 0; i < this.state.searchSubHeadings.length; i++ ) {
         var indent = '';
-        while ( this.state.searchSubHeadings[i].split( '/' ).length - 1 > ( indent.length / 2 ) ) { indent += '->' };
+        const splat = this.state.searchSubHeadings[i].split( '/' );
+        while ( splat.length - 1 > ( indent.length / 2 ) ) { indent += '->' };
         indent += '  ';
-        subHeadings.push( {value : this.state.subHeadings[i].replace( /\s+/g, '' ), label : indent + this.state.subHeadings[i]} );
+        const showName = splat[splat.length - 1].replace( /\s+/g, '' );
+        subHeadings.push( {value : showName, label : indent + splat[splat.length - 1]} );
       }
 
       return(
@@ -488,9 +403,9 @@ export default class DocumentationView extends React.Component {
                             {indent}
                             <span
                               className='documentation-page-link'
-                              id={this.state.subHeadings[index] + ' con'}
+                              id={splat[splat.length - 1] + ' con'}
                               onClick={this.contentsChoose}>
-                              {this.state.subHeadings[index]}
+                              {splat[splat.length - 1]}
                             </span>
                             <br/>
                           </div>
