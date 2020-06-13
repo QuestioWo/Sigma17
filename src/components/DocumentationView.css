@@ -8,6 +8,15 @@ code {
   border-radius: 7px;
 }
 
+.documentation-page-link {
+  color: blue;
+}
+
+.documentation-page-link:hover {
+  color: darkblue;
+  text-decoration: underline;
+}
+
 .info-field {
   border-radius: 7px;
   box-sizing: border-box;

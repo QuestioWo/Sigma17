@@ -3,7 +3,7 @@ import React from 'react';
 import './DocumentationView.css';
 
 import { Button, Col, Collapse, Row, Table } from 'react-bootstrap';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaBackward, FaBug, FaCheck, FaChevronDown, FaChevronUp, FaDownload, FaHammer, FaMinus, FaPen, FaPlay, FaStepForward, FaTimes, FaUpload } from 'react-icons/fa';
 import Select from 'react-select';
 
 import * as Emulator from './utils/Emulator';
@@ -23,6 +23,7 @@ export default class DocumentationView extends React.Component {
         display : {},
 
         subHeadings : [
+          'Contents', // Contents
           'To know before coding', // To know before coding
             'Introduction to language', // Introduction to language
               'Constants', // Constants
@@ -94,14 +95,27 @@ export default class DocumentationView extends React.Component {
             'All instructions', // All instructions
 
           'Using the IDE', // Using the IDE
+            'Notes about the IDE that are unbelievably important', // Notes about the IDE that are unbelievably important
             'Editing a program', // Editing a program
+              'Input editing', // Input editing
+              'Highlighting', // Highlighting
             'Running a program', // Running a program
             'Debugging a program', // Debugging a program
+              'Syntax errors', // Syntax errors
+              'Semantic errors - Debugger', // Semantic errors
+              'Breakpoints', // Breakpoints
             'Exporting a program', // Exporting a program
+              'Exporting - Raw', // Exporting - Raw
+              'Exporting - Raw Compatible', // Exporting - Raw Compatible
+              'Exporting - Binary', // Exporting - Binary
+              'Exporting - Hex', // Exporting - Hex
+              'Exporting - Hex Compatible', // Exporting - Hex Compatible
             'Importing a program', // Importing a program
         ],
 
         searchSubHeadings : [
+          'Contents', // Contents
+
           'Toknowbeforecoding', // To know before coding
 
           'Toknowbeforecoding/Introductiontolanguage', // Introduction to language
@@ -184,23 +198,35 @@ export default class DocumentationView extends React.Component {
 
 
           'UsingtheIDE', // Using the IDE
+          'UsingtheIDE/NotesabouttheIDEthatareunbelievablyimportant', // Notes about the IDE that are unbelievably important
 
           'UsingtheIDE/Editingaprogram', // Editing a program
+          'UsingtheIDE/Editingaprogram/Input editing', // Input editing
+          'UsingtheIDE/Editingaprogram/Highlighting', // Highlighting
 
           'UsingtheIDE/Runningaprogram', // Running a program
-
+          
           'UsingtheIDE/Debuggingaprogram', // Debugging a program
+          'UsingtheIDE/Debuggingaprogram/Syntaxerrors', // Syntax errors
+          'UsingtheIDE/Debuggingaprogram/Semanticerrors-Debugger', // Semantic errors - Debugger
+          'UsingtheIDE/Debuggingaprogram/Semanticerrors-Debugger/Breakpoints', // Breakpoints
 
           'UsingtheIDE/Exportingaprogram', // Exporting a program
+          'UsingtheIDE/Exportingaprogram/Exporting-Raw', // Exporting - Raw
+          'UsingtheIDE/Exportingaprogram/Exporting-RawCompatible', // Exporting - Raw Compatible
+          'UsingtheIDE/Exportingaprogram/Exporting-Binary', // Exporting - Binary
+          'UsingtheIDE/Exportingaprogram/Exporting-Hex', // Exporting - Hex
+          'UsingtheIDE/Exportingaprogram/Exporting-HexCompatible', // Exporting - Hex Compatible
 
           'UsingtheIDE/Importingaprogram', // Importing a program
         ],
 
-        //"data",
-
         labels : {
           'test' : 0x0010
-        }
+        },
+
+        scrollOnOpen : false,
+        scrollTo : ''
       };
 
       for ( var i = 0; i < this.state.subHeadings.length; i++ ) {
@@ -208,6 +234,7 @@ export default class DocumentationView extends React.Component {
       }
 
       this.state.setParentState = this.setParentState.bind( this );
+      this.state.infoAreaOpenCallback = this.infoAreaOpenCallback.bind( this );
     }
 
     componentDidMount() {
@@ -321,27 +348,71 @@ export default class DocumentationView extends React.Component {
       this.setState( e );
     }
 
-  // SEARCH METHODS
+  // CONTENTS AND SEARCH METHODS
     searchChoose = e => {
-      let displayCopy = this.state.display;
+      if ( this.state.display[e.value] ) {
+        this.scrollToId( e.value )
+      } else {
+        let displayCopy = this.state.display;
 
-      for ( var i = 0; i < this.state.searchSubHeadings.length; i++ ) {
-        var displayNameList = this.state.searchSubHeadings[i].split( '/' );
+        for ( var i = 0; i < this.state.searchSubHeadings.length; i++ ) {
+          var displayNameList = this.state.searchSubHeadings[i].split( '/' );
 
-        if ( displayNameList[displayNameList.length - 1] === e['value'] ) {
+          if ( displayNameList[displayNameList.length - 1] === e['value'] ) {
 
-          for ( var it = 0; it < displayNameList.length; it++ ) {
-            displayCopy[displayNameList[it]] = true;
+            for ( var it = 0; it < displayNameList.length; it++ ) {
+              displayCopy[displayNameList[it]] = true;
+            }
+
           }
-
-        } else {
-          displayCopy[displayNameList[displayNameList.length - 1]] = false;
         }
-      }
 
-      this.setState( displayCopy );
+        this.setState( { display : displayCopy, scrollOnOpen : true, scrollTo : e.value } );
+      }
     }
 
+    contentsChoose = e => {
+      e.target.blur();
+      const sliced = e.target.id.slice( 0, e.target.id.length - 4 ).replace( /\s+/g, '' );
+
+      if ( this.state.display[sliced] ) {
+        this.scrollToId( sliced )
+      } else {
+        let displayCopy = this.state.display;
+
+        for ( var i = 0; i < this.state.searchSubHeadings.length; i++ ) {
+          var displayNameList = this.state.searchSubHeadings[i].split( '/' );
+
+          if ( displayNameList[displayNameList.length - 1] === sliced ) {
+
+            for ( var it = 0; it < displayNameList.length; it++ ) {
+              displayCopy[displayNameList[it]] = true;
+            }
+
+          }
+        }
+
+        this.setState( { display : displayCopy, scrollOnOpen : true, scrollTo : sliced } );
+      }
+    }
+
+    scrollToId( id ) {
+      const elementToScrollTo = document.getElementById( id );
+      elementToScrollTo.scrollIntoView();
+    }
+
+    infoAreaOpenCallback = async e => {
+      if ( this.state.scrollOnOpen ) {
+        await new Promise( r => setTimeout( r, 1 ) );
+        // waits one millisecond so that deeply nested InfoArea's have time for their parents to un-collapse properly, thus updating their offsetTop properly
+
+        this.scrollToId( this.state.scrollTo );
+
+        this.setState( { scrollOnOpen : false } );
+      }
+    }
+
+  // BUTTON METHODS
     setDisplaysAs( as ) {
       let displayCopy = this.state.display;
 
@@ -404,6 +475,30 @@ export default class DocumentationView extends React.Component {
                     </div>
                   </Col>
                 </Row>
+                <InfoArea state={this.state} title={'Contents'} depth={1}>
+                  <div className='info-body white'>
+                    {
+                      this.state.searchSubHeadings.map( ( subHeading, index ) => {
+                        var indent = '';
+                        const splat = subHeading.split( '/' );
+                        const indentor = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0';
+                        while ( splat.length - 1 > ( indent.length / indentor.length ) ) { indent += indentor };
+                        return(
+                          <div key={subHeading + ' con'}>
+                            {indent}
+                            <span
+                              className='documentation-page-link'
+                              id={this.state.subHeadings[index] + ' con'}
+                              onClick={this.contentsChoose}>
+                              {this.state.subHeadings[index]}
+                            </span>
+                            <br/>
+                          </div>
+                        );
+                      } )
+                    }
+                  </div>
+                </InfoArea>
                 <InfoArea state={this.state} title={'To know before coding'} depth={1}>
                   <InfoArea state={this.state} title={'Introduction to language'} depth={2}>
                     <div className='info-body white'>
@@ -547,14 +642,17 @@ export default class DocumentationView extends React.Component {
                   <InfoArea state={this.state} title={'data'} depth={2}>
                     <div className='info-body white'>
                       Use :<br/>
-                      <code>data constant</code><br/>
+                      <code>data constant[,constant,constant,...]</code><br/>
                       Effects :<br/>
                       <ul>
-                        <li>The value in memory corresponding to the line is set as the passed-in constant</li>
+                        <li>The value in memory corresponding to the line is set as the passed-in constants</li>
                       </ul>
 
                       Machine code :<br/>
-                      <code>data $0010</code> := <code>$0010</code>, since <code>data</code> is parsed so that the <strong>constant</strong> is set into the line's <strong>corresponding memory cell/location</strong>
+                      <code>data $0010</code> := <code>$0010</code>, since <code>data</code> is parsed so that the <strong>constant</strong> is set into the line's <strong>corresponding memory cell/location</strong><br/>
+                      <br/>
+                      Note :<br/>
+                      <strong>Multiple</strong> constants can be <strong>optionally</strong> passed-in to the <code>data</code> command as arguments to fill <strong>subsequent</strong> memory <strong>cells</strong>, however, this <strong>feature</strong> is not supported in {this.theOriginalEmulator()}
                     </div>
                   </InfoArea>
                   <InfoArea state={this.state} title={'RRR'} depth={2}>
@@ -1171,7 +1269,7 @@ export default class DocumentationView extends React.Component {
                           Note :<br/>
                           If the command <strong>represented</strong> by the machine code in Re is an <strong>RRR</strong> or an <strong>EXP0</strong> command, i.e <strong>one word</strong>, then Rf is ignored<br/>
                           <br/>
-                          This command is also <strong>not implemented</strong> in {this.theOriginalEmulator()} so edge cases such as infinite recursion have been handled as seen appropriate. The command does assemble however, not as per the documentation, and it has no functionality<br/>
+                          This command is also <strong>not implemented</strong> in {this.theOriginalEmulator()} so edge cases such as infinite recursion have been handled as seen appropriate. The command does assemble however, not as per {this.theOriginalEmulator()}'s documentation, and it has no functionality<br/>
                           <br/>
                           {this.expParsedAs( 'execute', 'two registers', 'rrEXP' )}
                         </div>
@@ -1697,11 +1795,11 @@ export default class DocumentationView extends React.Component {
                           <tr>
                             <th>Command</th>
                             <th>Summary of function</th>
-                            <th>Machine Code</th>
+                            <th>Example and Machine Code</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {this.summaryTableRow( 'data', 'memory cell of line := constant', 'data $001f' )}
+                          {this.summaryTableRow( 'data', 'Memory cell of line := constant', 'data $001f' )}
                           {this.summaryTableRow( 'add', 'Rd := Ra + Rb; R15 flags set', 'add R1,R2,R3' )}
                           {this.summaryTableRow( 'sub', 'Rd := Ra - Rb; R15 flags set', 'sub R1,R2,R3' )}
                           {this.summaryTableRow( 'mul', 'Rd := Ra * Rb; R15 flags set', 'mul R1,R2,R3' )}
@@ -1782,29 +1880,296 @@ export default class DocumentationView extends React.Component {
                   </InfoArea>
                 </InfoArea>
                 <InfoArea state={this.state} title={'Using the IDE'} depth={1}>
+                  <InfoArea state={this.state} title={'Notes about the IDE that are unbelievably important'} depth={2}>
+                    <div className='info-body white'>
+                      Code <strong>persists</strong> between <strong>webpages</strong>. So the Editor and Documentation can be <strong>navigated between</strong> and the <strong>code in the Editor</strong> will be the <strong>same</strong>. However, code can <strong>only</strong> persist if the <strong>supplied buttons</strong> and <strong>tabs</strong> are used to <strong>navigate</strong> between them. This means that using the <strong>browser's history</strong> or <strong>forwards and backwards arrows</strong> will result in code being <strong>lost</strong><br/>
+                      <strong>Breakpoints</strong> and program <strong>input</strong> works in the <strong>same</strong> way and <strong>will persist</strong> so long as the <strong>proper methods</strong> of navigation are <strong>used</strong><br/>
+                      
+                      <br/>
+                      
+                      When writing out <strong>registers</strong> in arguments for commands, the <strong>capitalisation</strong> of the <q>R</q> is <strong>not needed</strong>. Therefore <code>add r1,r2,r3</code> and <code>add R1,R2,R3</code> and <strong>any variation</strong> is <strong>100% allowed</strong> and will produce the <strong>same machine code</strong> as their capitalised counterparts<br/>
+                      
+                      <br/>
+                      
+                      Unlike {this.theOriginalEmulator()}, <strong>white space</strong> before commands is <strong>not needed</strong>. This means that <code>add R1,R2,R3</code> and <code>{'\xa0\xa0\xa0\xa0'/** 4 * &nbsp */}add R1,R2,R3</code> will be <strong>parsed</strong> the <strong>exact same</strong> and produce the <strong>same machine code</strong>.
+                    </div>
+                  </InfoArea>
                   <InfoArea state={this.state} title={'Editing a program'} depth={2}>
                     <div className='info-body white'>
-                      Editing a program
+                      A program can be <strong>edited</strong> by updating the text in the <strong>code chunk</strong> provided in the <strong>Editor tab</strong><br/>
+                      
+                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/editing1.jpg`} alt='Red box around code chunk in Editor pane'/>
                     </div>
+                    <InfoArea state={this.state} title={'Input editing'} depth={3}>
+                      <div className='info-body white'>
+                        The <strong>input</strong> of a program can be edited by pressing the <FaPen/> icon at the <strong>far left</strong> of the button toolbar and updating the <strong>text box</strong> of the resulting modal. The input will then be set by either clicking the <strong>Set Input</strong> button or by clicking off the modal<br/>
+                        
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/editing2.jpg`} alt='Red box around text box of set input modal'/>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'Highlighting'} depth={3}>
+                      <div className='info-body white'>
+                        The <strong>keyword highlighting</strong> of the code chunk can be <strong>turned off</strong> by pressing the <FaCheck/> icon on the <strong>far right</strong> of the button toolbar. This <strong>increases</strong> the <strong>performance</strong> of the website <strong>slightly</strong> when editing larger files, e.g, thousands of lines<br/>
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/editing3.jpg`} alt='Unhighlighted code chunk'/><br/>
+                        However, <strong>indenting</strong> with the <strong>unhighlighted</strong> code chunk is not as <strong>well-formed</strong> so it is suggested that even when editing larger files, to <strong>still</strong> use the highlighting, or, another text Editor, such as{'\xa0'/**&nbsp*/}
+                        <a
+                          href='https://sublimetext.com'
+                          target='_blank'
+                          rel='noopener noreferrer'>
+                          Sublime Text 3
+                        </a><br/>
+                      </div>
+                    </InfoArea>
                   </InfoArea>
                   <InfoArea state={this.state} title={'Running a program'} depth={2}>
                     <div className='info-body white'>
-                      Running a program
+                      The current program <strong>can be run</strong> by simply pressing the <FaPlay/> icon in the <strong>far-left</strong> grouping in the button toolbar<br/>
+                      
+                      <br/>
+                      
+                      This will cause an <strong>implicit</strong> build - a <strong>compilation of the program</strong> - setting into the memory, and, running through of said memory<br/>
+                      A program can however <strong>only</strong> be <strong>run</strong> in this way if it has a <code>trap R0,R0,R0</code>, <strong>halt</strong>, instruction as this helps <strong>prevent</strong> the website from <strong>hanging</strong><br/>
+                      The <strong>resultant</strong> registers, control registers, memory, and, the output from a successful execution will then be displayed in <strong>modal</strong><br/>
+                      
+                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/running1.jpg`} alt='Modal showing program results'/>
+                      
+                      To see <strong>more memory</strong> values, it can be <strong>scrolled</strong> through when mousing over it and to <strong>display lower</strong> down memory values<br/>
+                      The <strong>output</strong> can be <strong>double-clicked</strong> to make it larger to get a better view as well. <strong>Another</strong> double click can be used to return the modal to <strong>how it was</strong><br/>
+                      The results modal can also be <strong>closed</strong> by simply <strong>clicking off</strong> of it<br/>
+                      
+                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/running2.jpg`} alt='Modal with larger output field'/>
+                      
+                      With the <strong>default</strong> program on launching the website, a <q>Hello, World!</q> program, the previously shown results will appear, printing <strong>Hello, World!</strong> into the output<br/>
+                      
+                      <br/>
+                      
+                      When <strong>hovering over</strong> memory and register values, their <strong>decimal</strong> and <strong>two's complement</strong> values will be shown to help make hex values <strong>more readable</strong><br/>
+                      
+                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/running3.jpg`} alt='Modal while mousing over a value to show decimal representation'/><br/>
                     </div>
                   </InfoArea>
                   <InfoArea state={this.state} title={'Debugging a program'} depth={2}>
-                    <div className='info-body white'>
-                      Debugging a program
-                    </div>
+                    <InfoArea state={this.state} title={'Syntax errors'} depth={3}>
+                      <div className='info-body white'>
+                        If you attempt to run a program with a command with an <strong>error</strong>, such as a <strong>syntax error</strong>, it will not run as it will <strong>fail to compile</strong><br/>
+                        The <strong>IDE</strong> will then <strong>display</strong> that an error has occurred at the <strong>top of the Editor tab</strong> with <strong>information</strong> about the said error<br/>
+                        A <strong>syntax error</strong> will produce this error<br/>
+                        
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging1.jpg`} alt='Red box around build unsuccessful alert'/><br/>
+                        
+                        <strong>Along</strong> with an alert at the top of the window displaying, the <strong>line</strong> in which error has occurred will have a <strong>red box</strong> replacing the regular black circle in the <strong>column</strong> to the <strong>left</strong> of the <strong>line numbers</strong> in the <strong>code chunk</strong><br/>
+                        When <strong>hovering over</strong> this now <strong>red box</strong>, details about why the error occurred will appear<br/>
+                        
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging2.jpg`} alt='Red box around error details tooltip'/><br/>
+                        
+                        To help <strong>prevent errors</strong> occurring, <strong>checks</strong> will be performed <strong>during editing</strong> of a program so that the run button <strong>doesn't have</strong> to be pressed <strong>each time</strong> to find <strong>errors</strong><br/>
+                        
+                        <br/>
+                        
+                        On top of this, the program can be <strong>just compiled</strong> with the <strong>build</strong> button, shown by the <FaHammer/> icon<br/>
+                        This will <strong>call</strong> for a <strong>build</strong> to be made which will also result in an <strong>alert</strong> of the <strong>status</strong> of the <strong>build</strong> being shown<br/>
+                        If there are <strong>no errors</strong> with building, a <strong>success</strong> alert will be displayed once the program has <strong>finished</strong> been <strong>built</strong><br/>
+                        
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging3.jpg`} alt='Red box around success alert'/><br/>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'Semantic errors - Debugger'} depth={3}>
+                      <div className='info-body white'>
+                        More <strong>semantic</strong> or <strong>logic</strong> errors, such as programs producing an <strong>unintended</strong> sets of <strong>results</strong>, have to have more <strong>powerful tools</strong> used than just syntax checking used on them in order to <strong>debug</strong> them<br/>
+                        
+                        <br/>
+                        
+                        This IDE's <strong>Debugger</strong> can be accessed either by <strong>navigating</strong> to the <q>Debug</q> tab <strong>or</strong> by <strong>pressing</strong> the <FaBug/> icon in the Editor tab<br/>
+                        
+                        <br/>
+                        
+                        This view will show you the programs <strong>current</strong> registers, control registers, memory, input, and, output <strong>values</strong><br/>
+                        It will also show you <strong>which lines</strong> of code is being <strong>executed</strong> in the <strong>code chunk</strong> next to these values<br/>
+                        
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging4.jpg`} alt='Red box around success alert'/><br/>
+                        
+                        Like the Editor tab, the <strong>highlighting</strong> for the code chunk can be turned <strong>off</strong> and <strong>on</strong> using the <FaCheck/> icon<br/>
+                        <strong>Unlike</strong> the Editor tab, however, the code chunk can be <strong>hidden completely</strong> using the <FaMinus/> icon<br/>
+                        
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging5.jpg`} alt='Red box around success alert'/><br/>
+                        
+                        To make sure that the <strong>expected</strong> machine code is being <strong>compiled</strong>, <strong>hovering over</strong> the <strong>line numbers</strong> will show the <strong>memory addresses</strong> of the lines corresponding machine code and the <strong>values</strong> of said <strong>memory</strong> addresses<br/>
+                        
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging10.jpg`} alt='Red box around memory info tooltip'/><br/>
+                        
+                        The program can also be <strong>executed</strong> by either running through at <strong>full speed</strong> - like in the Editor tab - or, by <strong>stepping-through</strong> it<br/>
+                        <strong>Full speed</strong> running can be performed by pressing the <FaPlay/><br/>
+                        <strong>Stepping-Through</strong> can be performed by pressing the <FaStepForward/><br/>
+                        Stepping-Through executes <strong>one line</strong> of code at a time and <strong>updates</strong> the registers, control registers, memory, input, and, output <strong>accordingly</strong><br/>
+                        
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging6.jpg`} alt='Red box around step-forward button after one press'/><br/>
+                        
+                        Also stepping-through the program shows the different <strong>line overlays</strong>. The <span style={{color : 'blue'}}><strong>blue</strong></span> overlay indicates the line that <strong>has</strong> just been <strong>executed</strong>. The <span style={{color : 'green'}}><strong>green</strong></span> overlay shows the line that is <strong>currently being</strong>/<strong>will</strong> be <strong>executed</strong><br/>
+                        This same <strong>format</strong> of highlighting is used to show the corresponding <strong>cells</strong> in <strong>memory</strong> are <strong>being</strong>/<strong>have</strong> been executed<br/>
+                        
+                        <br/>
+                        
+                        A program can be <strong>stepped-through</strong> or <strong>run</strong> through up until it is <strong>halted</strong>. This is <strong>most commonly</strong> done with a <code>trap R0,R0,R0</code> instruction<br/>
+                        <strong>After</strong> a program is <strong>halted</strong>, the buttons for running and stepping will become <strong>disabled</strong>. Also, the <span style={{color : 'green'}}><strong>green</strong></span> overlay will <strong>disappear</strong> as there will be <strong>no next</strong> line to <strong>execute</strong><br/>
+                        Execution of the program can be <strong>restarted</strong> by pressing the <FaBackward/> icon in the middle of the button toolbar<br/>
+                        
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging7.jpg`} alt='Red box around disabled run, step-forward, and, restart buttons'/><br/>
+                      </div>
+                      <InfoArea state={this.state} title={'Breakpoints'} depth={4}>
+                        <div className='info-body white'>
+                          On top of the <strong>stepping-through</strong> functionality, <strong>breakpoints</strong> have been implemented<br/>
+                          
+                          <br/>
+                          
+                          Breakpoints can be <strong>activated</strong> by <strong>clicking</strong> one of the <strong>circles</strong> on the column to the <strong>left</strong> of the <strong>line numbers</strong><br/>
+                          This will <strong>fill</strong> the <strong>circle</strong> to indicate the breakpoint has been activated. Also, in the Debugger window, the <strong>corresponding</strong> memory cell to the line will become <strong>underlined</strong> to show <strong>where</strong> in <strong>memory</strong> the program's <strong>execution</strong> will <strong>pause</strong><br/>
+                          
+                          <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging8.jpg`} alt='Red box around activated breakpoint and underlined memory value'/><br/>
+                          
+                          To <strong>disable</strong> breakpoints, they can either be <strong>clicked</strong> again or, to disable <strong>all</strong> breakpoints, the <FaTimes/> icon can be pressed<br/>
+                          This can be done to the <strong>disable</strong> breakpoints in either the <strong>Editor</strong> or the <strong>Debugger</strong> tabs<br/>
+
+                          <br/>
+                          
+                          When breakpoints are <strong>activated</strong>, program execution in the <strong>Debugger</strong> tab will <strong>pause</strong> when a line with a breakpoint is <strong>reached</strong><br/>
+                          
+                          <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging9.jpg`} alt='Red box around activated breakpoint and underlined memory value with program executed to the breakpoint'/><br/>
+                          
+                          Program execution can be <strong>resumed</strong> by just using the <strong>run</strong> or <strong>step-through</strong> buttons<br/>
+                          
+                          <br/>
+                          
+                          It is important to note that breakpoints <strong>only</strong> halt execution in the <strong>Debugger</strong> tab and have <strong>no effect</strong> on <strong>execution</strong> in the regular <strong>Editor</strong> tab<br/>
+                        </div>
+                      </InfoArea>
+                    </InfoArea>
                   </InfoArea>
                   <InfoArea state={this.state} title={'Exporting a program'} depth={2}>
                     <div className='info-body white'>
-                      Exporting a program
+                      Programs can be <strong>exported</strong> from the Editor in a number of ways<br/>
+
+                      <br/>
+
+                      The <strong>easiest</strong> method is to press the <FaDownload/> icon<br/>
+                      This will start the <strong>download</strong> a file that is the code exactly <strong>as-is</strong> in the <strong>code chunk</strong><br/>
+
+                      <br/>
+
+                      If you want to <strong>change</strong> the <strong>file name</strong> that the file downloads as, <strong>or</strong>, want to download the file in <strong>another format</strong>, pressing the <FaChevronDown/> icon will display a modal with <strong>more options</strong><br/>
+
+                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting1.jpg`} alt='Red box around export modal'/><br/>
+
+                      From the modal, the <strong>options</strong> for how to download the <strong>current</strong> code chunk is displayed. These options <strong>include</strong> :
+                      <ul>
+                        <li>the <strong>default</strong> option of <strong>as-is</strong>,</li>
+                        <li>the <strong>current code</strong> but in a format which makes it <strong>compatible</strong> with {this.theOriginalEmulator()},</li>
+                        <li>the <strong>pure binary</strong> values of the <strong>compiled</strong> current program,</li>
+                        <li>the current program but in a <strong>'data $' + machine code</strong> format,</li>
+                        <li>the current program but in a <strong>'data $' + machine code</strong> format, that is also <strong>compatible</strong> with {this.theOriginalEmulator()}</li>
+                      </ul>
+                      
+                      Also displayed by the modal is the <strong>file name</strong> field that <strong>chosen file option</strong> will download as, <strong>along with</strong> the displayed appended <strong>extension</strong><br/>
                     </div>
+                    <InfoArea state={this.state} title={'Exporting - Raw'} depth={3}>
+                      <div className='info-body white'>
+                        Exporting using the <strong>Raw</strong> option of the code chunk will produce a file filled with <strong>exactly</strong> the <strong>contents</strong> of the <strong>code chunk</strong> and <strong>nothing else</strong><br/>
+
+                        If the download can be <strong>completed successfully</strong>, an <strong>alert</strong> will be displayed saying so at the <strong>top of the tab</strong><br/>
+
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting2.jpg`} alt='Raw file'/>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'Exporting - Raw Compatible'} depth={3}>
+                      <div className='info-body white'>
+                        Exporting using the <strong>Raw Compatible</strong> option of the code chunk will produce a file filled with the current code chunk with compatible <strong>register arguments</strong>, <strong>indenting before lines with no labels</strong>, and, <strong>indenting before lines with labels</strong><br/>
+
+                        If the current program in the code chunk contains <strong>commands</strong> that would cause an <strong>error</strong> in the <strong>assembler</strong> {this.theOriginalEmulator()}, then an <strong>alert</strong> will display at the top of the page outlining <strong>which lines</strong> have <strong>incompatibilities</strong><br/>
+
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting3.jpg`} alt='Red box around failed download alert'/><br/>
+
+                        Along with the <strong>alert</strong>, the circle in the column to the <strong>left</strong> of the <strong>line numbers</strong> will turn into a <strong>red triangle</strong><br/>
+                        <strong>Hovering over</strong> this triangle will display information for why this line is <strong>incompatible</strong><br/>
+
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting4.jpg`} alt='Red box around failed download tooltip'/><br/>
+
+                        If the current program in the code chunk contains <strong>commands</strong> that do not either <strong>compile</strong> or <strong>function</strong> the same between this and {this.theOriginalEmulator()}, then an <strong>alert</strong> will display at the top of the page containing <strong>which lines</strong> may cause these <strong>discrepancies</strong><br/>
+
+                        <br/>
+
+                        The <strong>download</strong>, however, will still <strong>continue</strong> as these are seen as <strong>minor</strong> errors as they <strong>will not</strong> cause {this.theOriginalEmulator()}'s assembler to <strong>error</strong><br/>
+
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting5.jpg`} alt='Red box around warning download alert'/><br/>
+
+                        Along with the <strong>alert</strong>, the circle in the column to the <strong>left</strong> of the <strong>line numbers</strong> will turn into an <strong>orange triangle</strong><br/>
+                        <strong>Hovering over</strong> this triangle will display information for why this line may cause <strong>discrepancies</strong><br/>
+
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting6.jpg`} alt='Red box around warning download tooltip'/><br/>
+
+                        However, if <strong>both</strong> commands that will cause <strong>discrepancies</strong> and <strong>errors</strong> are present, then <strong>only</strong> the <strong>error alert</strong> will show, however, <strong>all</strong> the <strong>triangles</strong> of each type will <strong>show</strong><br/>
+
+                        <br/>
+
+                        It is also important to note that the <strong>triangles</strong> will <strong>only</strong> update <strong>after re-attempting</strong> a download of the <strong>same type</strong><br/>
+
+                        <br/>
+
+                        Downloading a <strong>Raw Compatible</strong> file may also disrupt neat indenting, and when downloaded will look like<br/>
+
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting7.jpg`} alt='Raw Compatible file'/>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'Exporting - Binary'} depth={3}>
+                      <div className='info-body white'>
+                        Exporting using the <strong>Binary</strong> option will produce a file filled with purely the binary values of the compiled program<br/>
+                        This will produce a <strong>.bin</strong> file and will need a special file viewer to view<br/>
+
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting8.jpg`} alt='Binary file'/><br/>
+                        
+                        The <strong>advantages</strong> of this file type are that it takes <strong>very little space</strong> and it <strong>doesn't</strong> have to <strong>worry</strong> about <strong>syntax</strong> across <strong>other emulators</strong> that follow the <strong>Sigma16 ISA</strong> - <strong>Industry Standard Architecture</strong> - as {this.theOriginalEmulator()}<br/>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'Exporting - Hex'} depth={3}>
+                      <div className='info-body white'>
+                        Exporting using the <strong>Hex</strong> option will produce a file filled with <strong>'data $' + machine code</strong><br/>
+                        
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting9.jpg`} alt='Hex file'/><br/>
+                        
+                        The <strong>advantage</strong> of this file type is that it <strong>doesn't</strong> have to <strong>worry</strong> about <strong>syntax</strong> across <strong>other emulators</strong> that follow the <strong>Sigma16 ISA</strong> - <strong>Industry Standard Architecture</strong> - as {this.theOriginalEmulator()}<br/>
+                        This is because <strong>all</strong> Sigma16 emulators <strong>should</strong> have the <strong>same functionality</strong> for the <strong>same machine code</strong> for them<br/>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'Exporting - Hex Compatible'} depth={3}>
+                      <div className='info-body white'>
+                        Exporting using the <strong>Hex Compatible</strong> option will produce a file filled with <strong>' data $' + machine code</strong><br/>
+                        
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting10.jpg`} alt='Hex Compatible file'/><br/>
+                        
+                        This file has been made to be <strong>compatible</strong> with {this.theOriginalEmulator()} as {this.theOriginalEmulator()} requires <strong>white space before</strong> commands to <strong>recognise</strong> them properly<br/>
+
+                        <br/>
+
+                        Before this file is downloaded, the <strong>same checks</strong> as the <strong>Raw Compatible</strong> occur, meaning that is there are <strong>commands</strong> that will cause <strong>errors</strong> or <strong>discrepancies</strong> with {this.theOriginalEmulator()} then the appropriate <strong>alerts</strong> and <strong>tooltips</strong> will be displayed<br/>
+                      </div>
+                    </InfoArea>
                   </InfoArea>
                   <InfoArea state={this.state} title={'Importing a program'} depth={2}>
                     <div className='info-body white'>
-                      Importing a program
+                      For <strong>most</strong> files, <strong>importing</strong> is as easy as <strong>copying</strong> the contents of them and <strong>pasting</strong> the contents into the <strong>code chunk</strong><br/>
+
+                      <br/>
+
+                      However, for importing <strong>binary</strong>, <strong>.bin</strong>, files, they <strong>cannot</strong> be <strong>copied</strong> and <strong>pasted</strong> into the code chunk<br/>
+                      To import binary files, press the <FaUpload/> icon and <strong>open</strong>/<strong>select</strong> the <strong>.bin</strong> file to upload from the file <strong>dialogue</strong> that appears<br/>
+
+                      <br/>
+
+                      This will then <strong>import</strong> the <strong>selected</strong> program and <strong>format</strong> it so that it is in the layout of <strong>'data $' + machine code</strong><br/>
+
+                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/importing1.jpg`} alt='Red box around imported code and upload button'/><br/>
+
+                      This code may <strong>look significantly different</strong>, however, it is the same <q>Hello, World!</q> program that <strong>all</strong> the other examples use<br/>
+
+                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/importing2.jpg`} alt='Red box around imported code and results modal'/><br/>
                     </div>
                   </InfoArea>
                 </InfoArea>
@@ -1832,9 +2197,13 @@ class InfoArea extends React.Component {
     this.props.state.setParentState( { display : passed } );
   }
 
+  ifCallback = e => {
+    if ( this.state.showName === this.props.state.scrollTo ) this.props.state.infoAreaOpenCallback( e );
+  }
+
   render() {
     return (
-      <div className={ 'info-field depth' + this.props.depth }>
+      <div id={this.state.showName} className={ 'info-field depth' + this.props.depth }>
         <div className={ 'info-title depth' + this.props.depth }>
           <Row>
             <Col>
@@ -1853,7 +2222,7 @@ class InfoArea extends React.Component {
             </Col>
           </Row>
         </div>
-        <Collapse in={this.props.state.display[this.state.showName]}>
+        <Collapse in={this.props.state.display[this.state.showName]} onEntered={this.ifCallback}>
           <div className='info-body'>
             {this.props.children}
           </div>
