@@ -67,6 +67,11 @@ code {
   white-space: break-spaces;
 }
 
+.machine-code-template {
+  background-color: #eaeef3;
+  line-height: normal;
+}
+
 
 .info-field.depth1 {
   border-color: #eaeef3;

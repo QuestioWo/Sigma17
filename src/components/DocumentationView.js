@@ -585,6 +585,14 @@ export default class DocumentationView extends React.Component {
                       Then the <strong>d</strong> code as the <strong>second</strong> letter<br/>
                       The <strong>a</strong> code as the <strong>third</strong> letter<br/>
                       Finally, the <strong>b</strong> code is set as the <strong>fourth</strong> letter<br/>
+                      <br/>
+                      <div className='machine-code-template'>
+                        <pre>
+                          ---------------------<br/>
+                          | op |  d |  a |  b |<br/>
+                          ---------------------
+                        </pre>
+                      </div>
                     </div>
                     <InfoArea state={this.state} title={'add'} depth={3}>
                       <div className='info-body white'>
@@ -813,6 +821,16 @@ export default class DocumentationView extends React.Component {
                       <br/>
                       Note :<br/>
                       All machine code examples will involve passing in 'test' as the disp argument. 'test' has an <strong>arbitrary</strong> memory <strong>address</strong> of $0010.<br/>
+                      <br/>
+                      <div className='machine-code-template'>
+                        <pre>
+                          ---------------------<br/>
+                          | op |  d |  a |  b |<br/>
+                          ---------------------<br/>
+                          |    displacement   |<br/>
+                          ---------------------
+                        </pre>
+                      </div>
                     </div>
                     <InfoArea state={this.state} title={'lea'} depth={3}>
                       <div className='info-body white'>
@@ -1084,6 +1102,13 @@ export default class DocumentationView extends React.Component {
                         Then the <strong>d</strong> code as the <strong>second</strong> letter<br/>
                         And finally, the <strong>ab</strong> code is set as the <strong>third and fourth</strong> letters<br/>
                         <br/>
+                        <div className='machine-code-template'>
+                          <pre>
+                            ---------------------<br/>
+                            | op |  d |    ab   |<br/>
+                            ---------------------
+                          </pre>
+                        </div>
                         Note :<br/>
                         EXP0 commands are named so as they are <strong>EXP</strong> commands that have an <strong>argument constant field length</strong> of <strong>0</strong>, since they have <strong>no</strong> argument constants, i.e no <strong>g</strong> or <strong>h</strong> field.
                       </div>
@@ -1125,6 +1150,15 @@ export default class DocumentationView extends React.Component {
                         And, the <strong>ab</strong> code is set as the <strong>third and fourth</strong> letters of the first word<br/>
                         For the <strong>second</strong> word, the <strong>first</strong> to <strong>fourth</strong> letters of the hex word are set as the <strong>e field</strong> to the <strong>h field</strong> respectively<br/>
                         <br/>
+                        <div className='machine-code-template'>
+                          <pre>
+                            ---------------------<br/>
+                            | op |  d |    ab   |<br/>
+                            ---------------------<br/>
+                            |  e |  f |  g |  h |<br/>
+                            ---------------------
+                          </pre>
+                        </div>
                         Note :<br/>
                         EXP4 commands are named so as they are <strong>EXP</strong> commands that have an <strong>argument constant field length</strong> of <strong>4</strong>, since they have <strong>two</strong> argument constants, both <strong>4</strong>-bits long
                       </div>
@@ -1638,6 +1672,15 @@ export default class DocumentationView extends React.Component {
                         For the <strong>second</strong> word, the <strong>first</strong> and <strong>second</strong> letters of the hex word are set as the <strong>e field</strong> and the <strong>f field</strong> respectively<br/>
                         Then lastly, the <strong>third and fourth</strong> letters are set as the <strong>gh field</strong> to complete the second word<br/>
                         <br/>
+                        <div className='machine-code-template'>
+                          <pre>
+                            ---------------------<br/>
+                            | op |  d |    ab   |<br/>
+                            ---------------------<br/>
+                            |  e |  f |    gh   |<br/>
+                            ---------------------
+                          </pre>
+                        </div>
                         Note :<br/>
                         EXP8 commands are named so as they are <strong>EXP</strong> commands that have an <strong>argument constant field length</strong> of <strong>8</strong>, since they have <strong>one</strong> argument constant which is <strong>8</strong>-bits long
                       </div>
