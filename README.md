@@ -42,6 +42,10 @@ This will start the local React.js development server and should open a windown 
 * √ - Implement parser - remove need for whitespace with commands reccognition
 * √ - Display errors in `CodeMirror` chunk for syntax errors
 * √ - Have parser translate to machine code
+* √ - Allow multiple data statements to be strung together, e.g `data $30,$40`
+* Stricter requirements for labels to be accepted.
+* Abstract RegEx for checking statements.
+* Binary accepted as integers.
 
 3. Finish code runner
 * √ - Add window for displaying register output, memory values and I/O of program after running
@@ -68,6 +72,8 @@ This will start the local React.js development server and should open a windown 
 * √ - Add double click back to output box
 * √ - Show code chunk of currently being executed program
 * √ - Display highlighting of lines being exectued in code chunk
+* Make the code debugger follow the line that was executed
+* Highlighting for effected/used memory values and registers.
 
 5. Write Tests
 * √ - Write testing framework for/how to set tests out
@@ -77,9 +83,14 @@ This will start the local React.js development server and should open a windown 
 * √ - Tests for RUNNING
 * √ - Finish tests for `Emulator.js`
 
-6. Clean-Up
-* Write documentation that outlines function calls, i.e how to debug as an outsider.
-* Write basic documentation for Sigma16 instructions.
+6. Write Documentation
+* √ - Write documentation for Sigma16 instructions.
+* √ - Write documentation for how to use the emulator.
+* √ - Write a full list of all of the instructions, aliases and all.
+* √ - Have a contents or a search functionality to make navigating easier.
+* ( Possible ) - Write documentation that outlines function calls, i.e how to debug as an outsider. *Possibly on repos rather than in actual website.*
+
+7. Clean-Up
 * √ - Set up `github.io` page for emulator
 * √ - Write 'Hello, World!' program to be default display
 * √ - Add download/copy buttons for machine code and Sigma16 code versions of the program on the editor.
@@ -87,6 +98,8 @@ This will start the local React.js development server and should open a windown 
 * √ - Allow unhighlighted code chunk to have tabs used correctly.
 * √ - Make webiste display properly on Firefox and Safari
 * x - Make double clicking on output boxes work properly on Firefox
+* √ - Stricter requirements for comments to be accepted.
+* √ - Binary files properly generate and import.
 
 ## Author
 

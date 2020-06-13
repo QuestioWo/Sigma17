@@ -4,7 +4,7 @@ import 'codemirror/lib/codemirror.css';
 import './ProgramEditorView.css';
 
 import { Link } from 'react-router-dom';
-import { Alert, Button, ButtonGroup, Col, InputGroup, Modal, OverlayTrigger, Row, ToggleButton, ToggleButtonGroup, Tooltip } from 'react-bootstrap';
+import { Alert, Button, ButtonGroup, Col, FormControl, InputGroup, Modal, OverlayTrigger, Row, ToggleButton, ToggleButtonGroup, Tooltip } from 'react-bootstrap';
 import { FaBug, FaCheck, FaChevronDown, FaDownload, FaHammer, FaPen, FaPlay, FaTimes, FaUpload } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
@@ -434,11 +434,12 @@ export default class ProgramEditorView extends React.PureComponent {
         if ( trimmed !== '' && trimmed.split( ';' )[0] !== '' ) {
           parsed = Emulator.parseLineForMachineCode( lines[it], labels );
           if ( parsed ) {
-            machineCode.push( parsed[0] );
-            
-            // if two word instruction
-            if ( Emulator.isValidNumber( Emulator.readSignedHex( parsed[1] ) ) ) {
-              machineCode.push( parsed[1] );
+            for ( var iter = 0; iter < parsed.length; iter++ ) {
+              if ( Emulator.isValidNumber( Emulator.readSignedHex( parsed[iter] ) ) ) {
+                machineCode.push( parsed[iter] );
+              } else {
+                break;
+              }
             }
           }
         }
@@ -511,49 +512,66 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   runCode = button => {
-    // implicit build if needed
-    var machineCode = [];
-    if ( this.state.machineCodeUpdated ) {
-      machineCode = this.state.machineCode;
-    } else {
-      machineCode = this.parseCode();
-    }
+    var check = this.checkCode( this.state.code );
 
-    var canRun = this.canRunCode( this.state.code, machineCode );
-    var ran = {
-      halted : false
-    };
-
-    if ( !canRun.length ) {
-      var localControl = this.state.cpuControl;
-      var localRegisters = this.state.registers;
-      var localMemory = Emulator.setMemory( machineCode );
-      var localInput = this.state.input;
-      var localOutput = this.state.output;
-
-      while ( !( ran['halted'] ) ) {
-        ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
-
-        localControl = ran['control'];
-        localRegisters = ran['registers'];
-        localMemory = ran['memory'];
-        localInput = ran['input'];
-        localOutput = ran['output'];
-
-        // if ran out of commands
-        if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
+    if ( check[0] ) {
+      // implicit build if needed
+      var machineCode = [];
+      if ( this.state.machineCodeUpdated ) {
+        machineCode = this.state.machineCode;
+      } else {
+        machineCode = this.parseCode();
       }
 
-      this.setState( { 
-        cpuControl : localControl, 
-        registers : localRegisters,
-        memory : localMemory, 
-        output : localOutput, 
-        outputZoomed : false, 
-        runModalShow : true 
-      } );
+      var canRun = this.canRunCode( this.state.code, machineCode );
+      var ran = {
+        halted : false
+      };
+
+      if ( !canRun.length ) {
+        var localControl = this.state.cpuControl;
+        var localRegisters = this.state.registers;
+        var localMemory = Emulator.setMemory( machineCode );
+        var localInput = this.state.input;
+        var localOutput = this.state.output;
+
+        while ( !( ran['halted'] ) ) {
+          ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
+
+          localControl = ran['control'];
+          localRegisters = ran['registers'];
+          localMemory = ran['memory'];
+          localInput = ran['input'];
+          localOutput = ran['output'];
+
+          // if ran out of commands
+          if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
+        }
+
+        this.setState( { 
+          cpuControl : localControl, 
+          registers : localRegisters,
+          memory : localMemory, 
+          output : localOutput, 
+          outputZoomed : false, 
+          runModalShow : true 
+        } );
+      } else {
+        this.updateAlert( canRun, 'danger' );
+      }
     } else {
-      this.updateAlert( canRun, 'danger' );
+      var keys = Object.keys( check[1] );
+      var keysString = '';
+
+      for ( var ite = 0; ite < keys.length; ite++ ) {
+        if ( ite !== 0 ) {
+          keysString += ', ';
+        }
+
+        keysString += keys[ite];
+      }
+
+      this.updateAlert( 'Built unsuccesfully, correct syntax errors at line(s): ' + keysString, 'danger' );
     }
   }
 
@@ -590,11 +608,7 @@ export default class ProgramEditorView extends React.PureComponent {
     if ( check[0] ) {
       var textValue = this.state.fileName;
       if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
-        if ( textValue.endsWith( '.asm' ) ) {
-          textValue += '.txt';
-        } else if ( !( textValue.endsWith( '.txt' ) ) ) {
-          textValue += '.asm.txt';
-        }
+        textValue += '.asm.txt';
       }
 
       this.downloadFile( textValue, this.state.code );
@@ -627,11 +641,7 @@ export default class ProgramEditorView extends React.PureComponent {
       if ( checkCompatible[0] ) {
         var textValue = this.state.fileName;
         if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
-          if ( textValue.endsWith( '.asm' ) ) {
-            textValue += '.txt';
-          } else if ( !( textValue.endsWith( '.txt' ) ) ) {
-            textValue += '.asm.txt';
-          }
+          textValue += '.asm.txt';
         }
 
         this.downloadFile( textValue, Emulator.parseCodeToCompatible( this.state.code ) );
@@ -690,25 +700,33 @@ export default class ProgramEditorView extends React.PureComponent {
 
     if ( check[0] ) {
       var machineCode = this.parseCode();
-      var stream = '';
-
-      var currentLine = 0;
-        
-      for ( var i = 0; i < machineCode.length; i++ ) {
-        stream += Emulator.writeHex( machineCode[i] );
-        if ( currentLine === 7 ) {
-          stream += '\n';
-          currentLine = 0;
-        } else if ( i !== ( machineCode.length - 1 ) ) {
-          stream += ' ';
-          currentLine += 1;
-        }
-      }
 
       var textValue = this.state.fileName;
       textValue += '.bin';
 
-      this.downloadFile( textValue, stream, 'application/mac-binary' );
+      var stream = new Uint16Array( machineCode.length );
+      for ( var i = 0; i < machineCode.length; i++ ) {
+        const hiByte = ( machineCode[i] & 0xff00 ) >> 8;
+        const loByte = machineCode[i] & 0x00ff;
+
+        stream[i] = ( loByte << 8 ) | hiByte;
+      }
+
+      var blob = new Blob( [stream] ),
+        url = window.URL.createObjectURL(blob);
+      
+      var element = document.createElement( 'a' );
+      element.setAttribute( 'href', url );
+      element.setAttribute( 'download', textValue );
+
+      element.style.display = 'none';
+
+      document.body.appendChild(element);
+
+      element.click();
+      
+      document.body.removeChild( element );
+
       this.updateAlert( 'Download successful', 'success' );
     } else {
       var keys = Object.keys( check[1] );
@@ -739,11 +757,7 @@ export default class ProgramEditorView extends React.PureComponent {
 
       var textValue = this.state.fileName;
       if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
-        if ( textValue.endsWith( '.asm' ) ) {
-          textValue += '.txt';
-        } else if ( !( textValue.endsWith( '.txt' ) ) ) {
-          textValue += '.asm.txt';
-        }
+        textValue += '.asm.txt';
       }
 
       this.downloadFile( textValue, stream );
@@ -783,11 +797,7 @@ export default class ProgramEditorView extends React.PureComponent {
 
         var textValue = this.state.fileName;
         if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
-          if ( textValue.endsWith( '.asm' ) ) {
-            textValue += '.txt';
-          } else if ( !( textValue.endsWith( '.txt' ) ) ) {
-            textValue += '.asm.txt';
-          }
+          textValue += '.asm.txt';
         }
 
         this.downloadFile( textValue, stream );
@@ -894,32 +904,68 @@ export default class ProgramEditorView extends React.PureComponent {
     this.setState( { downloadAs : value } );
   }
 
+  getExtension() {
+    var result = '';
+
+    switch ( this.state.downloadAs ) {
+      case 0 :
+        result = '.asm.txt';
+        break;
+
+      case 1 :
+        result = '.asm.txt';
+        break;
+
+      case 2 :
+        result = '.bin';
+        break;
+
+      case 3 :
+        result = '.asm.txt';
+        break;
+
+      case 4 :
+        result = '.asm.txt';
+        break;
+
+      default :
+        this.updateAlert( 'Download cannot continue due to internal website error. Try to contact Jim Carty.', 'danger' );
+    }
+
+    return result;
+  }
+
 // UPLOADING METHODS
   uploadDisplay = button => {
     document.getElementById( 'binary-upload' ).click();
   }
 
   uploadFile = e => {
-    e.target.files[0].text()
-      .then( data => {
-        var newCode = '';
-        var binarySplit = data.split( /\s+/ );
+    var reader = new FileReader();
+    reader.onload = () => {
+      var array = new Uint16Array( reader.result )
+      var newCode = '';
 
-        for ( var i = 0; i < binarySplit.length; i++ ) {
-          newCode += 'data $' + binarySplit[i];
-          if ( i !== ( binarySplit.length - 1 ) ) {
-            newCode += '\n'
-          }
+      for ( var i = 0; i < array.length; i++ ) {
+        const hiByte = ( array[i] & 0xff00 ) >> 8;
+        const loByte = array[i] & 0x00ff;
+
+        newCode += 'data $' + Emulator.writeHex( ( loByte << 8 ) | hiByte );
+        if ( i !== ( array.length - 1 ) ) {
+          newCode += '\n'
         }
+      }
 
-        this.updateCode( newCode );
+      this.updateCode( newCode );
 
-        // highlighting toggles required as CodeMirror component does not update properly
-        if ( this.state.highlightedCodeChunk ) {
-          this.toggleHighlighting();
-          this.toggleHighlighting();
-        }
-      } );
+      // highlighting toggles required as CodeMirror component does not update properly
+      if ( this.state.highlightedCodeChunk ) {
+        this.toggleHighlighting();
+        this.toggleHighlighting();
+      }
+    }
+
+    reader.readAsArrayBuffer( e.target.files[0] );
   }
 
 // CODEMIRROR METHODS
@@ -1184,16 +1230,17 @@ export default class ProgramEditorView extends React.PureComponent {
                 </ToggleButton>
               </ToggleButtonGroup>
             </div>
-            <div className='download-modal-column'>
-              <InputGroup
-                as='textarea'
+            <InputGroup className='download-modal-column'>
+              <FormControl
                 id='download-modal-download'
-                className='download-modal-download'
                 value={this.state.fileName}
                 onChange={this.fileNameUpdate}
                 onKeyDown={this.fileNameHandleKeyDown}
                 autoFocus/>
-            </div>
+              <InputGroup.Append>
+                <InputGroup.Text>{this.getExtension()}</InputGroup.Text>
+              </InputGroup.Append>
+            </InputGroup>
             <div style={{paddingTop : '15px'}}>
               <OverlayTrigger
                 key={`download-tooltip`}

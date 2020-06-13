@@ -519,29 +519,33 @@ export default class ProgramDebugView extends React.Component {
         if ( trimmed !== '' && trimmed.split( ';' )[0] !== '' ) {
           parsed = Emulator.parseLineForMachineCode( lines[it], labels );
           if ( parsed ) {
-            var mcLength = machineCode.length;
-            if ( nextLineBreakpoint ) {
-              breakpointsMachineCode.push( mcLength );
-              nextLineBreakpoint = false;
-            }
+            var mcLengthBefore = machineCode.length;
+            for ( var iter = 0; iter < parsed.length; iter++ ) {
+              if ( Emulator.isValidNumber( Emulator.readSignedHex( parsed[iter] ) ) ) {
+                if ( nextLineBreakpoint ) {
+                  breakpointsMachineCode.push( mcLengthBefore );
+                  nextLineBreakpoint = false;
+                }
 
-            memoryToLine[mcLength] = it;
-            lineToMemory[it] = [];
-            lineToMemory[it].push( mcLength );
+                memoryToLine[mcLengthBefore] = it;
+                if ( lineToMemory[it] === undefined ) lineToMemory[it] = [];
+                lineToMemory[it].push( machineCode.length );
 
-            machineCode.push( parsed[0] );
-            
-            // if two word instruction
-            if ( Emulator.isValidNumber( Emulator.readSignedHex( parsed[1] ) ) ) {
-              lineToMemory[it].push( mcLength + 1 );
-
-              machineCode.push( parsed[1] );
+                machineCode.push( parsed[iter] );
+              } else {
+                break;
+              }
             }
           }
         }
       }
 
-      this.setState( { machineCode : machineCode, breakpointsMachineCode : breakpointsMachineCode, memoryToLine : memoryToLine, lineToMemory : lineToMemory } );
+      this.setState( { 
+        machineCode : machineCode, 
+        breakpointsMachineCode : breakpointsMachineCode, 
+        memoryToLine : memoryToLine, 
+        lineToMemory : lineToMemory
+      } );
     } else {
       var keys = Object.keys( check[1] );
       var keysString = '';
@@ -914,7 +918,7 @@ export default class ProgramDebugView extends React.Component {
                 placement={'top'}
                 overlay={
                   <Tooltip>
-                    {`Hide the codechunk`}
+                    {`Hide the code chunk`}
                   </Tooltip>
                 }>
                 <Button variant='outline-secondary' size='sm' onClick={this.toggleCodeChunk} active={!(this.state.showCodeChunk)}>

@@ -56,6 +56,11 @@ export default class HomeView extends React.Component {
           </Row>
           <Row>
             <Col>
+              When using the emulator, <strong>do not</strong> navigate the pages with the brower's built-in forward and backwards buttons as <strong>code will not save.</strong> Navigate using <strong>only</strong> the nav bar at the top of the screen.
+            </Col>
+          </Row>
+          <Row>
+            <Col>
               <div className="click-editor">
                 <Link to={{
                   pathname : "/editor",
@@ -74,7 +79,7 @@ export default class HomeView extends React.Component {
           <Row>
             <Col>
               <div className="click-editor">
-                <a href="https://github.com/QuestioWo/Sigma17">
+                <a href="https://github.com/QuestioWo/Sigma17" target='_blank' rel='noopener noreferrer'>
                   View Source Directory on GitHub
                 </a>
               </div>

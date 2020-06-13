@@ -38,6 +38,7 @@
     jumpnv : 'jumpAlias',
     jumpnvu : 'jumpAlias',
     jumpnco : 'jumpAlias',
+    jumpnso : 'jumpAlias',
 
     jumplt : 'jumpAlias',
     jumpeq : 'jumpAlias',
@@ -45,6 +46,7 @@
     jumpv : 'jumpAlias',
     jumpvu : 'jumpAlias',
     jumpco : 'jumpAlias',
+    jumpso : 'jumpAlias',
 
     data : 'x',
 
@@ -171,11 +173,7 @@
     push : 'Assembles but no functionality',
     pop : 'Assembles but no functionality',
     top : 'Assembles but no functionality',
-    field : 'Assembler accepts but does not produce any codes',
-    andnew : 'Assembler does not recognise but same functionality can be had with "and"',
-    ornew : 'Assembler does not recognise but same functionality can be had with "or"',
-    xornew : 'Assembler does not recognise but same functionality can be had with "xor"',
-    invnew : 'Assembler does not recognise but same functionality can be had with "inv"'
+    field : 'Assembler accepts but does not produce any codes'
   };
 
   const nonCompatibleCommands = [ // not even recognised by assembler
@@ -183,7 +181,13 @@
     'getbit',
     'getbiti',
     'putbit',
-    'putbiti'
+    'putbiti',
+    'jumpnso',
+    'jumpso',
+    'andnew',
+    'ornew',
+    'xornew',
+    'invnew'
   ];
   
   const firstColumn = Math.pow( 16, 3 );
@@ -225,13 +229,15 @@
       jumpnv : [ 4, 6 ],
       jumpnvu : [ 4, 5 ],
       jumpnco : [ 4, 7 ],
+      jumpnso : [ 4, 8 ],
 
       jumplt : [ 5, 3 ],
       jumpeq : [ 5, 2 ],
       jumpgt : [ 5, 1 ],
       jumpv : [ 5, 6 ],
       jumpvu : [ 5, 5 ],
-      jumpco : [ 5, 7 ]
+      jumpco : [ 5, 7 ],
+      jumpso : [ 5, 8 ]
     };
     const kxCommands = {
       jumpc0 : 4,
@@ -590,12 +596,17 @@
 
   function checkXCommand( x ) {
     // check that x is a number, either hex or decimal
-    if ( !( /^((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+$/.test( x ) ) ) {
-      return 'arguments must be in the form of "constant" up to 65535 and down to -32768';
-    }
+    const xsplit = x.split( ',' );
+    for ( var i = 0; i < xsplit.length; i++ ) {
+      var xtest = xsplit[i];
 
-    if ( !( isValidNumber( x ) ) ) {
-      return 'data must be followed by either a decimal or hex number <= 65535 and >=-32768';
+      if ( !( /^((\$((\d)|([a-f]))+)|(-(\d))|(\d)|(\w))+$/.test( xtest ) ) ) {
+        return 'arguments must be in the form of "constant" up to 65535 and down to -32768';
+      }
+
+      if ( !( isValidNumber( xtest ) ) ) {
+        return 'data must be followed by either a decimal or hex number <= 65535 and >=-32768';
+      }
     }
     return true;
   }
@@ -939,14 +950,18 @@
   }
 
   export function checkLine( line, labels ) {
-    var linesplit = line.trim().split( ';' )[0].split( /\s+/ );
+    var linesplit = line.split( ';' )[0].trim().split( /\s+/ );
     var error = true;
 
     if ( linesplit[0] ) {
       // lines isnt empty
       if ( Object.keys( allCommands ).includes( linesplit[0] ) ) {
         // first word is a command
-        error = checkCommands( linesplit[0], linesplit[1], labels ); // will return error is arguments not present so dont have to check
+        if ( linesplit.length <= 2 ) {
+          error = checkCommands( linesplit[0], linesplit[1], labels ); // will return error is arguments not present so dont have to check
+        } else {
+          error = 'non-comment after arguments';
+        }
       } else {
         // first word is not a command
         if ( /\w/.test( linesplit[0] ) ) {
@@ -954,7 +969,11 @@
           if ( linesplit[1] ) {
             // theres more after label
             if ( Object.keys( allCommands ).includes( linesplit[1] ) ) {
-              error = checkCommands( linesplit[1], linesplit[2], labels );
+              if ( linesplit.length <= 3 ) {
+                error = checkCommands( linesplit[1], linesplit[2], labels );
+              } else {
+                error = 'non-comment after arguments';
+              }
             } else {
               error = 'not a valid command following label';
             }
@@ -1243,7 +1262,14 @@
         break;
         
       case 'x' :
-        result['disp'] = readConstant( argument, labels );
+        result['disp'] = [];
+        const xsplit = argument.split( ',' );
+
+        for ( var i = 0; i < xsplit.length; i++ ) {
+          var x = xsplit[i];
+
+          result['disp'].push( readConstant( x, labels ) );
+        }
         break;
 
       case 'noEXP' :
@@ -1396,48 +1422,49 @@
   }
 
   function generateMachineCode( command, argument, labels ) {
-    var machineCode = 0;
-    var machineCodeSecond = 65536;
+    var result = [];
 
     var commandInfo = findInstuctionInfo( command, argument );
     var argumentInfo = findArgumentInfo( command, argument, labels );
 
     switch ( commandInfo['type'] ) {
       case 'rrr' :
-        machineCode += commandInfo['op']*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + argumentInfo['b']*fourthColumn;
+        result.push( commandInfo['op']*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + argumentInfo['b']*fourthColumn );
         break;
 
       case 'rx' :
-        machineCode += 0xf*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + commandInfo['op']*fourthColumn;
+        result.push( 0xf*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + commandInfo['op']*fourthColumn );
 
-        machineCodeSecond = argumentInfo['disp'];
+        result.push( argumentInfo['disp'] );
         break;
 
       case 'x' :
-        machineCode += argumentInfo['disp'];
+        for ( var i = 0; i < argumentInfo['disp'].length; i++ ) {
+          result.push( argumentInfo['disp'][i] );
+        }
         break;
 
       case 'exp0' :
-        machineCode += 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn;
+        result.push( 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn );
         break;
 
       case 'exp4' :
-        machineCode += 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn;
+        result.push( 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn );
         
-        machineCodeSecond = argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['g']*thirdColumn + argumentInfo['h']*fourthColumn;
+        result.push( argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['g']*thirdColumn + argumentInfo['h']*fourthColumn );
         break;
 
       case 'exp8' :
-        machineCode += 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn;
+        result.push( 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn );
         
-        machineCodeSecond = argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['gh']*fourthColumn;
+        result.push( argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['gh']*fourthColumn );
         break;
 
       default :
         break;
     }
 
-    return [ machineCode, machineCodeSecond ];
+    return result;
   }
 
   export function parseLineForLabels( line ) {
@@ -1477,7 +1504,7 @@
   }
 
   export function parseLineForMachineCode( line, labels ) {
-    var machineCode = [ 0, 65536 ];
+    var machineCode;
 
     var linesplit = line.trim().split( ';' )[0].split( /\s+/ );
 
@@ -1993,7 +2020,9 @@
 
         for ( var iSave = Re; iSave <= ( Re + diffSave ); iSave++ ) {
           var regNoSave = iSave % 16;
-          memory[effectiveADRsave + ( iSave - Re )] = registers[regNoSave];
+          var validMemorySave = effectiveADRsave + ( iSave - Re );
+          if ( validMemorySave >= 0x10000 ) validMemorySave -= 0x10000;
+          memory[validMemorySave] = registers[regNoSave];
         }
 
         break;
@@ -2012,8 +2041,12 @@
 
         for ( var iRestore = Re; iRestore <= ( Re + diffRestore ); iRestore++ ) {
           var regNoRestore = iRestore % 16;
-          if ( memory[effectiveADRrestore + ( iRestore - Re )] ) {
-            registers[regNoRestore] = memory[effectiveADRrestore + ( iRestore - Re )];
+
+          var validMemoryRestore = effectiveADRrestore + ( iRestore - Re );
+          if ( validMemoryRestore >= 0x10000 ) validMemoryRestore -= 0x10000;
+
+          if ( memory[validMemoryRestore] ) {
+            registers[regNoRestore] = memory[validMemoryRestore];
           } else {
             registers[regNoRestore] = 0;
           }

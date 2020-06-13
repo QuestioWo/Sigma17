@@ -90,11 +90,7 @@ const partiallyCompatibleCommands = { // recognised by assembler but has other e
   push : 'Assembles but no functionality',
   pop : 'Assembles but no functionality',
   top : 'Assembles but no functionality',
-  field : 'Assembler accepts but does not produce any codes',
-  andnew : 'Assembler does not recognise but same functionality can be had with "and"',
-  ornew : 'Assembler does not recognise but same functionality can be had with "or"',
-  xornew : 'Assembler does not recognise but same functionality can be had with "xor"',
-  invnew : 'Assembler does not recognise but same functionality can be had with "inv"'
+  field : 'Assembler accepts but does not produce any codes'
 };
 
 const nonCompatibleCommands = [ // not even recognised by assembler
@@ -102,7 +98,13 @@ const nonCompatibleCommands = [ // not even recognised by assembler
   'getbit',
   'getbiti',
   'putbit',
-  'putbiti'
+  'putbiti',
+  'jumpnso',
+  'jumpso',
+  'andnew',
+  'ornew',
+  'xornew',
+  'invnew'
 ];
 
 // UTIL FUNCTIONS
@@ -1120,81 +1122,81 @@ const nonCompatibleCommands = [ // not even recognised by assembler
     // RR
       // INV
         test( 'PARSE RR inv', () => {
-          expect( Emulator.parseLineForMachineCode( 'inv r1,r2', testLabels ) ).toStrictEqual( [ 0x8112, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'inv R1,R2', testLabels ) ).toStrictEqual( [ 0x8112, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'inv r1,r2', testLabels ) ).toStrictEqual( [ 0x8112 ] );
+          expect( Emulator.parseLineForMachineCode( 'inv R1,R2', testLabels ) ).toStrictEqual( [ 0x8112 ] );
         } );
 
       // CMP
         test( 'PARSE RR cmp', () => {
-          expect( Emulator.parseLineForMachineCode( 'cmp r1,r2', testLabels ) ).toStrictEqual( [ 0x4112, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'cmp R1,R2', testLabels ) ).toStrictEqual( [ 0x4112, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'cmp r1,r2', testLabels ) ).toStrictEqual( [ 0x4112 ] );
+          expect( Emulator.parseLineForMachineCode( 'cmp R1,R2', testLabels ) ).toStrictEqual( [ 0x4112 ] );
         } );
 
     // RRR
       // ADD
         test( 'PARSE RRR add', () => {
-          expect( Emulator.parseLineForMachineCode( 'add r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x0123, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'add R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x0123, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'add r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x0123 ] );
+          expect( Emulator.parseLineForMachineCode( 'add R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x0123 ] );
         } );
 
       // SUB
         test( 'PARSE RRR sub', () => {
-          expect( Emulator.parseLineForMachineCode( 'sub r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x1123, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'sub R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x1123, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'sub r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x1123 ] );
+          expect( Emulator.parseLineForMachineCode( 'sub R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x1123 ] );
         } );
 
       // MUL
         test( 'PARSE RRR mul', () => {
-          expect( Emulator.parseLineForMachineCode( 'mul r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x2123, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'mul R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x2123, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'mul r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x2123 ] );
+          expect( Emulator.parseLineForMachineCode( 'mul R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x2123 ] );
         } );
 
       // DIV
         test( 'PARSE RRR div', () => {
-          expect( Emulator.parseLineForMachineCode( 'div r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x3123, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'div R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x3123, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'div r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x3123 ] );
+          expect( Emulator.parseLineForMachineCode( 'div R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x3123 ] );
         } );
 
       // CMPLT
         test( 'PARSE RRR cmplt', () => {
-          expect( Emulator.parseLineForMachineCode( 'cmplt r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x5123, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'cmplt R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x5123, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'cmplt r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x5123 ] );
+          expect( Emulator.parseLineForMachineCode( 'cmplt R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x5123 ] );
         } );
 
       // CMPEQ
         test( 'PARSE RRR cmpeq', () => {
-          expect( Emulator.parseLineForMachineCode( 'cmpeq r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x6123, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'cmpeq R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x6123, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'cmpeq r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x6123 ] );
+          expect( Emulator.parseLineForMachineCode( 'cmpeq R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x6123 ] );
         } );
 
       // CMPGT
         test( 'PARSE RRR cmpgt', () => {
-          expect( Emulator.parseLineForMachineCode( 'cmpgt r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x7123, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'cmpgt R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x7123, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'cmpgt r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x7123 ] );
+          expect( Emulator.parseLineForMachineCode( 'cmpgt R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x7123 ] );
         } );
 
       // AND
         test( 'PARSE RRR and', () => {
-          expect( Emulator.parseLineForMachineCode( 'and r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x9123, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'and R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x9123, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'and r1,r2,r3', testLabels ) ).toStrictEqual( [ 0x9123 ] );
+          expect( Emulator.parseLineForMachineCode( 'and R1,R2,R3', testLabels ) ).toStrictEqual( [ 0x9123 ] );
         } );
 
       // OR
         test( 'PARSE RRR or', () => {
-          expect( Emulator.parseLineForMachineCode( 'or r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xa123, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'or R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xa123, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'or r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xa123 ] );
+          expect( Emulator.parseLineForMachineCode( 'or R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xa123 ] );
         } );
 
       // XOR
         test( 'PARSE RRR xor', () => {
-          expect( Emulator.parseLineForMachineCode( 'xor r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xb123, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'xor R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xb123, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'xor r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xb123 ] );
+          expect( Emulator.parseLineForMachineCode( 'xor R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xb123 ] );
         } );
 
       // TRAP
         test( 'PARSE RRR trap', () => {
-          expect( Emulator.parseLineForMachineCode( 'trap r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xd123, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'trap R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xd123, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'trap r1,r2,r3', testLabels ) ).toStrictEqual( [ 0xd123 ] );
+          expect( Emulator.parseLineForMachineCode( 'trap R1,R2,R3', testLabels ) ).toStrictEqual( [ 0xd123 ] );
         } );
 
     // RX
@@ -1397,6 +1399,17 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpnco $100[r0]', testLabels ) ).toStrictEqual( [ 0xf704, 0x0100 ] );
         } );
 
+      // JUMPNSO
+        test( 'PARSE JUMPALIAS jumpnso', () => {
+          expect( Emulator.parseLineForMachineCode( 'jumpnso test[r0]', testLabels ) ).toStrictEqual( [ 0xf804, testLabels['test'] ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpnso test[R2]', testLabels ) ).toStrictEqual( [ 0xf824, testLabels['test'] ] );
+
+          expect( Emulator.parseLineForMachineCode( 'jumpnso test[r0]', testLabels ) ).toStrictEqual( [ 0xf804, testLabels['test'] ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpnso 100[r0]', testLabels ) ).toStrictEqual( [ 0xf804, 100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpnso -100[r0]', testLabels ) ).toStrictEqual( [ 0xf804, 0xff9c ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpnso $100[r0]', testLabels ) ).toStrictEqual( [ 0xf804, 0x0100 ] );
+        } );
+
       // JUMPLT
         test( 'PARSE JUMPALIAS jumplt', () => {
           expect( Emulator.parseLineForMachineCode( 'jumplt test[r0]', testLabels ) ).toStrictEqual( [ 0xf305, testLabels['test'] ] );
@@ -1463,18 +1476,31 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpco $100[r0]', testLabels ) ).toStrictEqual( [ 0xf705, 0x0100 ] );
         } );
 
+      // JUMPSO
+        test( 'PARSE JUMPALIAS jumpnso', () => {
+          expect( Emulator.parseLineForMachineCode( 'jumpso test[r0]', testLabels ) ).toStrictEqual( [ 0xf805, testLabels['test'] ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpso test[R2]', testLabels ) ).toStrictEqual( [ 0xf825, testLabels['test'] ] );
+
+          expect( Emulator.parseLineForMachineCode( 'jumpso test[r0]', testLabels ) ).toStrictEqual( [ 0xf805, testLabels['test'] ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpso 100[r0]', testLabels ) ).toStrictEqual( [ 0xf805, 100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpso -100[r0]', testLabels ) ).toStrictEqual( [ 0xf805, 0xff9c ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpso $100[r0]', testLabels ) ).toStrictEqual( [ 0xf805, 0x0100 ] );
+        } );
+
     // X
       test( 'PARSE X data', () => {
-        expect( Emulator.parseLineForMachineCode( 'data 100', testLabels ) ).toStrictEqual( [ 100, 65536 ] );
-        expect( Emulator.parseLineForMachineCode( 'data -100', testLabels ) ).toStrictEqual( [ 0xff9c, 65536 ] );
-        expect( Emulator.parseLineForMachineCode( 'data $100', testLabels ) ).toStrictEqual( [ 0x0100, 65536 ] );
+        expect( Emulator.parseLineForMachineCode( 'data 100', testLabels ) ).toStrictEqual( [ 100 ] );
+        expect( Emulator.parseLineForMachineCode( 'data -100', testLabels ) ).toStrictEqual( [ 0xff9c ] );
+        expect( Emulator.parseLineForMachineCode( 'data $100', testLabels ) ).toStrictEqual( [ 0x0100 ] );
+
+        expect( Emulator.parseLineForMachineCode( 'data 100,-100,$100', testLabels ) ).toStrictEqual( [ 100, 0xff9c, 0x0100 ] );
       } );
 
     // NOEXP
       // RFI
         test( 'PARSE NOEXP rfi', () => {
-          expect( Emulator.parseLineForMachineCode( 'rfi' ) ).toStrictEqual( [ 0xe000, 65536 ] );
-          expect( Emulator.parseLineForMachineCode( 'rfi ' ) ).toStrictEqual( [ 0xe000, 65536 ] );
+          expect( Emulator.parseLineForMachineCode( 'rfi' ) ).toStrictEqual( [ 0xe000 ] );
+          expect( Emulator.parseLineForMachineCode( 'rfi ' ) ).toStrictEqual( [ 0xe000 ] );
         } );
 
     // RREXP
@@ -3051,47 +3077,6 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         }
       } );
 
-      test( 'RUN RX jumpf', () => {
-        var inputMemory = fresh()['memory'];
-        var inputRegisters = fresh()['registers'];
-
-        inputMemory[0] = 0xf106; // jumpf r1,------[r0]
-        inputMemory[1] = 0x0010; // jumpf r1,0x0010[r0] <- jumpf 1,0x0010,0 <- pc := mem[0x0010]
-        inputMemory[2] = 0xf206; // jumpf r2,------[r0] 
-        inputMemory[3] = 0x0010; // jumpf r2,0x0010[r0] <- jumpf 2,0x0010,0 <- pc := mem[0x0010]
-        inputMemory[4] = 0xf326; // jumpf r3,------[r2] 
-        inputMemory[5] = 0x0010; // jumpf r3,0x0010[r2] <- jumpf 3,0x0010,2 <- pc := mem[0x0012]
-
-        inputRegisters[1] = 1;
-        inputRegisters[2] = 2;
-        inputRegisters[3] = 0;
-
-        var results = [
-          0x0002,
-          0x0004,
-          0x0012
-        ];
-
-        var outputControl = updateControl( inputMemory, fresh()['control'] );
-        
-        var parsed = {
-          'control' : fresh()['control'],
-          'registers' : inputRegisters,
-          'memory' : inputMemory
-        };
-
-        for ( var i = 0; i < results.length; i++ ) {
-          outputControl = updateControlDouble( inputMemory, parsed['control'] );
-
-          outputControl['pc'] = results[i];
-
-          parsed = testFromChanges( parsed,
-          {
-            'control' : outputControl
-          } );
-        }
-      } );
-
       test( 'RUN RX jumpt', () => {
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
@@ -3138,9 +3123,9 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         var inputRegisters = fresh()['registers'];
 
         inputMemory[0] = 0xfd08; // jal r13,------[r0]
-        inputMemory[1] = 0x0010; // jal r13,0x0010[r0] <- jal 13,0x0010,0 <- r13 := 0x0010, pc := mem[0x0010]
+        inputMemory[1] = 0x0010; // jal r13,0x0010[r0] <- jal 13,0x0010,0 <- r13 := 0x0002, pc := mem[0x0010]
         inputMemory[16] = 0xfd18; // jal r13,------[r0] 
-        inputMemory[17] = 0x0020; // jal r13,0x0020[r0] <- jal 13,0x0020,0 <- r13 := 0x0022, pc := mem[0x0010]
+        inputMemory[17] = 0x0020; // jal r13,0x0020[r0] <- jal 13,0x0020,0 <- r13 := 0x0012, pc := mem[0x0010]
 
         inputRegisters[1] = 2;
 
