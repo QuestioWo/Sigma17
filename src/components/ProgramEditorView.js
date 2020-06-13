@@ -512,49 +512,66 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   runCode = button => {
-    // implicit build if needed
-    var machineCode = [];
-    if ( this.state.machineCodeUpdated ) {
-      machineCode = this.state.machineCode;
-    } else {
-      machineCode = this.parseCode();
-    }
+    var check = this.checkCode( this.state.code );
 
-    var canRun = this.canRunCode( this.state.code, machineCode );
-    var ran = {
-      halted : false
-    };
-
-    if ( !canRun.length ) {
-      var localControl = this.state.cpuControl;
-      var localRegisters = this.state.registers;
-      var localMemory = Emulator.setMemory( machineCode );
-      var localInput = this.state.input;
-      var localOutput = this.state.output;
-
-      while ( !( ran['halted'] ) ) {
-        ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
-
-        localControl = ran['control'];
-        localRegisters = ran['registers'];
-        localMemory = ran['memory'];
-        localInput = ran['input'];
-        localOutput = ran['output'];
-
-        // if ran out of commands
-        if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
+    if ( check[0] ) {
+      // implicit build if needed
+      var machineCode = [];
+      if ( this.state.machineCodeUpdated ) {
+        machineCode = this.state.machineCode;
+      } else {
+        machineCode = this.parseCode();
       }
 
-      this.setState( { 
-        cpuControl : localControl, 
-        registers : localRegisters,
-        memory : localMemory, 
-        output : localOutput, 
-        outputZoomed : false, 
-        runModalShow : true 
-      } );
+      var canRun = this.canRunCode( this.state.code, machineCode );
+      var ran = {
+        halted : false
+      };
+
+      if ( !canRun.length ) {
+        var localControl = this.state.cpuControl;
+        var localRegisters = this.state.registers;
+        var localMemory = Emulator.setMemory( machineCode );
+        var localInput = this.state.input;
+        var localOutput = this.state.output;
+
+        while ( !( ran['halted'] ) ) {
+          ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
+
+          localControl = ran['control'];
+          localRegisters = ran['registers'];
+          localMemory = ran['memory'];
+          localInput = ran['input'];
+          localOutput = ran['output'];
+
+          // if ran out of commands
+          if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
+        }
+
+        this.setState( { 
+          cpuControl : localControl, 
+          registers : localRegisters,
+          memory : localMemory, 
+          output : localOutput, 
+          outputZoomed : false, 
+          runModalShow : true 
+        } );
+      } else {
+        this.updateAlert( canRun, 'danger' );
+      }
     } else {
-      this.updateAlert( canRun, 'danger' );
+      var keys = Object.keys( check[1] );
+      var keysString = '';
+
+      for ( var ite = 0; ite < keys.length; ite++ ) {
+        if ( ite !== 0 ) {
+          keysString += ', ';
+        }
+
+        keysString += keys[ite];
+      }
+
+      this.updateAlert( 'Built unsuccesfully, correct syntax errors at line(s): ' + keysString, 'danger' );
     }
   }
 
@@ -689,10 +706,13 @@ export default class ProgramEditorView extends React.PureComponent {
 
       var stream = new Uint16Array( machineCode.length );
       for ( var i = 0; i < machineCode.length; i++ ) {
-        stream[i] = machineCode[i];
+        const hiByte = ( machineCode[i] & 0xff00 ) >> 8;
+        const loByte = machineCode[i] & 0x00ff;
+
+        stream[i] = ( loByte << 8 ) | hiByte;
       }
 
-      var blob = new Blob( [stream], {type : "application/octet-stream"} ), 
+      var blob = new Blob( [stream] ),
         url = window.URL.createObjectURL(blob);
       
       var element = document.createElement( 'a' );
@@ -927,7 +947,10 @@ export default class ProgramEditorView extends React.PureComponent {
       var newCode = '';
 
       for ( var i = 0; i < array.length; i++ ) {
-        newCode += 'data $' + Emulator.writeHex( array[i] );
+        const hiByte = ( array[i] & 0xff00 ) >> 8;
+        const loByte = array[i] & 0x00ff;
+
+        newCode += 'data $' + Emulator.writeHex( ( loByte << 8 ) | hiByte );
         if ( i !== ( array.length - 1 ) ) {
           newCode += '\n'
         }
