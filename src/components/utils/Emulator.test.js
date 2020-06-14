@@ -4,111 +4,112 @@ import * as Emulator from './Emulator';
 
 // RUN TESTS USING `npm run test` in the `Sigma17/` directory
 
-const allCommands = ["add", "sub", "mul", "div", "cmp", "cmplt", "cmpeq", "cmpgt", "inv", "and", "or", "xor", "trap", 
-                    "lea", "load", "store", "jump", "jumpc0", "jumpc1", "jumpf", "jumpt", "jal", "testset", "jumplt", "jumple", "jumpne", "jumpeq", "jumpge", "jumpgt",
-                    "data",
-                    "rfi", "save", "restore", "getctl", "putctl", "execute", "push", "pop", "top", "shiftl", "shiftr", "extract", "extracti", "inject", "injecti", "logicw", "logicb", "getbit", "getbiti", "putbit", "putbiti", "field", "andb", "orb", "xorb", "invb", "andnew", "ornew", "xornew", "invnew", "addc"];
+// SETUP
+  const allCommands = ["add", "sub", "mul", "div", "cmp", "cmplt", "cmpeq", "cmpgt", "inv", "and", "or", "xor", "trap", 
+                      "lea", "load", "store", "jump", "jumpc0", "jumpc1", "jumpf", "jumpt", "jal", "testset", "jumplt", "jumple", "jumpne", "jumpeq", "jumpge", "jumpgt",
+                      "data",
+                      "rfi", "save", "restore", "getctl", "putctl", "execute", "push", "pop", "top", "shiftl", "shiftr", "extract", "extracti", "inject", "injecti", "logicw", "logicb", "getbit", "getbiti", "putbit", "putbiti", "field", "andb", "orb", "xorb", "invb", "andnew", "ornew", "xornew", "invnew", "addc"];
 
-const testLabels = { 
-  test : 0x0010,
-  Test : 0x0011
-};
+  const testLabels = { 
+    test : 0x0010,
+    Test : 0x0011
+  };
 
-const fullyCompatibleCommands = [
-  'add',
-  'sub',
-  'mul',
-  'div',
-  'cmp',
-  'cmplt',
-  'cmpeq',
-  'cmpgt',
-  'inv',
-  'invold',
-  'and',
-  'andold',
-  'or',
-  'orold',
-  'xor',
-  'xorold',
-  'trap',
+  const fullyCompatibleCommands = [
+    'add',
+    'sub',
+    'mul',
+    'div',
+    'cmp',
+    'cmplt',
+    'cmpeq',
+    'cmpgt',
+    'inv',
+    'invold',
+    'and',
+    'andold',
+    'or',
+    'orold',
+    'xor',
+    'xorold',
+    'trap',
 
-  'lea',
-  'load',
-  'store',
-  'jump',
-  'jumpc0',
-  'jumpc1',
-  'jumpf',
-  'jumpt',
-  'jal',
+    'lea',
+    'load',
+    'store',
+    'jump',
+    'jumpc0',
+    'jumpc1',
+    'jumpf',
+    'jumpt',
+    'jal',
 
-  'jumple',
-  'jumpne',
-  'jumpge',
-  'jumpnv',
-  'jumpnvu',
-  'jumpnco',
+    'jumple',
+    'jumpne',
+    'jumpge',
+    'jumpnv',
+    'jumpnvu',
+    'jumpnco',
 
-  'jumplt',
-  'jumpeq',
-  'jumpgt',
-  'jumpv',
-  'jumpvu',
-  'jumpco',
+    'jumplt',
+    'jumpeq',
+    'jumpgt',
+    'jumpv',
+    'jumpvu',
+    'jumpco',
 
-  'data',
+    'data',
 
-  'save',
-  'restore',
+    'save',
+    'restore',
 
-  'shiftl',
-  'shiftr',
+    'shiftl',
+    'shiftr',
 
-  'extract',
-  'extracti',
+    'extract',
+    'extracti',
 
-  'inject',
-  'injecti',
-  'logicb',
+    'inject',
+    'injecti',
+    'logicb',
 
-  'logicw',
+    'logicw',
 
-  'andb',
-  'orb',
-  'xorb',
+    'andb',
+    'orb',
+    'xorb',
 
-  'invb'
-];
+    'invb'
+  ];
 
-const partiallyCompatibleCommands = { // recognised by assembler but has other effects
-  testset : 'Assembles but no functionality',
-  rfi : 'Assembles, but hangs when ran in a program',
-  execute : 'Assembles, however, not as per docs and has no functionality',
-  getctl : 'Assembles differently and has different range of functionality',
-  putctl : 'Assembles differently and has different range of functionality',
-  push : 'Assembles but no functionality',
-  pop : 'Assembles but no functionality',
-  top : 'Assembles but no functionality',
-  field : 'Assembler accepts but does not produce any codes'
-};
+  const partiallyCompatibleCommands = { // recognised by assembler but has other effects
+    testset : 'Assembles but no functionality',
+    rfi : 'Assembles, but hangs when ran in a program',
+    execute : 'Assembles, however, not as per docs and has no functionality',
+    getctl : 'Assembles differently and has different range of functionality',
+    putctl : 'Assembles differently and has different range of functionality',
+    push : 'Assembles but no functionality',
+    pop : 'Assembles but no functionality',
+    top : 'Assembles but no functionality',
+    field : 'Assembler accepts but does not produce any codes'
+  };
 
-const nonCompatibleCommands = [ // not even recognised by assembler
-  'addc',
-  'getbit',
-  'getbiti',
-  'putbit',
-  'putbiti',
-  'jumpnso',
-  'jumpso',
-  'andnew',
-  'ornew',
-  'xornew',
-  'invnew'
-];
+  const nonCompatibleCommands = [ // not even recognised by assembler
+    'addc',
+    'getbit',
+    'getbiti',
+    'putbit',
+    'putbiti',
+    'jumpnso',
+    'jumpso',
+    'andnew',
+    'ornew',
+    'xornew',
+    'invnew'
+  ];
 
 // UTIL FUNCTIONS
-  // READSIGNEDHEX
+  // readSignedHex
     test( 'UTIL readSignedHex', () => {
       expect( Emulator.readSignedHex( 0xffff ) ).toBe( -1 );
       expect( Emulator.readSignedHex( 0x8000 ) ).toBe( -32768 );
@@ -131,7 +132,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
       expect( Emulator.readUnsignedHex( -32769 ) ).toBe( 0x10000 );
     } );
 
-  // READUNSIGNEDHEX
+  // readUnsignedHex
     test( 'UTIL readUnsignedHex', () => {
       expect( Emulator.readUnsignedHex( 0xffff ) ).toBe( 65535 );
       expect( Emulator.readUnsignedHex( 0x8000 ) ).toBe( 32768 );
@@ -154,7 +155,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
       expect( Emulator.readUnsignedHex( -32769 ) ).toBe( 0x10000 );
     } );
 
-  // ISVALIDNUMBER
+  // isValidNumber
     test( 'UTIL isValidNumber true' , () => {
       expect( Emulator.isValidNumber( '0' ) ).toBe( true );
       expect( Emulator.isValidNumber( '-1' ) ).toBe( true );
@@ -193,7 +194,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
       expect( Emulator.isValidNumber( '-#1' ) ).toBe( false );
     } );
 
-  // WRITEHEX
+  // writeHex
     test( 'UTIL writeHex', () => {
       expect( Emulator.writeHex( 0xffff ) ).toBe( 'ffff' );
       expect( Emulator.writeHex( 0x7fff ) ).toBe( '7fff' );
@@ -2106,7 +2107,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
     } );
 
 // RUNNING METHODS
-  // SETMEMORY
+  // setMemory
     test( 'RUN setMemory', () => {
       const machineCode = [ 0xf101, 0x0008, 0xf201, 0x0009, 0x0312, 0xf302, 0x000a, 0xd000, 0x0001, 0x0002, 0x0000 ];
       const memory = {
@@ -2126,139 +2127,139 @@ const nonCompatibleCommands = [ // not even recognised by assembler
     } );
 
   // runMemory is ran with the assumption that lines have been checked, then parsed, and set into memory with previously tested functions
-  // RUNMEMORY
-    function fresh() {
-      return {
-        'registers' : {
-          0 : 0,
-          1 : 0,
-          2 : 0,
-          3 : 0,
-          4 : 0,
-          5 : 0,
-          6 : 0,
-          7 : 0,
-          8 : 0,
-          9 : 0,
-          10 : 0,
-          11 : 0,
-          12 : 0,
-          13 : 0,
-          14 : 0,
-          15 : 0
-        },
-        'memory' : {},
-        'control' : {
-          'pc' : 0,
-          'ir' : 0,
-          'adr' : 0
-        }
-      };
-    }
-
-    function updateControl( inputMemory, inputControl ) {
-      var outputControl = {};
-      outputControl['pc'] = inputControl['pc'] + 1;
-      outputControl['ir'] = inputMemory[inputControl['pc']];
-      outputControl['adr'] = ( Object.keys( inputMemory ).includes( '' + outputControl['pc'] ) ) ? inputMemory[outputControl['pc']] : 0x0000;
-
-      return outputControl;
-    }
-
-    function updateControlDouble( inputMemory, inputControl ) {
-      var outputControl = {};
-      outputControl['pc'] = inputControl['pc'] + 2;
-      outputControl['ir'] = inputMemory[inputControl['pc']];
-      outputControl['adr'] = ( Object.keys( inputMemory ).includes( '' + ( inputControl['pc'] + 1 ) ) ) ? inputMemory[inputControl['pc'] + 1] : 0x0000;
-
-      return outputControl;
-    }
-
-    function testFromChanges( inputs, outputs ) {
-      // INPUTS
-        var testControl = fresh()['control'];
-        var testMemory = fresh()['memory'];
-        var testRegisters = fresh()['registers'];
-        var testInput = 'Hello, Computer!';
-        var testOutput = '';
-
-        var i;
-
-        if ( inputs['control'] !== undefined ) {
-          for ( i = 0; i < Object.keys( inputs['control'] ).length; i++ ) {
-            testControl[ Object.keys( inputs['control'] )[i] ] = inputs['control'][ Object.keys( inputs['control'] )[i] ];
+    // SETUP
+      function fresh() {
+        return {
+          'registers' : {
+            0 : 0,
+            1 : 0,
+            2 : 0,
+            3 : 0,
+            4 : 0,
+            5 : 0,
+            6 : 0,
+            7 : 0,
+            8 : 0,
+            9 : 0,
+            10 : 0,
+            11 : 0,
+            12 : 0,
+            13 : 0,
+            14 : 0,
+            15 : 0
+          },
+          'memory' : {},
+          'control' : {
+            'pc' : 0,
+            'ir' : 0,
+            'adr' : 0
           }
-        }
+        };
+      }
 
-        if ( inputs['registers'] !== undefined ) {
-          for ( i = 0; i < Object.keys( inputs['registers'] ).length; i++ ) {
-            testRegisters[ Object.keys( inputs['registers'] )[i] ] = inputs['registers'][ Object.keys( inputs['registers'] )[i] ];
+      function updateControl( inputMemory, inputControl ) {
+        var outputControl = {};
+        outputControl['pc'] = inputControl['pc'] + 1;
+        outputControl['ir'] = inputMemory[inputControl['pc']];
+        outputControl['adr'] = 0x0000;
+
+        return outputControl;
+      }
+
+      function updateControlDouble( inputMemory, inputControl ) {
+        var outputControl = {};
+        outputControl['pc'] = inputControl['pc'] + 2;
+        outputControl['ir'] = inputMemory[inputControl['pc']];
+        outputControl['adr'] = ( Object.keys( inputMemory ).includes( '' + ( inputControl['pc'] + 1 ) ) ) ? inputMemory[inputControl['pc'] + 1] : 0x0000;
+
+        return outputControl;
+      }
+
+      function testFromChanges( inputs, outputs ) {
+        // INPUTS
+          var testControl = fresh()['control'];
+          var testMemory = fresh()['memory'];
+          var testRegisters = fresh()['registers'];
+          var testInput = 'Hello, Computer!';
+          var testOutput = '';
+
+          var i;
+
+          if ( inputs['control'] !== undefined ) {
+            for ( i = 0; i < Object.keys( inputs['control'] ).length; i++ ) {
+              testControl[ Object.keys( inputs['control'] )[i] ] = inputs['control'][ Object.keys( inputs['control'] )[i] ];
+            }
           }
-        }
 
-        if ( inputs['memory'] !== undefined ) {
-          for ( i = 0; i < Object.keys( inputs['memory'] ).length; i++ ) {
-            testMemory[ Object.keys( inputs['memory'] )[i] ] = inputs['memory'][ Object.keys( inputs['memory'] )[i] ];
+          if ( inputs['registers'] !== undefined ) {
+            for ( i = 0; i < Object.keys( inputs['registers'] ).length; i++ ) {
+              testRegisters[ Object.keys( inputs['registers'] )[i] ] = inputs['registers'][ Object.keys( inputs['registers'] )[i] ];
+            }
           }
-        }
 
-        if ( inputs['input'] !== undefined ) {
-          testInput = inputs['input'];
-        }
-
-        if ( inputs['output'] !== undefined ) {
-          testOutput = inputs['output'];
-        }
-
-      // OUTPUTS
-        var resultControl = Object.assign( {}, testControl );
-        var resultRegisters = Object.assign( {}, testRegisters );
-        var resultMemory = Object.assign( {}, testMemory );
-        var resultInput = testInput;
-        var resultOutput = testOutput;
-        var resultHalted = false;
-
-        if ( outputs['registers'] !== undefined ) {
-          for ( i = 0; i < Object.keys( outputs['registers'] ).length; i ++ ) {
-            resultRegisters[ Object.keys( outputs['registers'] )[i] ] = outputs['registers'][ Object.keys( outputs['registers'] )[i] ];
+          if ( inputs['memory'] !== undefined ) {
+            for ( i = 0; i < Object.keys( inputs['memory'] ).length; i++ ) {
+              testMemory[ Object.keys( inputs['memory'] )[i] ] = inputs['memory'][ Object.keys( inputs['memory'] )[i] ];
+            }
           }
-        }
 
-        if ( outputs['memory'] !== undefined ) {
-          for ( i = 0; i < Object.keys( outputs['memory'] ).length; i ++ ) {
-            resultMemory[ Object.keys( outputs['memory'] )[i] ] = outputs['memory'][ Object.keys( outputs['memory'] )[i] ];
+          if ( inputs['input'] !== undefined ) {
+            testInput = inputs['input'];
           }
-        }
 
-        if ( outputs['control'] !== undefined ) {
-          for ( i = 0; i < Object.keys( outputs['control'] ).length; i ++ ) {
-            resultControl[ Object.keys( outputs['control'] )[i] ] = outputs['control'][ Object.keys( outputs['control'] )[i] ];
+          if ( inputs['output'] !== undefined ) {
+            testOutput = inputs['output'];
           }
-        }
 
-        if ( outputs['input'] !== undefined ) {
-          resultInput = outputs['input'];
-        }
+        // OUTPUTS
+          var resultControl = Object.assign( {}, testControl );
+          var resultRegisters = Object.assign( {}, testRegisters );
+          var resultMemory = Object.assign( {}, testMemory );
+          var resultInput = testInput;
+          var resultOutput = testOutput;
+          var resultHalted = false;
 
-        if ( outputs['output'] !== undefined ) {
-          resultOutput = outputs['output'];
-        }
+          if ( outputs['registers'] !== undefined ) {
+            for ( i = 0; i < Object.keys( outputs['registers'] ).length; i ++ ) {
+              resultRegisters[ Object.keys( outputs['registers'] )[i] ] = outputs['registers'][ Object.keys( outputs['registers'] )[i] ];
+            }
+          }
 
-        if ( outputs['halted'] !== undefined ) {
-          resultHalted = outputs['halted'];
-        }
+          if ( outputs['memory'] !== undefined ) {
+            for ( i = 0; i < Object.keys( outputs['memory'] ).length; i ++ ) {
+              resultMemory[ Object.keys( outputs['memory'] )[i] ] = outputs['memory'][ Object.keys( outputs['memory'] )[i] ];
+            }
+          }
 
-      // TESTING
-        var parsed = Emulator.runMemory( testControl, testRegisters, testMemory, testInput, testOutput );
-        expect( parsed['control'] ).toStrictEqual( resultControl );
-        expect( parsed['registers'] ).toStrictEqual( resultRegisters );
-        expect( parsed['memory'] ).toStrictEqual( resultMemory );
-        expect( parsed['input'] ).toBe( resultInput );
-        expect( parsed['output'] ).toBe( resultOutput );
-        expect( parsed['halted'] ).toBe( resultHalted );
+          if ( outputs['control'] !== undefined ) {
+            for ( i = 0; i < Object.keys( outputs['control'] ).length; i ++ ) {
+              resultControl[ Object.keys( outputs['control'] )[i] ] = outputs['control'][ Object.keys( outputs['control'] )[i] ];
+            }
+          }
 
-      return parsed;
-    }
+          if ( outputs['input'] !== undefined ) {
+            resultInput = outputs['input'];
+          }
+
+          if ( outputs['output'] !== undefined ) {
+            resultOutput = outputs['output'];
+          }
+
+          if ( outputs['halted'] !== undefined ) {
+            resultHalted = outputs['halted'];
+          }
+
+        // TESTING
+          var parsed = Emulator.runMemory( testControl, testRegisters, testMemory, testInput, testOutput );
+          expect( parsed['control'] ).toStrictEqual( resultControl );
+          expect( parsed['registers'] ).toStrictEqual( resultRegisters );
+          expect( parsed['memory'] ).toStrictEqual( resultMemory );
+          expect( parsed['input'] ).toBe( resultInput );
+          expect( parsed['output'] ).toBe( resultOutput );
+          expect( parsed['halted'] ).toBe( resultHalted );
+
+        return parsed;
+      }
 
     // RRR
       test( 'RUN RRR add', () => {

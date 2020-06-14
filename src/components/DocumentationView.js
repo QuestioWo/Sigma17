@@ -27,19 +27,19 @@ export default class DocumentationView extends React.Component {
 
           'To know before coding', // To know before coding
 
-          'Toknow before coding/Introduction to language', // Introduction to language
-            'Toknow before coding/Introduction to language/Constants', // Constants
-            'Toknow before coding/Introduction to language/Comments', // Comments
-            'Toknow before coding/Introduction to language/Labels', // Labels
+            'Toknow before coding/Introduction to language', // Introduction to language
+              'Toknow before coding/Introduction to language/Constants', // Constants
+              'Toknow before coding/Introduction to language/Comments', // Comments
+              'Toknow before coding/Introduction to language/Labels', // Labels
 
-          'Toknow before coding/Introduction to machine code', // Introduction to machine code
+            'Toknow before coding/Introduction to machine code', // Introduction to machine code
 
-          'Toknow before coding/Overview of architecture', // Overview of architecture
-            'Toknow before coding/Overview of architecture/CPU', // CPU
-            'Toknow before coding/Overview of architecture/Registers', // Registers
-              'Toknow before coding/Overview of architecture/Registers/R0', // R0
-              'Toknow before coding/Overview of architecture/Registers/R15', // R15
-            'Toknow before coding/Overview of architecture/Memory', // Memory
+            'Toknow before coding/Overview of architecture', // Overview of architecture
+              'Toknow before coding/Overview of architecture/CPU', // CPU
+              'Toknow before coding/Overview of architecture/Registers', // Registers
+                'Toknow before coding/Overview of architecture/Registers/R0', // R0
+                'Toknow before coding/Overview of architecture/Registers/R15', // R15
+              'Toknow before coding/Overview of architecture/Memory', // Memory
 
 
           'Instruction set', // Instruction set

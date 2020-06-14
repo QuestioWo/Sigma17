@@ -2643,7 +2643,7 @@
   export function runMemory( control, registers, memory, input, output ) {
     var instructionIr = memory[control['pc']];
     var instructionADR = 0;
-    if ( memory[control['pc'] + 1] ) instructionADR = memory[control['pc'] + 1];
+    if ( memory[control['pc'] + 1] && instructionIr >=0xe008 ) instructionADR = memory[control['pc'] + 1]; // 0xe008 as this is the start of the EXP4, EXP8, and, RX commands which are all two words
 
     // run the ir with adr
     var ran = runFromInstruction( control, registers, memory, input, output, instructionIr, instructionADR );
