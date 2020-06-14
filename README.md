@@ -72,7 +72,7 @@ This will start the local React.js development server and should open a windown 
 * √ - Add double click back to output box
 * √ - Show code chunk of currently being executed program
 * √ - Display highlighting of lines being exectued in code chunk
-* Make the code debugger follow the line that was executed
+* √ - Make the code debugger follow the line that was executed
 * Highlighting for effected/used memory values and registers.
 
 5. Write Tests

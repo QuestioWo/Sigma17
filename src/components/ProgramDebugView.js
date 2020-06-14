@@ -4,7 +4,7 @@ import 'codemirror/lib/codemirror.css';
 import './ProgramDebugView.css';
 
 import { Alert, Button, ButtonGroup, Col, Collapse, InputGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
-import { FaBackward, FaCheck, FaMinus, FaPen, FaPlay, FaStepForward, FaTimes } from 'react-icons/fa';
+import { FaBackward, FaCheck, FaEye, FaEyeSlash, FaMinus, FaPen, FaPlay, FaStepForward, FaTimes } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
 import * as Emulator from './utils/Emulator';
@@ -63,6 +63,12 @@ export default class ProgramDebugView extends React.Component {
       // special methods for debugging
       lastLine : 0,
       activeLine : 0,
+
+      lastLineScrollPosition : 0,
+      lastLineScrollPositionMemory : 0,
+
+      updateScrollPositionCode : true,
+      updateScrollPositionMemory : true,
 
       breakpointsMachineCode : [],
 
@@ -257,6 +263,16 @@ export default class ProgramDebugView extends React.Component {
     if ( codeAreaWrapper ) {
       codeAreaWrapper.style.height = ( 25 * ( lines.length ) ) + 8 + 'px';
 
+      if ( this.state.updateScrollPositionCode ) {
+        var codeAreaParent = document.getElementById( 'code-area-viewing' );
+        codeAreaParent.scrollTo( 0, this.state.lastLineScrollPosition );
+      }
+
+      if ( this.state.updateScrollPositionMemory ) {
+        var memoryColumn = document.getElementById( 'memory-column-big' );
+        memoryColumn.scrollTo( 0, this.state.lastLineScrollPositionMemory );
+      }
+
       for ( var i = 0; i < lines.length; i++ ) {
         var yOffset = 25 * ( i + 0.75 );
         var styleTop = yOffset + 3 +'px';
@@ -274,7 +290,8 @@ export default class ProgramDebugView extends React.Component {
             id={id} 
             className={className} 
             style={{top : styleTop}} 
-            onClick={this.breakpointOnClick}/>
+            onClick={this.breakpointOnClick}
+          />
         );
       }
       return breakpoints;
@@ -388,7 +405,7 @@ export default class ProgramDebugView extends React.Component {
       var linesOfCode = this.state.code.split( '\n' ).length;
       var activeLineInCode = this.state.memoryToLine[ this.state.activeLine ];
 
-      var heightOfOverlay = -( ( linesOfCode - ( activeLineInCode + 1 ) ) * 25 ) + -( 29 );
+      var heightOfOverlay = ( ( activeLineInCode ) * 25 ) + ( 4 ); // 4 for border
 
       var lineNoWidth = 21;
       var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
@@ -400,7 +417,11 @@ export default class ProgramDebugView extends React.Component {
       lineNoWidth = ( lineNoWidth + 25 ) + 'px'; //25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
       
       return(
-        <div style={{marginTop : heightOfOverlay, marginLeft : lineNoWidth}} className='line-overlay active'/>
+        <div 
+          style={{marginTop : heightOfOverlay, marginLeft : lineNoWidth}} 
+          className='line-overlay active'
+          id='line-overlay-active'
+        />
       );
     }
   }
@@ -412,7 +433,7 @@ export default class ProgramDebugView extends React.Component {
       var linesOfCode = this.state.code.split( '\n' ).length;
       var lastLineInCode = this.state.memoryToLine[ this.state.lastLine ];
 
-      var heightOfOverlay = -( ( linesOfCode - ( lastLineInCode + 1 ) ) * 25 ) + -( 29 );
+      var heightOfOverlay = ( ( lastLineInCode ) * 25 ) + ( 4 ); // 4 for border
 
       var lineNoWidth = 21;
       var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
@@ -421,12 +442,33 @@ export default class ProgramDebugView extends React.Component {
         lineNoWidth = ( ( lineNoWidthLength * 7 ) + 7 );
       }
 
-      lineNoWidth = ( lineNoWidth + 25 ) + 'px'; //25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
+      lineNoWidth = ( lineNoWidth + 25 ) + 'px'; // 25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
 
       return(
-        <div style={{marginTop : heightOfOverlay, marginLeft : lineNoWidth}} className='line-overlay last'/>
+        <div 
+          style={{marginTop : heightOfOverlay, marginLeft : lineNoWidth}} 
+          className='line-overlay last' 
+          id='line-overlay-last'
+        />
       );
     }
+  }
+
+  setLastLineScrollPosition( lastLine ) {
+    var lastLineInCode = this.state.memoryToLine[ lastLine ];
+
+    const heightOfOverlay = lastLineInCode * 25;
+
+    this.setState( { lastLineScrollPosition : heightOfOverlay } );
+    this.setState( { lastLineScrollPositionMemory : lastLine * 24 } );
+  }
+
+  toggleFollowCode = e => {
+    this.setState( { updateScrollPositionCode : !( this.state.updateScrollPositionCode ) } )
+  }
+
+  toggleFollowMemory = e => {
+    this.setState( { updateScrollPositionMemory : !( this.state.updateScrollPositionMemory ) } )
   }
 
 // COLLAPSE CALLBACK METHOD
@@ -686,6 +728,8 @@ export default class ProgramDebugView extends React.Component {
         }
       }
 
+      this.setLastLineScrollPosition( lastRanLine );
+
       this.setState( { 
         cpuControl : localControl, 
         registers : localRegisters, 
@@ -723,6 +767,8 @@ export default class ProgramDebugView extends React.Component {
       // if ran out of commands
       if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
 
+      this.setLastLineScrollPosition( this.state.activeLine );
+
       this.setState( { 
         cpuControl : localControl, 
         registers : localRegisters, 
@@ -742,6 +788,8 @@ export default class ProgramDebugView extends React.Component {
 
   resetDebug = button => {
     this.resetCPUandMemory();
+
+    this.setLastLineScrollPosition( 0 );
 
     this.setState( { 
       memory : Emulator.setMemory( this.state.machineCode ),
@@ -897,6 +945,23 @@ export default class ProgramDebugView extends React.Component {
                   <FaBackward/>
                 </Button>
               </OverlayTrigger>
+              {' '}
+              <OverlayTrigger
+                key={`follow-memory-tooltip`}
+                placement={'top'}
+                overlay={
+                  <Tooltip>
+                    {`Follow memory execution`}
+                  </Tooltip>
+                }>
+                <Button variant='outline-secondary' size='sm' onClick={this.toggleFollowMemory}>
+                  { this.state.updateScrollPositionMemory ?
+                    <FaEye/>
+                  :
+                    <FaEyeSlash/>
+                  }
+                </Button>
+              </OverlayTrigger>
             </Col>
             <Col>
               <OverlayTrigger
@@ -923,6 +988,23 @@ export default class ProgramDebugView extends React.Component {
                 }>
                 <Button variant='outline-secondary' size='sm' onClick={this.toggleCodeChunk} active={!(this.state.showCodeChunk)}>
                   <FaMinus/>
+                </Button>
+              </OverlayTrigger>
+              {' '}
+              <OverlayTrigger
+                key={`follow-code-tooltip`}
+                placement={'top'}
+                overlay={
+                  <Tooltip>
+                    {`Follow code execution`}
+                  </Tooltip>
+                }>
+                <Button variant='outline-secondary' size='sm' onClick={this.toggleFollowCode}>
+                  { this.state.updateScrollPositionCode ?
+                    <FaEye/>
+                  :
+                    <FaEyeSlash/>
+                  }
                 </Button>
               </OverlayTrigger>
             </Col>
@@ -980,6 +1062,8 @@ export default class ProgramDebugView extends React.Component {
                         </div>
                         { this.state.code && this.state.renderCodeChunk &&
                           <React.Fragment>
+                            {this.activeLineOverlay()}
+                            {this.lastLineOverlay()}
                             { this.state.highlightedCodeChunk ?
                               <CodeMirror
                                 className=' debug'
@@ -989,16 +1073,8 @@ export default class ProgramDebugView extends React.Component {
                             : 
                               <React.Fragment>
                                 {this.noHighlightCodeChunk()}
-                                {/**<InputGroup
-                                  as='textarea'
-                                  className='code-chunk-column viewing'
-                                  value={this.state.code}
-                                  disabled/>
-                                */}
                               </React.Fragment>
                             }
-                            {this.activeLineOverlay()}
-                            {this.lastLineOverlay()}
                           </React.Fragment>
                         }
                       </React.Fragment>
