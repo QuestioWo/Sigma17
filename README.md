@@ -45,7 +45,7 @@ This will start the local React.js development server and should open a windown 
 * √ - Allow multiple data statements to be strung together, e.g `data $30,$40`
 * Stricter requirements for labels to be accepted.
 * √ - Abstract RegEx for checking statements.
-* Binary accepted as integers.
+* √ - Binary accepted as integers.
 
 3. Finish code runner
 * √ - Add window for displaying register output, memory values and I/O of program after running

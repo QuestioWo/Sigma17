@@ -338,11 +338,11 @@
     const registerRegExp = '[rR]((1[0-5])|([0-9]))';
     const controlRegisterRegExp = '((pc)|(ir)|(adr))';
 
-    const constantPositiveRegExp = '((\\$((\\d)|([a-f]))+)|(\\d))+';
-    const constantRegExp = '((\\$((\\d)|([a-f]))+)|(-\\d)|(\\d))+';
+    const constantPositiveRegExp = '((\\$((\\d)|([a-f]))+)|(\\#(1|0)+)|(\\d))+';
+    const constantRegExp = '((\\$((\\d)|([a-f]))+)|(\\#(1|0)+)|(-\\d)|(\\d))+';
 
-    const dispAndIndexRegExp = '((\\$((\\d)|([a-f]))+)|(-(\\d))|(\\d)|(\\w))+\\[' + registerRegExp + '\\]';
-    const dispAndIndexEXPRegExp = '((\\$((\\d)|([a-f]))+)|(\\d))+\\[' + registerRegExp + '\\]';
+    const dispAndIndexRegExp = '((\\$((\\d)|([a-f]))+)|(\\#(1|0)+)|(-(\\d))|(\\d)|(\\w))+\\[' + registerRegExp + '\\]';
+    const dispAndIndexEXPRegExp = '((\\$((\\d)|([a-f]))+)|(\\#(1|0)+)|(\\d))+\\[' + registerRegExp + '\\]';
 
 // UTIL FUNCTIONS
   export function readSignedHex( a ) {
@@ -373,10 +373,17 @@
       // number is in decimal
       info = readUnsignedHex( Number( argument ) );
     } else {
-      // number is either hex or string
+      // number is either hex, binary, or, string
       if ( isValidNumber( argument ) ) {
+        var parseBy = 16;
+        if ( argument.startsWith( '$' ) ) {          
+          parseBy = 16;
+        } else if ( argument.startsWith( '#' ) ) {
+          parseBy = 2;
+        }
+
         argument = argument.slice( 1, argument.length );
-        info = parseInt( argument, 16 );
+        info = parseInt( argument, parseBy );
       } else {
         if ( labels && Object.keys( labels ).includes( argument ) ) {
           info = labels[argument];
@@ -396,9 +403,9 @@
       // number is in decimal
       info = argument;
     } else {
-      // number is either hex or string
+      // number is either hex, binary, or, string
       if ( isValidNumber( argument ) ) {
-        info = '$' + writeHex( argument.slice( 1, argument.length ) );
+        info = readConstant( argument, {} );
       } else {
         info = argument;
       }
@@ -415,6 +422,9 @@
     } else if ( numString.startsWith( '$' ) ) {
       numString = numString.slice( 1, numString.length );
       num = readUnsignedHex( parseInt( numString, 16 ) );
+    } else if ( numString.startsWith( '#' ) ) {
+      numString = numString.slice( 1, numString.length );
+      num = readUnsignedHex( parseInt( numString, 2 ) );
     } else {
       num = 65536;
     }
@@ -430,6 +440,9 @@
     } else if ( numString.startsWith( '$' ) ) {
       numString = numString.slice( 1, numString.length );
       num = parseInt( numString, 16 );
+    } else if ( numString.startsWith( '#' ) ) {
+      numString = numString.slice( 1, numString.length );
+      num = readUnsignedHex( parseInt( numString, 2 ) );
     } else {
       num = 16;
     }
@@ -445,8 +458,11 @@
     } else if ( numString.startsWith( '$' ) ) {
       numString = numString.slice( 1, numString.length );
       num = parseInt( numString, 16 );
+    } else if ( numString.startsWith( '#' ) ) {
+      numString = numString.slice( 1, numString.length );
+      num = readUnsignedHex( parseInt( numString, 2 ) );
     } else {
-      num = 16;
+      num = 256;
     }
 
     return ( num <= 255 && num >= 0 ) ? true : false;
@@ -561,7 +577,7 @@
     } else if ( Object.keys( labels ).includes( disp ) ) {
       return true;
     } else {
-      return 'disp argument must either be a decimal, a hex or an initailised label';
+      return 'disp argument must either be a decimal, a hex, binary, or, an initailised label';
     }
   }
 
@@ -575,7 +591,7 @@
     var disp = splat[1].split( '[' )[0];
 
     if ( ! isValidNumberBit( k ) ) {
-      return 'k argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed';
+      return 'k argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed';
     }
 
     if ( isValidNumber( disp ) ) {
@@ -583,7 +599,7 @@
     } else if ( Object.keys( labels ).includes( disp ) ) {
       return true;
     } else {
-      return 'disp argument must either be a decimal, a hex or an initailised label';
+      return 'disp argument must either be a decimal, hex, binary, or, an initailised label';
     }
   }
 
@@ -599,12 +615,12 @@
     } else if ( Object.keys( labels ).includes( disp ) ) {
       return true;
     } else {
-      return 'disp argument must either be a decimal, a hex or an initailised label';
+      return 'disp argument must either be a decimal, a hex, binary, or, an initailised label';
     }
   }
 
   function checkXCommand( x ) {
-    // check that x is a number, either hex or decimal
+    // check that x is a number, either hex, binary, or, decimal
     const xsplit = x.split( ',' );
     for ( var i = 0; i < xsplit.length; i++ ) {
       var xtest = xsplit[i];
@@ -635,7 +651,7 @@
     if ( isValidNumberGH( disp ) ) {
       return true;
     } else {
-      return 'disp argument must either be a decimal, or a hex with decimal values between 0 and 255';
+      return 'disp argument must either be a decimal, hex, or, binary with decimal values between 0 and 255';
     }
   }
 
@@ -656,7 +672,7 @@
     var g = rrk.split( ',' )[2];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, or a hex value between 0 and 15';
+      return 'g argument must either be a decimal, hex, or, binary value between 0 and 15';
     }
     return true;
   }
@@ -669,7 +685,7 @@
     var g = rk.split( ',' )[1];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, or a hex value between 0 and 15';
+      return 'g argument must either be a decimal, hex, or, binary value between 0 and 15';
     }
     return true;
   }
@@ -683,10 +699,10 @@
     var h = rkk.split( ',' )[2];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, or a hex value between 0 and 15';
+      return 'g argument must either be a decimal, hex, or, binary value between 0 and 15';
     }
     if ( ! isValidNumberBit( h ) ) {
-      return 'h argument must either be a decimal, or a hex value between 0 and 15';
+      return 'h argument must either be a decimal, hex, or, binary value between 0 and 15';
     }
     return true;
   }
@@ -701,10 +717,10 @@
     var h = splat[3];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
+      return 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed';
     }
     if ( ! isValidNumberBit( h ) ) {
-      return 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
+      return 'h argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed';
     }
     return true;
   }
@@ -719,10 +735,10 @@
     var h = splat[4];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
+      return 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed';
     }
     if ( ! isValidNumberBit( h ) ) {
-      return 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
+      return 'h argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed';
     }
     return true;
   }
@@ -736,7 +752,7 @@
     var g = splat[3];
 
     if ( ! isValidNumberBit( g ) ) {
-      return 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed';
+      return 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed';
     }
     return true;
   }
@@ -1695,14 +1711,14 @@
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
           line += ',';
-          line += argumentList[2];
+          line += readCompatibleConstant( argumentList[2] );
           break;
 
         case 'rkEXP' :
           argumentList = lineResult['argument'].split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
-          line += argumentList[1];
+          line += readCompatibleConstant( argumentList[1] );
           break;
 
         case 'rrkkEXP' :
@@ -1711,9 +1727,9 @@
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
           line += ',';
-          line += argumentList[2];
+          line += readCompatibleConstant( argumentList[2] );
           line += ',';
-          line += argumentList[3];
+          line += readCompatibleConstant( argumentList[3] );
           break;
 
         case 'rrrkkEXP' :
@@ -1724,9 +1740,9 @@
           line += ',';
           line += 'R' + argumentList[2].slice( 1, argumentList[2].length );
           line += ',';
-          line += argumentList[3];
+          line += readCompatibleConstant( argumentList[3] );
           line += ',';
-          line += argumentList[4];
+          line += readCompatibleConstant( argumentList[4] );
           break;
 
         case 'rrrkEXP' :
@@ -1737,7 +1753,7 @@
           line += ',';
           line += 'R' + argumentList[2].slice( 1, argumentList[2].length );
           line += ',';
-          line += argumentList[3];
+          line += readCompatibleConstant( argumentList[3] );
           break;
 
         case 'logicAliasRRRK' :
@@ -1748,7 +1764,7 @@
           line += ',';
           line += 'R' + argumentList[2].slice( 1, argumentList[2].length );
           line += ',';
-          line += argumentList[3];
+          line += readCompatibleConstant( argumentList[3] );
           break;
 
         case 'logicAliasRRK' :
@@ -1757,7 +1773,7 @@
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
           line += ',';
-          line += argumentList[2];
+          line += readCompatibleConstant( argumentList[2] );
           break;
 
         case 'logicAliasRRR' :
@@ -1780,9 +1796,9 @@
           argumentList = lineResult['argument'].split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
-          line += argumentList[1];
+          line += readCompatibleConstant( argumentList[1] );
           line += ',';
-          line += argumentList[2];
+          line += readCompatibleConstant( argumentList[2] );
           break;
 
         default :

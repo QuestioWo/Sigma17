@@ -417,27 +417,30 @@ export default class DocumentationView extends React.Component {
                 <InfoArea state={this.state} title={'To know before coding'} depth={1}>
                   <InfoArea state={this.state} title={'Introduction to language'} depth={2}>
                     <div className='info-body white'>
-                      Sigma16 is a computer architecture designed for research and teaching in computer systems. This application provides a complete environment for experimenting with the architecture<br/>
+                      Sigma16 is a computer <strong>architecture</strong> designed for <strong>research</strong> and <strong>teaching</strong> in computer systems. This application provides a <strong>complete environment</strong> for <strong>experimenting</strong> with the architecture<br/>
                       <br/>
-                      Like other languages, Sigma16 takes the assembly code provided and compiles it to machine code which is then set to memory and iterated over to execute a program<br/>
+                      Like other languages, Sigma16 <strong>takes</strong> the <strong>code</strong> provided and <strong>compiles</strong> it to <strong>machine code</strong> which is then <strong>iterated over</strong> to <strong>execute</strong> a program<br/>
                     </div>
                     <InfoArea state={this.state} title={'Constants'} depth={3}>
                       <div className='info-body white'>
-                        Constants in Sigma16 can either be written as <strong>decimal</strong> or <strong>hexadecimal</strong> - hex for short<br/>
+                        Constants in Sigma16 can either be written as <strong>decimal</strong>, <strong>hexadecimal</strong> - hex for short - or, <strong>binary</strong><br/>
                         <br/>
                         <strong>Decimal</strong> representation in Sigma16 comes as just regular numbers with <strong>no prefix</strong> :<br/>
                         <code>10</code> represents <strong>decimal</strong> 10<br/> 
                         <br/>
-                        <strong>Hexadecimal</strong> representation in Sigma16 comes as as <strong>hex</strong> number, number characters <strong>0-9</strong> and <strong>a-f</strong>, with a <strong>$</strong> prefix :<br/>
+                        <strong>Hexadecimal</strong> representation in Sigma16 comes as a <strong>hex</strong> number, number characters <strong>0-9</strong> and <strong>a-f</strong>, with a <strong>$</strong> prefix :<br/>
                         <code>$10</code> represents <strong>decimal</strong> 16<br/>
+                        <br/>
+                        <strong>Binary</strong> representation in Sigma16 comes as a <strong>binary</strong> number, number characters <strong>0</strong> or <strong>1</strong>, with a <strong>#</strong> prefix :<br/>
+                        <code>#10</code> represents <strong>decimal</strong> 2<br/>
                       </div>
                     </InfoArea>
                   </InfoArea>
                   <InfoArea state={this.state} title={'Introduction to machine code'} depth={2}>
                     <div className='info-body white'>
-                      Sigma16's machine code is comprised of 16-bit <strong>"words"</strong> ( bytes ) which are compiled from the assembly program provided<br/>
+                      Sigma16's <strong>machine code</strong> is comprised of <strong>16-bit "words"</strong> ( bytes ) which are <strong>compiled</strong> from the assembly <strong>program provided</strong><br/>
                       <br/>
-                      This machine code is then set into the memory, starting at the 0th position. The memory then runs through, taking one or more words and executing functions based off of those words' associated meanings<br/>
+                      This <strong>machine code</strong> is then <strong>set</strong> into the <strong>memory</strong>, starting at the <strong>0</strong>th position. The <strong>memory</strong> then <strong>runs</strong> through, taking one or more words and <strong>executing functions</strong> based off of those words' <strong>associated meanings</strong><br/>
                     </div>
                   </InfoArea>
                   <InfoArea state={this.state} title={'Overview of architecture'} depth={2}>
@@ -460,10 +463,10 @@ export default class DocumentationView extends React.Component {
                       <div className='info-body white'>
                         The registers of Sigma16 are shown by the values labelled <strong>R0 -> R15</strong><br/>
                         <br/>
-                        These registers are what most instructions are affecting and relying on to produce an output of the program<br/>
+                        These registers are what <strong>most</strong> instructions are <strong>affecting</strong> and <strong>relying</strong> on to produce an <strong>output</strong> of the program<br/>
                         <br/>
-                        Sometimes only specific bits of these registers will be required though.<br/>
-                        In Sigma16, bits are counted from the most important, <strong>left-most</strong>, to the least important, <strong>right-most</strong>, sides.<br/>
+                        Sometimes only specific <strong>bits</strong> of these registers will be required though<br/>
+                        In Sigma16, bits are counted from the most important, <strong>left-most</strong>, to the least important, <strong>right-most</strong>, sides<br/>
                         i.e <strong>R15.0</strong> will be the <strong>left-most</strong> bit and <strong>R15.15</strong> the <strong>right-most</strong><br/>
                         <br/>
                         Most registers just hold a value, however, there are <strong>special registers</strong> built in that have very specific purposes :<br/>
@@ -472,16 +475,16 @@ export default class DocumentationView extends React.Component {
                         <div className='info-body white'>
                           <strong>Always holds the value 0</strong><br/>
                           <br/>
-                          Can have functions set values into it, however, this register will always equal 0
+                          <strong>Can</strong> have functions <strong>set values</strong> into it, however, this register <strong>will always</strong> equal <strong>0</strong>
                         </div>
                       </InfoArea>
                       <InfoArea state={this.state} title={'R15'} depth={4}>
                         <div className='info-body white'>
                           <strong>Will have different values based on certain instructions</strong><br/>
                           <br/>
-                          R15's value relies on different <strong>flags</strong> being set in it. These flags represent bits in the registers 16-bit word. This means that when a flag equals 1, the corresponding bit in R15 will be set to 1<br/>
+                          R15's value relies on different <strong>flags</strong> being set in it. These <strong>flags represent bits</strong> in the registers <strong>16-bit</strong> word. This means that when a <strong>flag</strong> equals <strong>1</strong>, the <strong>corresponding</strong> bit in R15 will be set to <strong>1</strong><br/>
                           <br/>
-                          The flags, their corresponding bits and the meanings behind the flags are :<br/>
+                          The <strong>flags</strong>, their <strong>corresponding bits</strong> and the <strong>meanings</strong> behind the flags are :<br/>
                           <Table bordered hover size='sm'>
                             <thead>
                               <tr>
@@ -548,7 +551,7 @@ export default class DocumentationView extends React.Component {
                         <strong>A memory address is a 16-bit word</strong>, and there is one memory location corresponding to each address, so there are <strong>2^16 - 64k - memory locations</strong><br/>
                         These memory addresses can be used to <strong>access</strong> and <strong>update</strong> memory values by the <strong>psuedo-code</strong> notation of <strong>memory[address]</strong><br/>
                         <br/>
-                        Each memory location is also a 16-bit word.<br/>
+                        Each memory location is also a <strong>16-bit word</strong><br/>
                       </div>
                     </InfoArea>
                   </InfoArea>
@@ -2072,6 +2075,7 @@ export default class DocumentationView extends React.Component {
                         <br/>
 
                         Downloading a <strong>Raw Compatible</strong> file may also disrupt neat indenting, and when downloaded will look like<br/>
+                        Also, <strong>all</strong> constants - decimal, hex, and, binary - <strong>get changed</strong> from their orignal form <strong>to</strong> their <strong>decimal value</strong><br/>
 
                         <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting7.jpg`} alt='Raw Compatible file'/>
                       </div>
