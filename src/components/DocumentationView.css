@@ -15,6 +15,7 @@ code {
 .documentation-page-link:hover {
   color: darkblue;
   text-decoration: underline;
+  cursor: pointer;
 }
 
 .info-field {

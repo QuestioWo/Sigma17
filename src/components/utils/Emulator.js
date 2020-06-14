@@ -975,7 +975,7 @@
   }
 
   function checkLabel( label ) {
-    if ( !( /^[a-z|A-Z]/.test( label ) ) ) {
+    if ( !( /^[a-zA-Z_]/.test( label ) ) ) {
       return 'label must start with an alphabet character';
     }
 

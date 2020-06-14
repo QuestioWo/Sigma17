@@ -211,6 +211,9 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'label1' ) ).toBe( true );
         expect( Emulator.checkLine( 'LABEL1' ) ).toBe( true );
 
+        expect( Emulator.checkLine( '_label1' ) ).toBe( true );
+        expect( Emulator.checkLine( '_LABEL1' ) ).toBe( true );
+
         expect( Emulator.checkLine( 'lab3l' ) ).toBe( true );
         expect( Emulator.checkLine( 'LAB3L' ) ).toBe( true );
       } );
