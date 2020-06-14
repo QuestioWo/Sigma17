@@ -50,6 +50,11 @@
         if( stream.eol() || !/\w/.test( stream.peek() ) ) {
           return 'number';
         }
+      } else if ( ch === '#' ) {
+        stream.eatWhile( /1|0/ );
+        if( stream.eol() || !/\w/.test( stream.peek() ) ) {
+          return 'number';
+        }
       } else if ( ch === '-' ) {
         stream.eatWhile( /\d/ );
         if( stream.eol() || !/\w/.test( stream.peek() ) ) {

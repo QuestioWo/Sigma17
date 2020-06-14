@@ -168,6 +168,13 @@ const nonCompatibleCommands = [ // not even recognised by assembler
       expect( Emulator.isValidNumber( '$1' ) ).toBe( true );
       expect( Emulator.isValidNumber( '$0001' ) ).toBe( true );
       expect( Emulator.isValidNumber( '$000001' ) ).toBe( true );
+
+      expect( Emulator.isValidNumber( '#0' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '#1111111111111111' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '#11111111' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '#1' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '#0001' ) ).toBe( true );
+      expect( Emulator.isValidNumber( '#00000000000000001' ) ).toBe( true );
     } );
 
     test( 'UTIL isValidNumber false' , () => {
@@ -179,6 +186,11 @@ const nonCompatibleCommands = [ // not even recognised by assembler
       expect( Emulator.isValidNumber( '$10000' ) ).toBe( false );
       expect( Emulator.isValidNumber( '1$8000' ) ).toBe( false );
       expect( Emulator.isValidNumber( '-$1' ) ).toBe( false );
+
+      expect( Emulator.isValidNumber( '#2' ) ).toBe( false );
+      expect( Emulator.isValidNumber( '#11111111111111111' ) ).toBe( false );
+      expect( Emulator.isValidNumber( '1#11111111' ) ).toBe( false );
+      expect( Emulator.isValidNumber( '-#1' ) ).toBe( false );
     } );
 
   // WRITEHEX
@@ -328,10 +340,12 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'inv R16,r2', testLabels ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
         expect( Emulator.checkLine( 'inv R-1,R2', testLabels ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
         expect( Emulator.checkLine( 'inv r$f,R2', testLabels ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+        expect( Emulator.checkLine( 'inv r#1111,R2', testLabels ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
 
         expect( Emulator.checkLine( 'inv R1,r16', testLabels ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
         expect( Emulator.checkLine( 'inv R1,R-1', testLabels ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
         expect( Emulator.checkLine( 'inv r1,R$f', testLabels ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+        expect( Emulator.checkLine( 'inv r1,R#1111', testLabels ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
 
         expect( Emulator.checkLine( ' inv r1;r2', testLabels ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
         expect( Emulator.checkLine( '     inv r1,r2comment', testLabels ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
@@ -355,14 +369,17 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'add R16,r2,r3', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'add R-1,R2,r3', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'add r$f,R2,R3', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+        expect( Emulator.checkLine( 'add r#1111,R2,R3', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
         expect( Emulator.checkLine( 'add R1,r2,r16', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'add R1,R2,r-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'add r1,R2,R$f', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+        expect( Emulator.checkLine( 'add r1,R2,R#1111', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
         expect( Emulator.checkLine( 'add R1,r16,r3', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'add R1,R-1,r3', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'add r1,R$f,R3', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+        expect( Emulator.checkLine( 'add r1,R#1111,R3', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
         expect( Emulator.checkLine( ' add r1;r2,r3', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( '     add r1,r2,r3comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
@@ -379,6 +396,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
         expect( Emulator.checkLine( 'lea r1,-1[r0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'lea R1,$ffff[R0]', testLabels ) ).toBe( true );
+        expect( Emulator.checkLine( 'lea R1,#1111111111111111[R0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'lea r1,14[R0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'lea R1,test[r0]', testLabels ) ).toBe( true );
 
@@ -398,14 +416,18 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'lea r16,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
         expect( Emulator.checkLine( 'lea r-1,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
         expect( Emulator.checkLine( 'lea r$f,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+        expect( Emulator.checkLine( 'lea r#1111,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
 
         expect( Emulator.checkLine( 'lea r1,test[r16]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
         expect( Emulator.checkLine( 'lea r1,test[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
         expect( Emulator.checkLine( 'lea r1,test[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
+        expect( Emulator.checkLine( 'lea r1,test[r#1111]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
 
-        expect( Emulator.checkLine( 'lea r1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'lea r1,65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'lea r1,-32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+        expect( Emulator.checkLine( 'lea r1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'lea r1,65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'lea r1,-32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'lea r1,$10000[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'lea r1,#11111111111111111[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
 
         expect( Emulator.checkLine( ' lea r1;test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
         expect( Emulator.checkLine( '     lea r1,test[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,disp[Ra]"' );
@@ -419,6 +441,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
         expect( Emulator.checkLine( 'jump -1[r0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'jump $ffff[R0]', testLabels ) ).toBe( true );
+        expect( Emulator.checkLine( 'jump #1111111111111111[R0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'jump 14[R0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'jump test[r0]', testLabels ) ).toBe( true );
 
@@ -434,10 +457,13 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'jump test[r16]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
         expect( Emulator.checkLine( 'jump test[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
         expect( Emulator.checkLine( 'jump test[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+        expect( Emulator.checkLine( 'jump test[r$#1111]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
 
-        expect( Emulator.checkLine( 'jump notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'jump 65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'jump -32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+        expect( Emulator.checkLine( 'jump notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'jump 65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'jump -32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'jump $10000[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'jump #11111111111111111[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
 
         expect( Emulator.checkLine( ' jump test;[r0]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
         expect( Emulator.checkLine( '     jump test[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
@@ -453,7 +479,9 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
         expect( Emulator.checkLine( 'jumpc0 0,-1[r0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'jumpc0 15,$ffff[R0]', testLabels ) ).toBe( true );
+        expect( Emulator.checkLine( 'jumpc0 15,#1111111111111111[R0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'jumpc0 $f,14[R0]', testLabels ) ).toBe( true );
+        expect( Emulator.checkLine( 'jumpc0 #1111,14[R0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'jumpc0 4,test[r0]', testLabels ) ).toBe( true );
 
         expect( Emulator.checkLine( ' jumpc0 1,test[r0]', testLabels ) ).toBe( true );
@@ -469,17 +497,21 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'jumpc0 1,test[]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
         expect( Emulator.checkLine( 'jumpc0 1,test', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
 
-        expect( Emulator.checkLine( 'jumpc0 16,test[r0]', testLabels ) ).toBe( 'k argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'jumpc0 16,test[r0]', testLabels ) ).toBe( 'k argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
         expect( Emulator.checkLine( 'jumpc0 -1,test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
-        expect( Emulator.checkLine( 'jumpc0 $10,test[r0]', testLabels ) ).toBe( 'k argument must either be a decimal, a hex value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'jumpc0 $10,test[r0]', testLabels ) ).toBe( 'k argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'jumpc0 #10000,test[r0]', testLabels ) ).toBe( 'k argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
 
         expect( Emulator.checkLine( 'jumpc0 1,test[r16]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
         expect( Emulator.checkLine( 'jumpc0 1,test[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
         expect( Emulator.checkLine( 'jumpc0 1,test[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
+        expect( Emulator.checkLine( 'jumpc0 1,test[r#1111]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
 
-        expect( Emulator.checkLine( 'jumpc0 1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'jumpc0 1,65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'jumpc0 1,-32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+        expect( Emulator.checkLine( 'jumpc0 1,notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'jumpc0 1,65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'jumpc0 1,-32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'jumpc0 1,$10000[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'jumpc0 1,#11111111111111111[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, hex, binary, or, an initailised label' );
 
         expect( Emulator.checkLine( ' jumpc0 1;test[r0]', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
         expect( Emulator.checkLine( '     jumpc0 1,test[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument' );
@@ -493,6 +525,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
         expect( Emulator.checkLine( 'jumple -1[r0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'jumple $ffff[R0]', testLabels ) ).toBe( true );
+        expect( Emulator.checkLine( 'jumple #1111111111111111[R0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'jumple 14[R0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'jumple test[r0]', testLabels ) ).toBe( true );
 
@@ -508,10 +541,13 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'jumple test[r16]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
         expect( Emulator.checkLine( 'jumple test[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
         expect( Emulator.checkLine( 'jumple test[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
+        expect( Emulator.checkLine( 'jumple test[r#1111]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
 
-        expect( Emulator.checkLine( 'jumple notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'jumple 65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
-        expect( Emulator.checkLine( 'jumple -32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex or an initailised label' );
+        expect( Emulator.checkLine( 'jumple notest[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'jumple 65536[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'jumple -32769[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'jumple $10000[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
+        expect( Emulator.checkLine( 'jumple #11111111111111111[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, a hex, binary, or, an initailised label' );
 
         expect( Emulator.checkLine( ' jumple test;[r0]', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
         expect( Emulator.checkLine( '     jumple test[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "disp[Ra]"' );
@@ -522,6 +558,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
       test( 'CHECK X true', () => {
         expect( Emulator.checkLine( 'data -1' ) ).toBe( true );
         expect( Emulator.checkLine( 'data $ffff' ) ).toBe( true );
+        expect( Emulator.checkLine( 'data #1111111111111111' ) ).toBe( true );
         expect( Emulator.checkLine( 'data 14' ) ).toBe( true );
         expect( Emulator.checkLine( 'data $23' ) ).toBe( true );
 
@@ -531,6 +568,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
       } );
 
       test( 'CHECK X false', () => {
+        expect( Emulator.checkLine( 'data #11111111111111111' ) ).toBe( 'data must be followed by either a decimal or hex number <= 65535 and >=-32768' );
         expect( Emulator.checkLine( 'data $10000' ) ).toBe( 'data must be followed by either a decimal or hex number <= 65535 and >=-32768' );
         expect( Emulator.checkLine( 'data $-12' ) ).toBe( 'arguments must be in the form of "constant" up to 65535 and down to -32768' );
         expect( Emulator.checkLine( 'data 65536' ) ).toBe( 'data must be followed by either a decimal or hex number <= 65535 and >=-32768' );
@@ -545,6 +583,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'rfi' ) ).toBe( true );
         expect( Emulator.checkLine( 'rfi -1' ) ).toBe( true );
         expect( Emulator.checkLine( 'rfi $ffff' ) ).toBe( true );
+        expect( Emulator.checkLine( 'rfi #1111111111111111' ) ).toBe( true );
         expect( Emulator.checkLine( 'rfi 14[r0]' ) ).toBe( true );
         expect( Emulator.checkLine( 'rfi r1,r2' ) ).toBe( true );
 
@@ -573,6 +612,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'execute R1,r16' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
         expect( Emulator.checkLine( 'execute R1,R-1' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
         expect( Emulator.checkLine( 'execute r1,R$f' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+        expect( Emulator.checkLine( 'execute r1,R#1111' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
 
         expect( Emulator.checkLine( ' execute r1;r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
         expect( Emulator.checkLine( '     execute r1,r2comment' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
@@ -589,6 +629,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
         expect( Emulator.checkLine( 'save r1,r2,0[r0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'save R1,r2,$ff[R0]', testLabels ) ).toBe( true );
+        expect( Emulator.checkLine( 'save R1,r2,#11111111[R0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'save r1,r2,15[R0]', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'save R1,r2,255[r0]', testLabels ) ).toBe( true );
 
@@ -612,20 +653,26 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'save r16,r2,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
         expect( Emulator.checkLine( 'save r-1,r2,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
         expect( Emulator.checkLine( 'save r$f,r2,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+        expect( Emulator.checkLine( 'save r#1111,r2,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
         expect( Emulator.checkLine( 'save r1,r16,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
         expect( Emulator.checkLine( 'save r1,r-1,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
         expect( Emulator.checkLine( 'save r1,r$f,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+        expect( Emulator.checkLine( 'save r1,r#1111,$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
         expect( Emulator.checkLine( 'save r1,r2,$ff[r16]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
         expect( Emulator.checkLine( 'save r1,r2,$ff[r-1]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
         expect( Emulator.checkLine( 'save r1,r2,$ff[r$f]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+        expect( Emulator.checkLine( 'save r1,r2,$ff[r#1111]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'save r1,r2,256[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, or a hex with decimal values between 0 and 255' );
+        expect( Emulator.checkLine( 'save r1,r2,256[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, hex, or, binary with decimal values between 0 and 255' );
         expect( Emulator.checkLine( 'save r1,r2,-1[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'save r1,r2,$100[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, or a hex with decimal values between 0 and 255' );
+        expect( Emulator.checkLine( 'save r1,r2,$100[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, hex, or, binary with decimal values between 0 and 255' );
         expect( Emulator.checkLine( 'save r1,r2,$-1[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
+
+        expect( Emulator.checkLine( 'save r1,r2,#100000000[r0]', testLabels ) ).toBe( 'disp argument must either be a decimal, hex, or, binary with decimal values between 0 and 255' );
+        expect( Emulator.checkLine( 'save r1,r2,#-1[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
 
         expect( Emulator.checkLine( ' save r1,r2,;$ff[r0]', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
         expect( Emulator.checkLine( '     save r1,r2,$ff[r0]comment', testLabels ) ).toBe( 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed' );
@@ -651,6 +698,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'getctl R16,pc' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
         expect( Emulator.checkLine( 'getctl R-1,pc' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
         expect( Emulator.checkLine( 'getctl r$f,pc' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
+        expect( Emulator.checkLine( 'getctl r#1111,pc' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
 
         expect( Emulator.checkLine( 'getctl R1,blah' ) ).toBe( 'arguments must be in the form of "Rd,controlRegisterName"' );
 
@@ -676,14 +724,17 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'push R16,r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'push R-1,R2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'push r$f,R2,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+        expect( Emulator.checkLine( 'push r#1111,R2,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
         expect( Emulator.checkLine( 'push R1,r2,r16' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'push R1,R2,r-1' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'push r1,R2,R$f' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+        expect( Emulator.checkLine( 'push r1,R2,R#1111' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
         expect( Emulator.checkLine( 'push R1,r16,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'push R1,R-1,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'push r1,R$f,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+        expect( Emulator.checkLine( 'push r1,R#1111,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
         expect( Emulator.checkLine( ' push r1;r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( '     push r1,r2,r3comment' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
@@ -701,6 +752,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'shiftl r1,r2,0', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'shiftl r1,r2,15', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'shiftl r1,r2,$f', testLabels ) ).toBe( true );
+        expect( Emulator.checkLine( 'shiftl r1,r2,#1111', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'shiftl r1,r2,4', testLabels ) ).toBe( true );
 
         expect( Emulator.checkLine( ' shiftl r1,r2,1', testLabels ) ).toBe( true );
@@ -713,17 +765,20 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'shiftl r2,2', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'shiftl r1,r2', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'shiftl r1,r2,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+        expect( Emulator.checkLine( 'shiftl r1,r2,16', testLabels ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15' );
         expect( Emulator.checkLine( 'shiftl r1,r2,-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'shiftl r1,r2,$10', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+        expect( Emulator.checkLine( 'shiftl r1,r2,$10', testLabels ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15' );
+        expect( Emulator.checkLine( 'shiftl r1,r2,#10000', testLabels ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15' );
 
         expect( Emulator.checkLine( 'shiftl r16,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'shiftl r-1,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'shiftl r$f,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+        expect( Emulator.checkLine( 'shiftl r#1111,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
 
         expect( Emulator.checkLine( 'shiftl r1,r16,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'shiftl r1,r-1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'shiftl r1,r$f,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+        expect( Emulator.checkLine( 'shiftl r1,r#1111,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
 
         expect( Emulator.checkLine( ' shiftl r1,r2;0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
         expect( Emulator.checkLine( '     shiftl r1,r2;0comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
@@ -738,6 +793,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'getbit r1,0', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'getbit r1,15', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'getbit r1,$f', testLabels ) ).toBe( true );
+        expect( Emulator.checkLine( 'getbit r1,#1111', testLabels ) ).toBe( true );
 
         expect( Emulator.checkLine( ' getbit r1,1', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( '     getbit r1,1;comment', testLabels ) ).toBe( true );
@@ -747,13 +803,15 @@ const nonCompatibleCommands = [ // not even recognised by assembler
       test( 'CHECK RKEXP false', () => {
         expect( Emulator.checkLine( 'getbit 1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'getbit r1,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+        expect( Emulator.checkLine( 'getbit r1,16', testLabels ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15' );
         expect( Emulator.checkLine( 'getbit r1,-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'getbit r1,$10', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+        expect( Emulator.checkLine( 'getbit r1,$10', testLabels ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15' );
+        expect( Emulator.checkLine( 'getbit r1,#10000', testLabels ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15' );
 
         expect( Emulator.checkLine( 'getbit r16,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'getbit r-1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'getbit r$f,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
+        expect( Emulator.checkLine( 'getbit r#1111,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
 
         expect( Emulator.checkLine( ' getbit r1;0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
         expect( Emulator.checkLine( '     getbit r1;0comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g", negative integers not allowed' );
@@ -767,9 +825,11 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
         expect( Emulator.checkLine( 'field r1,15,0', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'field r1,$f,0', testLabels ) ).toBe( true );
+        expect( Emulator.checkLine( 'field r1,#1111,0', testLabels ) ).toBe( true );
 
         expect( Emulator.checkLine( 'field r1,0,15', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'field r1,0,$f', testLabels ) ).toBe( true );
+        expect( Emulator.checkLine( 'field r1,0,#1111', testLabels ) ).toBe( true );
 
         expect( Emulator.checkLine( ' field r1,1,1', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( '     field r1,1,1;comment', testLabels ) ).toBe( true );
@@ -781,17 +841,20 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'field 1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'field r1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'field r1,16,0', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+        expect( Emulator.checkLine( 'field r1,16,0', testLabels ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15' );
         expect( Emulator.checkLine( 'field r1,-1,0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'field r1,$10,0', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+        expect( Emulator.checkLine( 'field r1,$10,0', testLabels ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15' );
+        expect( Emulator.checkLine( 'field r1,#10000,0', testLabels ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15' );
 
-        expect( Emulator.checkLine( 'field r1,0,16', testLabels ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15' );
+        expect( Emulator.checkLine( 'field r1,0,16', testLabels ) ).toBe( 'h argument must either be a decimal, hex, or, binary value between 0 and 15' );
         expect( Emulator.checkLine( 'field r1,0,-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
-        expect( Emulator.checkLine( 'field r1,0,$10', testLabels ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15' );
+        expect( Emulator.checkLine( 'field r1,0,$10', testLabels ) ).toBe( 'h argument must either be a decimal, hex, or, binary value between 0 and 15' );
+        expect( Emulator.checkLine( 'field r1,0,#10000', testLabels ) ).toBe( 'h argument must either be a decimal, hex, or, binary value between 0 and 15' );
 
         expect( Emulator.checkLine( 'field r16,1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'field r-1,1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'field r$f,1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
+        expect( Emulator.checkLine( 'field r#1111,1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
 
         expect( Emulator.checkLine( ' field r1,1;0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( '     field r1,1;0comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,g,h", negative integers not allowed' );
@@ -806,9 +869,11 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
         expect( Emulator.checkLine( 'extract R1,R2,15,0' ) ).toBe( true );
         expect( Emulator.checkLine( 'extract r1,R2,$f,0' ) ).toBe( true );
+        expect( Emulator.checkLine( 'extract r1,R2,#1111,0' ) ).toBe( true );
 
         expect( Emulator.checkLine( 'extract R1,R2,0,15' ) ).toBe( true );
         expect( Emulator.checkLine( 'extract r1,R2,0,$f' ) ).toBe( true );
+        expect( Emulator.checkLine( 'extract r1,R2,0,#1111' ) ).toBe( true );
 
         expect( Emulator.checkLine( ' extract r1,r2,0,0' ) ).toBe( true );
         expect( Emulator.checkLine( '     extract r1,r2,0,0;comment' ) ).toBe( true );
@@ -819,17 +884,21 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'extract R16,r2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'extract R-1,R2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'extract r$f,R2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
+        expect( Emulator.checkLine( 'extract r#1111,R2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
 
         expect( Emulator.checkLine( 'extract R1,r16,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'extract R1,R-1,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'extract r1,R$f,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
+        expect( Emulator.checkLine( 'extract r1,R#1111,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'extract R1,r1,16,0' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'extract R1,r1,$10,0' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'extract R1,r1,16,0' ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'extract R1,r1,$10,0' ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'extract R1,r1,#10000,0' ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
         expect( Emulator.checkLine( 'extract r1,r1,-1,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'extract R1,r1,0,16' ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'extract R1,r1,0,$10' ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'extract R1,r1,0,16' ) ).toBe( 'h argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'extract R1,r1,0,$10' ) ).toBe( 'h argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'extract R1,r1,0,#10000' ) ).toBe( 'h argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
         expect( Emulator.checkLine( 'extract r1,r1,0,-1' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
 
         expect( Emulator.checkLine( ' extract r1;r2,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed' );
@@ -851,9 +920,11 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
         expect( Emulator.checkLine( 'inject R1,R2,r3,15,0' ) ).toBe( true );
         expect( Emulator.checkLine( 'inject r1,R2,r3,$f,0' ) ).toBe( true );
+        expect( Emulator.checkLine( 'inject r1,R2,r3,#1111,0' ) ).toBe( true );
 
         expect( Emulator.checkLine( 'inject R1,R2,r3,0,15' ) ).toBe( true );
         expect( Emulator.checkLine( 'inject r1,R2,r3,0,$f' ) ).toBe( true );
+        expect( Emulator.checkLine( 'inject r1,R2,r3,0,#1111' ) ).toBe( true );
 
         expect( Emulator.checkLine( ' inject r1,r2,r3,0,0' ) ).toBe( true );
         expect( Emulator.checkLine( '     inject r1,r2,r3,0,0;comment' ) ).toBe( true );
@@ -864,21 +935,26 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'inject R16,r2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'inject R-1,R2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'inject r$f,R2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+        expect( Emulator.checkLine( 'inject r#1111,R2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
 
         expect( Emulator.checkLine( 'inject R1,r16,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'inject R1,R-1,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'inject r1,R$f,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+        expect( Emulator.checkLine( 'inject r1,R#1111,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
 
         expect( Emulator.checkLine( 'inject R1,r1,r16,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'inject R1,R1,r-1,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
         expect( Emulator.checkLine( 'inject r1,R1,r$f,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
+        expect( Emulator.checkLine( 'inject r1,R1,r#1111,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'inject R1,r1,r3,16,0' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'inject R1,r1,r3,$10,0' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'inject R1,r1,r3,16,0' ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'inject R1,r1,r3,$10,0' ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'inject R1,r1,r3,#10000,0' ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
         expect( Emulator.checkLine( 'inject r1,r1,r3,-1,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'inject R1,r1,r3,0,16' ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'inject R1,r1,r3,0,$10' ) ).toBe( 'h argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'inject R1,r1,r3,0,16' ) ).toBe( 'h argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'inject R1,r1,r3,0,$10' ) ).toBe( 'h argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'inject R1,r1,r3,0,#10000' ) ).toBe( 'h argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
         expect( Emulator.checkLine( 'inject r1,r1,r3,0,-1' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
 
         expect( Emulator.checkLine( ' inject r1;r2,r3,0,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed' );
@@ -900,6 +976,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
         expect( Emulator.checkLine( 'logicw R1,R2,r3,15' ) ).toBe( true );
         expect( Emulator.checkLine( 'logicw r1,R2,r3,$f' ) ).toBe( true );
+        expect( Emulator.checkLine( 'logicw r1,R2,r3,#1111' ) ).toBe( true );
 
         expect( Emulator.checkLine( ' logicw r1,r2,r3,0' ) ).toBe( true );
         expect( Emulator.checkLine( '     logicw r1,r2,r3,0;comment' ) ).toBe( true );
@@ -910,17 +987,21 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'logicw R16,r2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'logicw R-1,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'logicw r$f,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+        expect( Emulator.checkLine( 'logicw r#1111,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
         expect( Emulator.checkLine( 'logicw R1,r16,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'logicw R1,R-1,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'logicw r1,R$f,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+        expect( Emulator.checkLine( 'logicw r1,R#1111,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
         expect( Emulator.checkLine( 'logicw R1,r1,r16,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'logicw R1,R1,r-1,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'logicw r1,R1,r$f,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+        expect( Emulator.checkLine( 'logicw r1,R1,r#1111,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'logicw R1,r1,r3,16' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'logicw R1,r1,r3,$10' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'logicw R1,r1,r3,16' ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'logicw R1,r1,r3,$10' ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'logicw R1,r1,r3,#10000' ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
         expect( Emulator.checkLine( 'logicw r1,r1,r3,-1' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
         expect( Emulator.checkLine( ' logicw r1;r2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
@@ -942,6 +1023,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
         expect( Emulator.checkLine( 'andb R1,R2,r3,15' ) ).toBe( true );
         expect( Emulator.checkLine( 'andb r1,R2,r3,$f' ) ).toBe( true );
+        expect( Emulator.checkLine( 'andb r1,R2,r3,#1111' ) ).toBe( true );
 
         expect( Emulator.checkLine( ' andb r1,r2,r3,0' ) ).toBe( true );
         expect( Emulator.checkLine( '     andb r1,r2,r3,0;comment' ) ).toBe( true );
@@ -952,17 +1034,21 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'andb R16,r2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'andb R-1,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'andb r$f,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+        expect( Emulator.checkLine( 'andb r#1111,R2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
         expect( Emulator.checkLine( 'andb R1,r16,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'andb R1,R-1,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'andb r1,R$f,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+        expect( Emulator.checkLine( 'andb r1,R#1111,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
         expect( Emulator.checkLine( 'andb R1,r1,r16,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'andb R1,R1,r-1,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'andb r1,R1,r$f,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
+        expect( Emulator.checkLine( 'andb r1,R1,r#1111,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'andb R1,r1,r3,16' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
-        expect( Emulator.checkLine( 'andb R1,r1,r3,$10' ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'andb R1,r1,r3,16' ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'andb R1,r1,r3,$10' ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
+        expect( Emulator.checkLine( 'andb R1,r1,r3,#10000' ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15, negative integers not allowed' );
         expect( Emulator.checkLine( 'andb r1,r1,r3,-1' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
 
         expect( Emulator.checkLine( ' andb r1;r2,r3,0' ) ).toBe( 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed' );
@@ -981,6 +1067,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'invb r1,r2,0', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'invb r1,r2,15', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'invb r1,r2,$f', testLabels ) ).toBe( true );
+        expect( Emulator.checkLine( 'invb r1,r2,#1111', testLabels ) ).toBe( true );
         expect( Emulator.checkLine( 'invb r1,r2,4', testLabels ) ).toBe( true );
 
         expect( Emulator.checkLine( ' invb r1,r2,1', testLabels ) ).toBe( true );
@@ -993,17 +1080,20 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'invb r2,2', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'invb r1,r2', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
 
-        expect( Emulator.checkLine( 'invb r1,r2,16', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+        expect( Emulator.checkLine( 'invb r1,r2,16', testLabels ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15' );
         expect( Emulator.checkLine( 'invb r1,r2,-1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
-        expect( Emulator.checkLine( 'invb r1,r2,$10', testLabels ) ).toBe( 'g argument must either be a decimal, or a hex value between 0 and 15' );
+        expect( Emulator.checkLine( 'invb r1,r2,$10', testLabels ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15' );
+        expect( Emulator.checkLine( 'invb r1,r2,#10000', testLabels ) ).toBe( 'g argument must either be a decimal, hex, or, binary value between 0 and 15' );
 
         expect( Emulator.checkLine( 'invb r16,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'invb r-1,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'invb r$f,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+        expect( Emulator.checkLine( 'invb r#1111,r2,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
 
         expect( Emulator.checkLine( 'invb r1,r16,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'invb r1,r-1,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
         expect( Emulator.checkLine( 'invb r1,r$f,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
+        expect( Emulator.checkLine( 'invb r1,r#1111,1', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
 
         expect( Emulator.checkLine( ' invb r1,r2;0', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
         expect( Emulator.checkLine( '     invb r1,r2;0comment', testLabels ) ).toBe( 'arguments must be in the form of "Rd,Re,g", negative integers not allowed' );
@@ -1026,14 +1116,17 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.checkLine( 'andnew R16,r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'andnew R-1,R2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'andnew r$f,R2,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+        expect( Emulator.checkLine( 'andnew r#1111,R2,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
         expect( Emulator.checkLine( 'andnew R1,r2,r16' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'andnew R1,R2,r-1' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'andnew r1,R2,R$f' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+        expect( Emulator.checkLine( 'andnew r1,R2,R#1111' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
         expect( Emulator.checkLine( 'andnew R1,r16,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'andnew R1,R-1,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( 'andnew r1,R$f,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
+        expect( Emulator.checkLine( 'andnew r1,R#1111,R3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
 
         expect( Emulator.checkLine( ' andnew r1;r2,r3' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
         expect( Emulator.checkLine( '     andnew r1,r2,r3comment' ) ).toBe( 'arguments must be in the form of "Rd,Ra,Rb"' );
@@ -1042,30 +1135,32 @@ const nonCompatibleCommands = [ // not even recognised by assembler
       } );
 
     // LOGICALIASRR
-    test( 'CHECK LOGICALIASRR true', () => {
-      expect( Emulator.checkLine( 'invnew R1,r2' ) ).toBe( true );
-      expect( Emulator.checkLine( 'invnew R1,R2' ) ).toBe( true );
-      expect( Emulator.checkLine( 'invnew r1,R2' ) ).toBe( true );
+      test( 'CHECK LOGICALIASRR true', () => {
+        expect( Emulator.checkLine( 'invnew R1,r2' ) ).toBe( true );
+        expect( Emulator.checkLine( 'invnew R1,R2' ) ).toBe( true );
+        expect( Emulator.checkLine( 'invnew r1,R2' ) ).toBe( true );
 
-      expect( Emulator.checkLine( ' invnew r1,r2' ) ).toBe( true );
-      expect( Emulator.checkLine( '     invnew r1,r2;comment' ) ).toBe( true );
-      expect( Emulator.checkLine( '     invnew r1,r2;comment;doublecomment' ) ).toBe( true );
-    } );
+        expect( Emulator.checkLine( ' invnew r1,r2' ) ).toBe( true );
+        expect( Emulator.checkLine( '     invnew r1,r2;comment' ) ).toBe( true );
+        expect( Emulator.checkLine( '     invnew r1,r2;comment;doublecomment' ) ).toBe( true );
+      } );
 
-    test( 'CHECK LOGICALIASRR false', () => {
-      expect( Emulator.checkLine( 'invnew R16,r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-      expect( Emulator.checkLine( 'invnew R-1,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-      expect( Emulator.checkLine( 'invnew r$f,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+      test( 'CHECK LOGICALIASRR false', () => {
+        expect( Emulator.checkLine( 'invnew R16,r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+        expect( Emulator.checkLine( 'invnew R-1,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+        expect( Emulator.checkLine( 'invnew r$f,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+        expect( Emulator.checkLine( 'invnew #1111,R2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
 
-      expect( Emulator.checkLine( 'invnew R1,r16' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-      expect( Emulator.checkLine( 'invnew R1,R-1' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-      expect( Emulator.checkLine( 'invnew r1,R$f' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+        expect( Emulator.checkLine( 'invnew R1,r16' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+        expect( Emulator.checkLine( 'invnew R1,R-1' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+        expect( Emulator.checkLine( 'invnew r1,R$f' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+        expect( Emulator.checkLine( 'invnew r1,R#1111' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
 
-      expect( Emulator.checkLine( ' invnew r1;r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-      expect( Emulator.checkLine( '     invnew r1,r2comment' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
-      
-      expect( Emulator.checkLine( '     invnew' ) ).toBe( 'invnew must be followed by 2 registers in form Rx,Rx' );
-    } );
+        expect( Emulator.checkLine( ' invnew r1;r2' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+        expect( Emulator.checkLine( '     invnew r1,r2comment' ) ).toBe( 'arguments must be in the form of "Ra,Rb"' );
+        
+        expect( Emulator.checkLine( '     invnew' ) ).toBe( 'invnew must be followed by 2 registers in form Rx,Rx' );
+      } );
 
   // checkCodeIsCompatible
     // FULLY COMPATIBLE
@@ -1211,6 +1306,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'lea r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf100, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'lea r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf100, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'lea r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf100, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'lea r1,#100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf100, 0x0137 ] );
         } );
 
       // LOAD
@@ -1224,6 +1320,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'load r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf101, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'load r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf101, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'load r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf101, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'load r1,#100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf101, 0x0137 ] );
         } );
 
       // STORE
@@ -1237,6 +1334,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'store r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf102, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'store r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf102, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'store r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf102, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'store r1,#100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf102, 0x0137 ] );
         } );
 
       // JUMPF
@@ -1250,6 +1348,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpf r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf106, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpf r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf106, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpf r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf106, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpf r1,#100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf106, 0x0137 ] );
         } );
 
       // JUMPT
@@ -1263,6 +1362,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpt r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf107, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpt r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf107, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpt r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf107, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpt r1,#100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf107, 0x0137 ] );
         } );
 
       // JAL
@@ -1276,6 +1376,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jal r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf108, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jal r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf108, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jal r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf108, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jal r1,#100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf108, 0x0137 ] );
         } );
 
       // TESTSET
@@ -1289,6 +1390,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'testset r1,100[r0]', testLabels ) ).toStrictEqual( [ 0xf109, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'testset r1,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf109, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'testset r1,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf109, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'testset r1,#100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf109, 0x0137 ] );
         } );
 
     // JX
@@ -1301,6 +1403,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jump 100[r0]', testLabels ) ).toStrictEqual( [ 0xf003, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jump -100[r0]', testLabels ) ).toStrictEqual( [ 0xf003, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jump $100[r0]', testLabels ) ).toStrictEqual( [ 0xf003, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jump #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf003, 0x0137 ] );
         } );
 
     // KX
@@ -1311,11 +1414,14 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'jumpc0 1,test[R2]', testLabels ) ).toStrictEqual( [ 0xf124, testLabels['test'] ] );
           expect( Emulator.parseLineForMachineCode( 'jumpc0 $f,test[R2]', testLabels ) ).toStrictEqual( [ 0xff24, testLabels['test'] ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpc0 #1111,test[R2]', testLabels ) ).toStrictEqual( [ 0xff24, testLabels['test'] ] );
 
           expect( Emulator.parseLineForMachineCode( 'jumpc0 0,test[r0]', testLabels ) ).toStrictEqual( [ 0xf004, testLabels['test'] ] );
           expect( Emulator.parseLineForMachineCode( 'jumpc0 0,100[r0]', testLabels ) ).toStrictEqual( [ 0xf004, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpc0 0,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf004, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpc0 0,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf004, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpc0 0,#100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf004, 0x0137 ] );
+
         } );
 
       // JUMPC1
@@ -1325,11 +1431,13 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'jumpc1 1,test[R2]', testLabels ) ).toStrictEqual( [ 0xf125, testLabels['test'] ] );
           expect( Emulator.parseLineForMachineCode( 'jumpc1 $f,test[R2]', testLabels ) ).toStrictEqual( [ 0xff25, testLabels['test'] ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpc1 #1111,test[R2]', testLabels ) ).toStrictEqual( [ 0xff25, testLabels['test'] ] );
 
           expect( Emulator.parseLineForMachineCode( 'jumpc1 0,test[r0]', testLabels ) ).toStrictEqual( [ 0xf005, testLabels['test'] ] );
           expect( Emulator.parseLineForMachineCode( 'jumpc1 0,100[r0]', testLabels ) ).toStrictEqual( [ 0xf005, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpc1 0,-100[r0]', testLabels ) ).toStrictEqual( [ 0xf005, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpc1 0,$100[r0]', testLabels ) ).toStrictEqual( [ 0xf005, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpc1 0,#100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf005, 0x0137 ] );
         } );
 
     // JUMPALIAS
@@ -1342,6 +1450,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumple 100[r0]', testLabels ) ).toStrictEqual( [ 0xf104, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumple -100[r0]', testLabels ) ).toStrictEqual( [ 0xf104, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumple $100[r0]', testLabels ) ).toStrictEqual( [ 0xf104, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumple #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf104, 0x0137 ] );
         } );
 
       // JUMPNE
@@ -1353,6 +1462,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpne 100[r0]', testLabels ) ).toStrictEqual( [ 0xf204, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpne -100[r0]', testLabels ) ).toStrictEqual( [ 0xf204, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpne $100[r0]', testLabels ) ).toStrictEqual( [ 0xf204, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpne #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf204, 0x0137 ] );
         } );
 
       // JUMPGE
@@ -1364,6 +1474,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpge 100[r0]', testLabels ) ).toStrictEqual( [ 0xf304, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpge -100[r0]', testLabels ) ).toStrictEqual( [ 0xf304, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpge $100[r0]', testLabels ) ).toStrictEqual( [ 0xf304, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpge #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf304, 0x0137 ] );
         } );
 
       // JUMPNV
@@ -1375,6 +1486,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpnv 100[r0]', testLabels ) ).toStrictEqual( [ 0xf604, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpnv -100[r0]', testLabels ) ).toStrictEqual( [ 0xf604, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpnv $100[r0]', testLabels ) ).toStrictEqual( [ 0xf604, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpnv #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf604, 0x0137 ] );
         } );
 
       // JUMPNVU
@@ -1386,6 +1498,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpnvu 100[r0]', testLabels ) ).toStrictEqual( [ 0xf504, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpnvu -100[r0]', testLabels ) ).toStrictEqual( [ 0xf504, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpnvu $100[r0]', testLabels ) ).toStrictEqual( [ 0xf504, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpnvu #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf504, 0x0137 ] );
         } );
 
       // JUMPNCO
@@ -1397,6 +1510,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpnco 100[r0]', testLabels ) ).toStrictEqual( [ 0xf704, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpnco -100[r0]', testLabels ) ).toStrictEqual( [ 0xf704, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpnco $100[r0]', testLabels ) ).toStrictEqual( [ 0xf704, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpnco #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf704, 0x0137 ] );
         } );
 
       // JUMPNSO
@@ -1408,6 +1522,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpnso 100[r0]', testLabels ) ).toStrictEqual( [ 0xf804, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpnso -100[r0]', testLabels ) ).toStrictEqual( [ 0xf804, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpnso $100[r0]', testLabels ) ).toStrictEqual( [ 0xf804, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpnso #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf804, 0x0137 ] );
         } );
 
       // JUMPLT
@@ -1419,6 +1534,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumplt 100[r0]', testLabels ) ).toStrictEqual( [ 0xf305, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumplt -100[r0]', testLabels ) ).toStrictEqual( [ 0xf305, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumplt $100[r0]', testLabels ) ).toStrictEqual( [ 0xf305, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumplt #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf305, 0x0137 ] );
         } );
 
       // JUMPEQ
@@ -1430,6 +1546,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpeq 100[r0]', testLabels ) ).toStrictEqual( [ 0xf205, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpeq -100[r0]', testLabels ) ).toStrictEqual( [ 0xf205, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpeq $100[r0]', testLabels ) ).toStrictEqual( [ 0xf205, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpeq #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf205, 0x0137 ] );
         } );
 
       // JUMPGT
@@ -1441,6 +1558,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpgt 100[r0]', testLabels ) ).toStrictEqual( [ 0xf105, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpgt -100[r0]', testLabels ) ).toStrictEqual( [ 0xf105, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpgt $100[r0]', testLabels ) ).toStrictEqual( [ 0xf105, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpgt #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf105, 0x0137 ] );
         } );
 
       // JUMPV
@@ -1452,6 +1570,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpv 100[r0]', testLabels ) ).toStrictEqual( [ 0xf605, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpv -100[r0]', testLabels ) ).toStrictEqual( [ 0xf605, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpv $100[r0]', testLabels ) ).toStrictEqual( [ 0xf605, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpv #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf605, 0x0137 ] );
         } );
 
       // JUMPVU
@@ -1463,6 +1582,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpvu 100[r0]', testLabels ) ).toStrictEqual( [ 0xf505, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpvu -100[r0]', testLabels ) ).toStrictEqual( [ 0xf505, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpvu $100[r0]', testLabels ) ).toStrictEqual( [ 0xf505, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpvu #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf505, 0x0137 ] );
         } );
 
       // JUMPCO
@@ -1474,6 +1594,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpco 100[r0]', testLabels ) ).toStrictEqual( [ 0xf705, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpco -100[r0]', testLabels ) ).toStrictEqual( [ 0xf705, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpco $100[r0]', testLabels ) ).toStrictEqual( [ 0xf705, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpco #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf705, 0x0137 ] );
         } );
 
       // JUMPSO
@@ -1485,6 +1606,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'jumpso 100[r0]', testLabels ) ).toStrictEqual( [ 0xf805, 100 ] );
           expect( Emulator.parseLineForMachineCode( 'jumpso -100[r0]', testLabels ) ).toStrictEqual( [ 0xf805, 0xff9c ] );
           expect( Emulator.parseLineForMachineCode( 'jumpso $100[r0]', testLabels ) ).toStrictEqual( [ 0xf805, 0x0100 ] );
+          expect( Emulator.parseLineForMachineCode( 'jumpso #100110111[r0]', testLabels ) ).toStrictEqual( [ 0xf805, 0x0137 ] );
         } );
 
     // X
@@ -1492,8 +1614,9 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.parseLineForMachineCode( 'data 100', testLabels ) ).toStrictEqual( [ 100 ] );
         expect( Emulator.parseLineForMachineCode( 'data -100', testLabels ) ).toStrictEqual( [ 0xff9c ] );
         expect( Emulator.parseLineForMachineCode( 'data $100', testLabels ) ).toStrictEqual( [ 0x0100 ] );
+        expect( Emulator.parseLineForMachineCode( 'data #100110111', testLabels ) ).toStrictEqual( [ 0x0137 ] );
 
-        expect( Emulator.parseLineForMachineCode( 'data 100,-100,$100', testLabels ) ).toStrictEqual( [ 100, 0xff9c, 0x0100 ] );
+        expect( Emulator.parseLineForMachineCode( 'data 100,-100,$100,#100110111', testLabels ) ).toStrictEqual( [ 100, 0xff9c, 0x0100, 0x0137 ] );
       } );
 
     // NOEXP
@@ -1518,6 +1641,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'save R14,R14,20[R2]', testLabels ) ).toStrictEqual( [ 0xe208, 0xee14 ] );
 
           expect( Emulator.parseLineForMachineCode( 'save r1,r2,$ff[r0]', testLabels ) ).toStrictEqual( [ 0xe008, 0x12ff ] );
+          expect( Emulator.parseLineForMachineCode( 'save r1,r2,#0110111[r0]', testLabels ) ).toStrictEqual( [ 0xe008, 0x1237 ] );
           expect( Emulator.parseLineForMachineCode( 'save r1,r2,100[r0]', testLabels ) ).toStrictEqual( [ 0xe008, 0x1264 ] );
         } );
 
@@ -1528,6 +1652,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
           expect( Emulator.parseLineForMachineCode( 'restore R14,R14,20[R2]', testLabels ) ).toStrictEqual( [ 0xe209, 0xee14 ] );
 
           expect( Emulator.parseLineForMachineCode( 'restore r1,r2,$ff[r0]', testLabels ) ).toStrictEqual( [ 0xe009, 0x12ff ] );
+          expect( Emulator.parseLineForMachineCode( 'restore r1,r2,#0110111[r0]', testLabels ) ).toStrictEqual( [ 0xe009, 0x1237 ] );
           expect( Emulator.parseLineForMachineCode( 'restore r1,r2,100[r0]', testLabels ) ).toStrictEqual( [ 0xe009, 0x1264 ] );
         } );
 
@@ -1585,6 +1710,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'shiftl r1,r2,5' ) ).toStrictEqual( [ 0xe110, 0x2050 ] );
           expect( Emulator.parseLineForMachineCode( 'shiftl r1,r2,$f' ) ).toStrictEqual( [ 0xe110, 0x20f0 ] );
+          expect( Emulator.parseLineForMachineCode( 'shiftl r1,r2,#1110' ) ).toStrictEqual( [ 0xe110, 0x20e0 ] );
         } );
 
       // SHIFTR
@@ -1594,6 +1720,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'shiftr r1,r2,5' ) ).toStrictEqual( [ 0xe111, 0x2050 ] );
           expect( Emulator.parseLineForMachineCode( 'shiftr r1,r2,$f' ) ).toStrictEqual( [ 0xe111, 0x20f0 ] );
+          expect( Emulator.parseLineForMachineCode( 'shiftr r1,r2,#1110' ) ).toStrictEqual( [ 0xe111, 0x20e0 ] );
         } );
 
     // RKEXP
@@ -1604,6 +1731,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'getbit r1,5' ) ).toStrictEqual( [ 0xe118, 0x0050 ] );
           expect( Emulator.parseLineForMachineCode( 'getbit r1,$f' ) ).toStrictEqual( [ 0xe118, 0x00f0 ] );
+          expect( Emulator.parseLineForMachineCode( 'getbit r1,#1110' ) ).toStrictEqual( [ 0xe118, 0x00e0 ] );
         } );
 
       // GETBITI
@@ -1613,6 +1741,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'getbiti r1,5' ) ).toStrictEqual( [ 0xe119, 0x0050 ] );
           expect( Emulator.parseLineForMachineCode( 'getbiti r1,$f' ) ).toStrictEqual( [ 0xe119, 0x00f0 ] );
+          expect( Emulator.parseLineForMachineCode( 'getbiti r1,#1110' ) ).toStrictEqual( [ 0xe119, 0x00e0 ] );
         } );
 
       // PUTBIT
@@ -1622,6 +1751,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'putbit r1,5' ) ).toStrictEqual( [ 0xe11a, 0x0050 ] );
           expect( Emulator.parseLineForMachineCode( 'putbit r1,$f' ) ).toStrictEqual( [ 0xe11a, 0x00f0 ] );
+          expect( Emulator.parseLineForMachineCode( 'putbit r1,#1110' ) ).toStrictEqual( [ 0xe11a, 0x00e0 ] );
         } );
 
       // PUTBITI
@@ -1631,6 +1761,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'putbiti r1,5' ) ).toStrictEqual( [ 0xe11b, 0x0050 ] );
           expect( Emulator.parseLineForMachineCode( 'putbiti r1,$f' ) ).toStrictEqual( [ 0xe11b, 0x00f0 ] );
+          expect( Emulator.parseLineForMachineCode( 'putbiti r1,#1110' ) ).toStrictEqual( [ 0xe11b, 0x00e0 ] );
         } );
 
     // INJECTIALIAS
@@ -1641,9 +1772,11 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'field r1,1,15' ) ).toStrictEqual( [ 0xe115, 0x001f ] );
           expect( Emulator.parseLineForMachineCode( 'field r1,$a,15' ) ).toStrictEqual( [ 0xe115, 0x00af ] );
+          expect( Emulator.parseLineForMachineCode( 'field r1,#1110,15' ) ).toStrictEqual( [ 0xe115, 0x00ef ] );
 
-          expect( Emulator.parseLineForMachineCode( 'field r1,0,$1' ) ).toStrictEqual( [ 0xe115, 0x0001 ] );
+          expect( Emulator.parseLineForMachineCode( 'field r1,0,1' ) ).toStrictEqual( [ 0xe115, 0x0001 ] );
           expect( Emulator.parseLineForMachineCode( 'field r1,0,$f' ) ).toStrictEqual( [ 0xe115, 0x000f ] );
+          expect( Emulator.parseLineForMachineCode( 'field r1,0,#1110' ) ).toStrictEqual( [ 0xe115, 0x000e ] );
         } );
 
     // RRKKEXP
@@ -1654,9 +1787,10 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'extract r1,r2,5,0' ) ).toStrictEqual( [ 0xe112, 0x2050 ] );
           expect( Emulator.parseLineForMachineCode( 'extract r1,r2,$f,0' ) ).toStrictEqual( [ 0xe112, 0x20f0 ] );
+          expect( Emulator.parseLineForMachineCode( 'extract r1,r2,#1110,0' ) ).toStrictEqual( [ 0xe112, 0x20e0 ] );
 
           expect( Emulator.parseLineForMachineCode( 'extract r1,r2,0,5' ) ).toStrictEqual( [ 0xe112, 0x2005 ] );
-          expect( Emulator.parseLineForMachineCode( 'extract r1,r2,0,$f' ) ).toStrictEqual( [ 0xe112, 0x200f ] );
+          expect( Emulator.parseLineForMachineCode( 'extract r1,r2,0,#1110' ) ).toStrictEqual( [ 0xe112, 0x200e ] );
         } );
 
       // EXTRACTI
@@ -1666,9 +1800,10 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'extracti r1,r2,5,0' ) ).toStrictEqual( [ 0xe113, 0x2050 ] );
           expect( Emulator.parseLineForMachineCode( 'extracti r1,r2,$f,0' ) ).toStrictEqual( [ 0xe113, 0x20f0 ] );
+          expect( Emulator.parseLineForMachineCode( 'extracti r1,r2,#1110,0' ) ).toStrictEqual( [ 0xe113, 0x20e0 ] );
 
           expect( Emulator.parseLineForMachineCode( 'extracti r1,r2,0,5' ) ).toStrictEqual( [ 0xe113, 0x2005 ] );
-          expect( Emulator.parseLineForMachineCode( 'extracti r1,r2,0,$f' ) ).toStrictEqual( [ 0xe113, 0x200f ] );
+          expect( Emulator.parseLineForMachineCode( 'extracti r1,r2,0,#1110' ) ).toStrictEqual( [ 0xe113, 0x200e ] );
         } );
 
     // RRRKKEXP
@@ -1679,9 +1814,11 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'inject r1,r2,r3,5,0' ) ).toStrictEqual( [ 0xe114, 0x2350 ] );
           expect( Emulator.parseLineForMachineCode( 'inject r1,r2,r3,$f,0' ) ).toStrictEqual( [ 0xe114, 0x23f0 ] );
+          expect( Emulator.parseLineForMachineCode( 'inject r1,r2,r3,#1110,0' ) ).toStrictEqual( [ 0xe114, 0x23e0 ] );
 
           expect( Emulator.parseLineForMachineCode( 'inject r1,r2,r3,0,5' ) ).toStrictEqual( [ 0xe114, 0x2305 ] );
           expect( Emulator.parseLineForMachineCode( 'inject r1,r2,r3,0,$f' ) ).toStrictEqual( [ 0xe114, 0x230f ] );
+          expect( Emulator.parseLineForMachineCode( 'inject r1,r2,r3,0,#1110' ) ).toStrictEqual( [ 0xe114, 0x230e ] );
         } );
 
       // INJECTI
@@ -1691,9 +1828,10 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'injecti r1,r2,r3,5,0' ) ).toStrictEqual( [ 0xe115, 0x2350 ] );
           expect( Emulator.parseLineForMachineCode( 'injecti r1,r2,r3,$f,0' ) ).toStrictEqual( [ 0xe115, 0x23f0 ] );
+          expect( Emulator.parseLineForMachineCode( 'injecti r1,r2,r3,#1110,0' ) ).toStrictEqual( [ 0xe115, 0x23e0 ] );
 
           expect( Emulator.parseLineForMachineCode( 'injecti r1,r2,r3,0,5' ) ).toStrictEqual( [ 0xe115, 0x2305 ] );
-          expect( Emulator.parseLineForMachineCode( 'injecti r1,r2,r3,0,$f' ) ).toStrictEqual( [ 0xe115, 0x230f ] );
+          expect( Emulator.parseLineForMachineCode( 'injecti r1,r2,r3,0,#1110' ) ).toStrictEqual( [ 0xe115, 0x230e ] );
         } );
 
       // LOGICB
@@ -1703,9 +1841,11 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'logicb r1,r2,r3,5,0' ) ).toStrictEqual( [ 0xe117, 0x2350 ] );
           expect( Emulator.parseLineForMachineCode( 'logicb r1,r2,r3,$f,0' ) ).toStrictEqual( [ 0xe117, 0x23f0 ] );
+          expect( Emulator.parseLineForMachineCode( 'logicb r1,r2,r3,#1110,0' ) ).toStrictEqual( [ 0xe117, 0x23e0 ] );
 
           expect( Emulator.parseLineForMachineCode( 'logicb r1,r2,r3,0,5' ) ).toStrictEqual( [ 0xe117, 0x2305 ] );
           expect( Emulator.parseLineForMachineCode( 'logicb r1,r2,r3,0,$f' ) ).toStrictEqual( [ 0xe117, 0x230f ] );
+          expect( Emulator.parseLineForMachineCode( 'logicb r1,r2,r3,0,#1110' ) ).toStrictEqual( [ 0xe117, 0x230e ] );
         } );
 
     // RRRKEXP
@@ -1716,6 +1856,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'logicw r1,r2,r3,5' ) ).toStrictEqual( [ 0xe116, 0x2350 ] );
           expect( Emulator.parseLineForMachineCode( 'logicw r1,r2,r3,$f' ) ).toStrictEqual( [ 0xe116, 0x23f0 ] );
+          expect( Emulator.parseLineForMachineCode( 'logicw r1,r2,r3,#1110' ) ).toStrictEqual( [ 0xe116, 0x23e0 ] );
         } );
 
     // LOGICALIASRRRK
@@ -1726,6 +1867,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'andb r1,r2,r3,5' ) ).toStrictEqual( [ 0xe117, 0x2315 ] );
           expect( Emulator.parseLineForMachineCode( 'andb r1,r2,r3,$f' ) ).toStrictEqual( [ 0xe117, 0x231f ] );
+          expect( Emulator.parseLineForMachineCode( 'andb r1,r2,r3,#1110' ) ).toStrictEqual( [ 0xe117, 0x231e ] );
         } );
 
       // ORB
@@ -1735,6 +1877,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'orb r1,r2,r3,5' ) ).toStrictEqual( [ 0xe117, 0x2375 ] );
           expect( Emulator.parseLineForMachineCode( 'orb r1,r2,r3,$f' ) ).toStrictEqual( [ 0xe117, 0x237f ] );
+          expect( Emulator.parseLineForMachineCode( 'orb r1,r2,r3,#1110' ) ).toStrictEqual( [ 0xe117, 0x237e ] );
         } );
 
       // XORB
@@ -1744,6 +1887,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'xorb r1,r2,r3,5' ) ).toStrictEqual( [ 0xe117, 0x2365 ] );
           expect( Emulator.parseLineForMachineCode( 'xorb r1,r2,r3,$f' ) ).toStrictEqual( [ 0xe117, 0x236f ] );
+          expect( Emulator.parseLineForMachineCode( 'xorb r1,r2,r3,#1110' ) ).toStrictEqual( [ 0xe117, 0x236e ] );
         } );
 
     // LOGICALIASRRK
@@ -1754,6 +1898,7 @@ const nonCompatibleCommands = [ // not even recognised by assembler
 
           expect( Emulator.parseLineForMachineCode( 'invb r1,r2,5' ) ).toStrictEqual( [ 0xe117, 0x20c5 ] );
           expect( Emulator.parseLineForMachineCode( 'invb r1,r2,$f' ) ).toStrictEqual( [ 0xe117, 0x20cf ] );
+          expect( Emulator.parseLineForMachineCode( 'invb r1,r2,#1110' ) ).toStrictEqual( [ 0xe117, 0x20ce ] );
         } );
 
     // LOGICALIASRRR
@@ -1809,23 +1954,28 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.parseCodeToCompatible( 'add r1,r2,r3' ) ).toBe( ' add R1,R2,R3\n' );
 
       // RX
-        expect( Emulator.parseCodeToCompatible( '     lea R1,$30[R0]' ) ).toBe( ' lea R1,$0030[R0]\n' );
+        expect( Emulator.parseCodeToCompatible( '     lea R1,#110000[R0]' ) ).toBe( ' lea R1,48[R0]\n' );
+        expect( Emulator.parseCodeToCompatible( '     lea R1,$30[R0]' ) ).toBe( ' lea R1,48[R0]\n' );
         expect( Emulator.parseCodeToCompatible( 'lea r1,test[r0]' ) ).toBe( ' lea R1,test[R0]\n' );
 
       // JX
-        expect( Emulator.parseCodeToCompatible( '     jump $30[R0]' ) ).toBe( ' jump $0030[R0]\n' );
+        expect( Emulator.parseCodeToCompatible( '     jump #110000[R0]' ) ).toBe( ' jump 48[R0]\n' );
+        expect( Emulator.parseCodeToCompatible( '     jump $30[R0]' ) ).toBe( ' jump 48[R0]\n' );
         expect( Emulator.parseCodeToCompatible( 'jump test[r0]' ) ).toBe( ' jump test[R0]\n' );
 
       // KX
-        expect( Emulator.parseCodeToCompatible( '     jumpc0 1,$30[R0]' ) ).toBe( ' jumpc0 1,$0030[R0]\n' );
+        expect( Emulator.parseCodeToCompatible( '     jumpc0 1,#110000[R0]' ) ).toBe( ' jumpc0 1,48[R0]\n' );
+        expect( Emulator.parseCodeToCompatible( '     jumpc0 1,$30[R0]' ) ).toBe( ' jumpc0 1,48[R0]\n' );
         expect( Emulator.parseCodeToCompatible( 'jumpc0 1,test[r0]' ) ).toBe( ' jumpc0 1,test[R0]\n' );
 
       // JUMPALIAS
-        expect( Emulator.parseCodeToCompatible( '     jumpne $30[R0]' ) ).toBe( ' jumpne $0030[R0]\n' );
+        expect( Emulator.parseCodeToCompatible( '     jumpne #110000[R0]' ) ).toBe( ' jumpne 48[R0]\n' );
+        expect( Emulator.parseCodeToCompatible( '     jumpne $30[R0]' ) ).toBe( ' jumpne 48[R0]\n' );
         expect( Emulator.parseCodeToCompatible( 'jumpne test[r0]' ) ).toBe( ' jumpne test[R0]\n' );
 
       // X
-        expect( Emulator.parseCodeToCompatible( '     data $30' ) ).toBe( ' data $0030\n' );
+        expect( Emulator.parseCodeToCompatible( '     data #110000' ) ).toBe( ' data 48\n' );
+        expect( Emulator.parseCodeToCompatible( '     data $30' ) ).toBe( ' data 48\n' );
         expect( Emulator.parseCodeToCompatible( 'data 12' ) ).toBe( ' data 12\n' );
 
       // NOEXP
@@ -1837,7 +1987,8 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.parseCodeToCompatible( 'execute r1,r2' ) ).toBe( ' execute R1,R2\n' );
 
       // RRXEXP
-        expect( Emulator.parseCodeToCompatible( '     save R1,r2,$30[R0]' ) ).toBe( ' save R1,R2,$0030[R0]\n' );
+        expect( Emulator.parseCodeToCompatible( '     save R1,r2,#110000[R0]' ) ).toBe( ' save R1,R2,48[R0]\n' );
+        expect( Emulator.parseCodeToCompatible( '     save R1,r2,$30[R0]' ) ).toBe( ' save R1,R2,48[R0]\n' );
         expect( Emulator.parseCodeToCompatible( 'save r1,r2,test[r0]' ) ).toBe( ' save R1,R2,test[R0]\n' );
 
       // RCEXP
@@ -1852,33 +2003,65 @@ const nonCompatibleCommands = [ // not even recognised by assembler
         expect( Emulator.parseCodeToCompatible( '     shiftl R1,r2,3' ) ).toBe( ' shiftl R1,R2,3\n' );
         expect( Emulator.parseCodeToCompatible( 'shiftl r1,r2,3' ) ).toBe( ' shiftl R1,R2,3\n' );
 
+        expect( Emulator.parseCodeToCompatible( 'shiftl r1,r2,$f' ) ).toBe( ' shiftl R1,R2,15\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'shiftl r1,r2,#11' ) ).toBe( ' shiftl R1,R2,3\n' );
+
       // RKEXP
         expect( Emulator.parseCodeToCompatible( '     getbit R1,2' ) ).toBe( ' getbit R1,2\n' );
         expect( Emulator.parseCodeToCompatible( 'getbit r1,2' ) ).toBe( ' getbit R1,2\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'getbit r1,$f' ) ).toBe( ' getbit R1,15\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'getbit r1,#10' ) ).toBe( ' getbit R1,2\n' );
 
       // INJECTIALIAS
         expect( Emulator.parseCodeToCompatible( '     field R1,2,3' ) ).toBe( ' field R1,2,3\n' );
         expect( Emulator.parseCodeToCompatible( 'field r1,2,3' ) ).toBe( ' field R1,2,3\n' );
 
+        expect( Emulator.parseCodeToCompatible( 'field r1,2,$f' ) ).toBe( ' field R1,2,15\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'field r1,2,#11' ) ).toBe( ' field R1,2,3\n' );
+
       // RRKKEXP
         expect( Emulator.parseCodeToCompatible( '     extract R1,R2,3,4' ) ).toBe( ' extract R1,R2,3,4\n' );
         expect( Emulator.parseCodeToCompatible( 'extract r1,r2,3,4' ) ).toBe( ' extract R1,R2,3,4\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'extract r1,r2,$3,$f' ) ).toBe( ' extract R1,R2,3,15\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'extract r1,r2,#11,#100' ) ).toBe( ' extract R1,R2,3,4\n' );
 
       // RRRKKEXP
         expect( Emulator.parseCodeToCompatible( '     logicb R1,R2,R3,4,5' ) ).toBe( ' logicb R1,R2,R3,4,5\n' );
         expect( Emulator.parseCodeToCompatible( 'logicb r1,r2,r3,4,5' ) ).toBe( ' logicb R1,R2,R3,4,5\n' );
 
+        expect( Emulator.parseCodeToCompatible( 'logicb r1,r2,r3,$4,$5' ) ).toBe( ' logicb R1,R2,R3,4,5\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'logicb r1,r2,r3,#100,#101' ) ).toBe( ' logicb R1,R2,R3,4,5\n' );
+
       // RRRKEXP
         expect( Emulator.parseCodeToCompatible( '     logicw R1,R2,R3,4' ) ).toBe( ' logicw R1,R2,R3,4\n' );
         expect( Emulator.parseCodeToCompatible( 'logicw r1,r2,r3,4' ) ).toBe( ' logicw R1,R2,R3,4\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'logicw r1,r2,r3,$f' ) ).toBe( ' logicw R1,R2,R3,15\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'logicw r1,r2,r3,#100' ) ).toBe( ' logicw R1,R2,R3,4\n' );
 
       // LOGICALIASRRRK
         expect( Emulator.parseCodeToCompatible( '     andb R1,R2,R3,4' ) ).toBe( ' andb R1,R2,R3,4\n' );
         expect( Emulator.parseCodeToCompatible( 'andb r1,r2,r3,4' ) ).toBe( ' andb R1,R2,R3,4\n' );
 
+        expect( Emulator.parseCodeToCompatible( 'andb r1,r2,r3,$f' ) ).toBe( ' andb R1,R2,R3,15\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'andb r1,r2,r3,#100' ) ).toBe( ' andb R1,R2,R3,4\n' );
+
       // LOGICALIASRRK
         expect( Emulator.parseCodeToCompatible( '     invb R1,R2,3' ) ).toBe( ' invb R1,R2,3\n' );
         expect( Emulator.parseCodeToCompatible( 'invb r1,r2,3' ) ).toBe( ' invb R1,R2,3\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'invb r1,r2,$f' ) ).toBe( ' invb R1,R2,15\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'invb r1,r2,#101' ) ).toBe( ' invb R1,R2,5\n' );
 
       // LOGICALIASRRR
         expect( Emulator.parseCodeToCompatible( '     andnew R1,R2,R3' ) ).toBe( ' andnew R1,R2,R3\n' );
