@@ -451,7 +451,7 @@ export default class DocumentationView extends React.Component {
                       <div className='info-body white'>
                         <strong>Labels</strong> can be made up of <strong>any alphanumerical</strong> characters including the underscore character - <strong>_</strong><br/>
                         <br/>
-                        Labels <strong>must start</strong> with an <strong>alphabet</strong> character<br/>
+                        Labels <strong>must start</strong> with an <strong>alphabet</strong> character or an <strong>underscore</strong> character - <strong>_</strong><br/>
                         <br/>
                         Labels are <strong>case-sensitive</strong><br/>
                         <br/>
