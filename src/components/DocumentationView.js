@@ -3,7 +3,7 @@ import React from 'react';
 import './DocumentationView.css';
 
 import { Button, Col, Collapse, Row, Table } from 'react-bootstrap';
-import { FaBackward, FaBug, FaCheck, FaChevronDown, FaChevronUp, FaDownload, FaHammer, FaMinus, FaPen, FaPlay, FaStepForward, FaTimes, FaUpload } from 'react-icons/fa';
+import { FaBackward, FaBug, FaCheck, FaChevronDown, FaChevronUp, FaDownload, FaEye, FaEyeSlash, FaHammer, FaMinus, FaPen, FaPlay, FaStepForward, FaTimes, FaUpload } from 'react-icons/fa';
 import Select from 'react-select';
 
 import * as Emulator from './utils/Emulator';
@@ -1992,6 +1992,12 @@ export default class DocumentationView extends React.Component {
                         This same <strong>format</strong> of highlighting is used to show the corresponding <strong>cells</strong> in <strong>memory</strong> are <strong>being</strong>/<strong>have</strong> been executed<br/>
                         
                         <br/>
+
+                        <strong>Executed lines</strong> and corresponding <strong>memory values</strong> are also by default <strong>followed</strong><br/>
+                        This functionality can be <strong>disabled</strong> by pressing the <FaEye/> icon to make it become a <FaEyeSlash/> icon<br/>
+                        There are options to <strong>toggle</strong> this <strong>following of execution</strong> for <strong>both memory</strong> and <strong>code</strong> by the <strong>different</strong> buttons above <strong>each column</strong><br/>
+
+                        <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging11.jpg`} alt='Red box around follow memory and follow code buttons after code follow toggled'/><br/>
                         
                         A program can be <strong>stepped-through</strong> or <strong>run</strong> through up until it is <strong>halted</strong>. This is <strong>most commonly</strong> done with a <code>trap R0,R0,R0</code> instruction<br/>
                         <strong>After</strong> a program is <strong>halted</strong>, the buttons for running and stepping will become <strong>disabled</strong>. Also, the <span style={{color : 'green'}}><strong>green</strong></span> overlay will <strong>disappear</strong> as there will be <strong>no next</strong> line to <strong>execute</strong><br/>
