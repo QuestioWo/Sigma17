@@ -388,7 +388,7 @@ export default class ProgramDebugView extends React.Component {
       var linesOfCode = this.state.code.split( '\n' ).length;
       var activeLineInCode = this.state.memoryToLine[ this.state.activeLine ];
 
-      var heightOfOverlay = -( ( linesOfCode - ( activeLineInCode + 1 ) ) * 25 ) + -( 29 );
+      var heightOfOverlay = ( ( activeLineInCode ) * 25 ) + ( 4 ); // 4 for border
 
       var lineNoWidth = 21;
       var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
@@ -412,7 +412,7 @@ export default class ProgramDebugView extends React.Component {
       var linesOfCode = this.state.code.split( '\n' ).length;
       var lastLineInCode = this.state.memoryToLine[ this.state.lastLine ];
 
-      var heightOfOverlay = -( ( linesOfCode - ( lastLineInCode + 1 ) ) * 25 ) + -( 29 );
+      var heightOfOverlay = ( ( lastLineInCode ) * 25 ) + ( 4 ); // 4 for border
 
       var lineNoWidth = 21;
       var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
@@ -980,6 +980,8 @@ export default class ProgramDebugView extends React.Component {
                         </div>
                         { this.state.code && this.state.renderCodeChunk &&
                           <React.Fragment>
+                            {this.activeLineOverlay()}
+                            {this.lastLineOverlay()}
                             { this.state.highlightedCodeChunk ?
                               <CodeMirror
                                 className=' debug'
@@ -989,16 +991,8 @@ export default class ProgramDebugView extends React.Component {
                             : 
                               <React.Fragment>
                                 {this.noHighlightCodeChunk()}
-                                {/**<InputGroup
-                                  as='textarea'
-                                  className='code-chunk-column viewing'
-                                  value={this.state.code}
-                                  disabled/>
-                                */}
                               </React.Fragment>
                             }
-                            {this.activeLineOverlay()}
-                            {this.lastLineOverlay()}
                           </React.Fragment>
                         }
                       </React.Fragment>
