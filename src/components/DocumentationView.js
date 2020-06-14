@@ -29,6 +29,7 @@ export default class DocumentationView extends React.Component {
 
           'Toknow before coding/Introduction to language', // Introduction to language
             'Toknow before coding/Introduction to language/Constants', // Constants
+            'Toknow before coding/Introduction to language/Comments', // Comments
 
           'Toknow before coding/Introduction to machine code', // Introduction to machine code
 
@@ -433,6 +434,16 @@ export default class DocumentationView extends React.Component {
                         <br/>
                         <strong>Binary</strong> representation in Sigma16 comes as a <strong>binary</strong> number, number characters <strong>0</strong> or <strong>1</strong>, with a <strong>#</strong> prefix :<br/>
                         <code>#10</code> represents <strong>decimal</strong> 2<br/>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'Comments'} depth={3}>
+                      <div className='info-body white'>
+                        <strong>Comments</strong> in Sigma16 are defined as <strong>anything after</strong> a <strong>semi-colon</strong> - <code>;</code><br/>
+                        <br/>
+                        <strong>Comments</strong> are <strong>ignored</strong> by the <strong>compiler</strong><br/>
+                        This means that the <strong>contents</strong> of comments <strong>do not</strong> have to be in a specific <strong>format</strong> as they are <strong>not parsed</strong> at all<br/>
+                        <br/>
+                        In another way, <code>add R1,R2,R3</code> and <code>add R1,R2,R3; R1 := R2 + R3</code> will be <strong>compiled</strong> to be the <strong>same machine code</strong>; <code>$0123</code>
                       </div>
                     </InfoArea>
                   </InfoArea>
