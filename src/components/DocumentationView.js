@@ -30,6 +30,7 @@ export default class DocumentationView extends React.Component {
           'Toknow before coding/Introduction to language', // Introduction to language
             'Toknow before coding/Introduction to language/Constants', // Constants
             'Toknow before coding/Introduction to language/Comments', // Comments
+            'Toknow before coding/Introduction to language/Labels', // Labels
 
           'Toknow before coding/Introduction to machine code', // Introduction to machine code
 
@@ -444,6 +445,17 @@ export default class DocumentationView extends React.Component {
                         This means that the <strong>contents</strong> of comments <strong>do not</strong> have to be in a specific <strong>format</strong> as they are <strong>not parsed</strong> at all<br/>
                         <br/>
                         In another way, <code>add R1,R2,R3</code> and <code>add R1,R2,R3; R1 := R2 + R3</code> will be <strong>compiled</strong> to be the <strong>same machine code</strong>; <code>$0123</code>
+                      </div>
+                    </InfoArea>
+                    <InfoArea state={this.state} title={'Labels'} depth={3}>
+                      <div className='info-body white'>
+                        <strong>Labels</strong> can be made up of <strong>any alphanumerical</strong> characters including the underscore character - <strong>_</strong><br/>
+                        <br/>
+                        Labels <strong>must start</strong> with an <strong>alphabet</strong> character<br/>
+                        <br/>
+                        Labels are <strong>case-sensitive</strong><br/>
+                        <br/>
+                        Labels <strong>cannot contain</strong> either a dollar sign - <strong>$</strong> - or a hash sign - <strong>#</strong>. This is because both of <strong>these</strong> are used to <strong>represent</strong> hex and binary <strong>constants</strong> repectively<br/>
                       </div>
                     </InfoArea>
                   </InfoArea>

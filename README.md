@@ -43,7 +43,7 @@ This will start the local React.js development server and should open a windown 
 * √ - Display errors in `CodeMirror` chunk for syntax errors
 * √ - Have parser translate to machine code
 * √ - Allow multiple data statements to be strung together, e.g `data $30,$40`
-* Stricter requirements for labels to be accepted.
+* √ - Stricter requirements for labels to be accepted.
 * √ - Abstract RegEx for checking statements.
 * √ - Binary accepted as integers.
 
