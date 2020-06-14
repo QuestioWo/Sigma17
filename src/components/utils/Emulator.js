@@ -974,6 +974,22 @@
     return check;
   }
 
+  function checkLabel( label ) {
+    if ( !( /^[a-z|A-Z]/.test( label ) ) ) {
+      return 'label must start with an alphabet character';
+    }
+
+    if ( label.includes( '$' ) || label.includes( '#' ) ) {
+      return 'label must not contain "$" or "#" symbols as these denote constants';
+    }
+
+    if ( !( /^\w+$/.test( label ) ) ) {
+      return 'label must be made up of purely alphanumerical characters';
+    }
+
+    return true;
+  }
+
   export function checkLine( line, labels ) {
     var linesplit = line.split( ';' )[0].trim().split( /\s+/ );
     var error = true;
@@ -991,19 +1007,24 @@
         // first word is not a command
         if ( /\w/.test( linesplit[0] ) ) {
           // first word is a label
-          if ( linesplit[1] ) {
-            // theres more after label
-            if ( Object.keys( allCommands ).includes( linesplit[1] ) ) {
-              if ( linesplit.length <= 3 ) {
-                error = checkCommands( linesplit[1], linesplit[2], labels );
+          error = checkLabel( linesplit[0] );
+
+          if ( !( error.length ) ) {
+            // label is valid
+            if ( linesplit[1] ) {
+              // theres more after label
+              if ( Object.keys( allCommands ).includes( linesplit[1] ) ) {
+                if ( linesplit.length <= 3 ) {
+                  error = checkCommands( linesplit[1], linesplit[2], labels );
+                } else {
+                  error = 'non-comment after arguments';
+                }
               } else {
-                error = 'non-comment after arguments';
+                error = 'not a valid command following label';
               }
-            } else {
-              error = 'not a valid command following label';
             }
           }
-          // just a label, therefore allowed and function returns true
+          // just a label, therefore allowed and function returns label error check
         }
       }
     }
