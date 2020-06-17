@@ -234,7 +234,7 @@ export default class ProgramDebugView extends React.Component {
         classNameMemory = 'systeminfo-column-elem active';
       }
 
-      if ( this.state.breakpointsMachineCode.includes( String( memoryKeys[i] ) ) ) decoration = 'underline';
+      if ( this.state.breakpointsMachineCode.includes( memoryKeys[i] ) ) decoration = 'underline';
       if ( this.state.changedMemory.includes( String( memoryKeys[i] ) ) ) classNameMemory += ' changed';
 
       memoryValues.push( 
