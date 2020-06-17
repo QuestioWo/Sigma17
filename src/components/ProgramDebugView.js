@@ -11,6 +11,8 @@ import * as Emulator from './utils/Emulator';
 
 import NavBar from './NavBar';
 
+let _ = require( 'underscore' );
+
 export default class ProgramDebugView extends React.Component {
 // CLASS METHODS 
   constructor( props, context ) {
@@ -78,6 +80,9 @@ export default class ProgramDebugView extends React.Component {
 
       memoryToLine : {},
       lineToMemory : {},
+
+      changedRegisters : [],
+      changedMemory : [],
 
       showCodeChunk : true,
       renderCodeChunk : true,
@@ -165,12 +170,17 @@ export default class ProgramDebugView extends React.Component {
   registerColumn() {
     var registers = [];
 
+
     for ( var i = 0; i < 16; i++ ) {
+      var classNameRegister = 'systeminfo-column-elem';
+
+      if ( this.state.changedRegisters.includes( String( i ) ) ) classNameRegister += ' changed';
+
       registers.push( 
         <div 
           key={'register ' + i}
           id={'register ' + i}
-          className={'systeminfo-column-elem'}>
+          className={classNameRegister}>
           <Row>
             <Col>
               <strong>{'R'+i}</strong>
@@ -218,9 +228,14 @@ export default class ProgramDebugView extends React.Component {
       var classNameMemory = 'systeminfo-column-elem';
       var decoration = '';
       
-      if ( i === this.state.lastLine && this.state.lastLine !== this.state.activeLine ) classNameMemory = 'systeminfo-column-elem last';
-      if ( i === this.state.activeLine && !( this.state.halted ) ) classNameMemory = 'systeminfo-column-elem active';
-      if ( this.state.breakpointsMachineCode.includes( i ) ) decoration = 'underline';
+      if ( memoryKeys[i] === this.state.lastLine && this.state.lastLine !== this.state.activeLine ) { 
+        classNameMemory = 'systeminfo-column-elem last';
+      } else if ( memoryKeys[i] === this.state.activeLine && !( this.state.halted ) ) { 
+        classNameMemory = 'systeminfo-column-elem active';
+      }
+
+      if ( this.state.breakpointsMachineCode.includes( String( memoryKeys[i] ) ) ) decoration = 'underline';
+      if ( this.state.changedMemory.includes( String( memoryKeys[i] ) ) ) classNameMemory += ' changed';
 
       memoryValues.push( 
         <div 
@@ -673,7 +688,14 @@ export default class ProgramDebugView extends React.Component {
 
     var memoryNew = Emulator.setMemory( this.state.machineCode );
 
-    this.setState( { registers : registersNew, cpuControl : cpuControlNew, output : outputNew, memory : memoryNew } );
+    this.setState( { 
+      cpuControl : cpuControlNew,
+      registers : registersNew,
+      memory : memoryNew,
+      output : outputNew,
+      changedRegisters : [],
+      changedMemory : []
+    } );
   }
 
   canRunCode( code, machineCode ) {
@@ -704,6 +726,9 @@ export default class ProgramDebugView extends React.Component {
       var localOutput = this.state.output;
 
       var lastRanLine = this.state.activeLine;
+
+      const initialRegisters = Object.assign( {}, this.state.registers );
+      const initialMemory = Object.assign( {}, this.state.memory );
 
       var encounteredBreakpoint = false;
 
@@ -738,8 +763,12 @@ export default class ProgramDebugView extends React.Component {
         output : localOutput, 
         lastLine : lastRanLine,
         activeLine : localControl['pc'],
-        halted : ran['halted']
+        halted : ran['halted'],
+
+        changedRegisters : Object.keys( _.omit( localRegisters, function( v, k ) { return initialRegisters[k] === v; } ) ),
+        changedMemory : Object.keys( _.omit( localMemory, function( v, k ) { return initialMemory[k] === v; } ) )
       } );
+
     } else {
       this.updateAlert( canRun, 'danger' );
       this.setState( { halted : true } );
@@ -755,6 +784,9 @@ export default class ProgramDebugView extends React.Component {
       var localMemory = this.state.memory;
       var localInput = this.state.inputRan;
       var localOutput = this.state.output;
+
+      const initialRegisters = Object.assign( {}, this.state.registers );
+      const initialMemory = Object.assign( {}, this.state.memory );
 
       ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
 
@@ -777,7 +809,10 @@ export default class ProgramDebugView extends React.Component {
         output : localOutput, 
         lastLine : this.state.activeLine ,
         activeLine : localControl['pc'],
-        halted : ran['halted']
+        halted : ran['halted'],
+
+        changedRegisters : Object.keys( _.omit( localRegisters, function( v, k ) { return initialRegisters[k] === v; } ) ),
+        changedMemory : Object.keys( _.omit( localMemory, function( v, k ) { return initialMemory[k] === v; } ) )
       } );
     } else {
       // machine language is blank

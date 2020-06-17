@@ -6,6 +6,10 @@
   color : blue;
 }
 
+.systeminfo-column-elem.changed {
+  color : darkorange;
+}
+
 .code-area.viewing {
   height: 562px;
   overflow-y: auto; 
