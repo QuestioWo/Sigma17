@@ -73,7 +73,7 @@ This will start the local React.js development server and should open a windown 
 * √ - Show code chunk of currently being executed program
 * √ - Display highlighting of lines being exectued in code chunk
 * √ - Make the code debugger follow the line that was executed
-* Highlighting for effected/used memory values and registers.
+* √ - Highlighting for effected/used memory values and registers.
 
 5. Write Tests
 * √ - Write testing framework for/how to set tests out
@@ -96,7 +96,7 @@ This will start the local React.js development server and should open a windown 
 * √ - Add download/copy buttons for machine code and Sigma16 code versions of the program on the editor.
 * √ - Add import functionality for binary exports
 * √ - Allow unhighlighted code chunk to have tabs used correctly.
-* √ - Make webiste display properly on Firefox and Safari
+* √ - Make website display properly on Firefox and Safari
 * x - Make double clicking on output boxes work properly on Firefox
 * √ - Stricter requirements for comments to be accepted.
 * √ - Binary files properly generate and import.

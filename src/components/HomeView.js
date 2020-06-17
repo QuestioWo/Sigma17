@@ -51,12 +51,12 @@ export default class HomeView extends React.Component {
           </Row>
           <Row>
             <Col>
-              Currently, this emulator and IDE runs <strong>fully functional</strong> on <strong>Google Chrome</strong> and <strong>Safari</strong>. Minor features - limited to double clicking to resize outputs - are unavailable on <strong>Firefox</strong> and <strong>Edge</strong>, however the core of the website - breakpoints, emulation, editting and running - are unaffected and the website will still look and operate correctly.
+              Currently, this emulator and IDE runs <strong>fully functional</strong> on <strong>Google Chrome</strong> and <strong>Safari</strong>. Minor features - limited to double-clicking to resize outputs - are unavailable on <strong>Firefox</strong> and <strong>Edge</strong>, however the core of the website - breakpoints, emulation, editing and running - are unaffected and the website will still look and operate correctly
             </Col>
           </Row>
           <Row>
             <Col>
-              When using the emulator, <strong>do not</strong> navigate the pages with the brower's built-in forward and backwards buttons as <strong>code will not save.</strong> Navigate using <strong>only</strong> the nav bar at the top of the screen.
+              When using the emulator, <strong>do not</strong> navigate the pages with the browser's built-in forward and backwards buttons as <strong>code will not save.</strong> Navigate using <strong>only</strong> the nav bar at the top of the screen
             </Col>
           </Row>
           <Row>
@@ -73,7 +73,7 @@ export default class HomeView extends React.Component {
           </Row>
           <Row>
             <Col>
-              This web based IDE is not to be used in complete replacement the orignal written by John O'Donnel as it has properties of it which could mean that programs written using this emulator <strong>will not work</strong> with the orignal and could lead to repurcussions because of it.
+              This web-based IDE is not to be used in complete replacement the original written by John O'Donnel as it has properties of it which could mean that programs written using this emulator <strong>will not work</strong> with the original and could lead to repercussions because of it
             </Col>
           </Row>
           <Row>

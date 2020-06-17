@@ -27,19 +27,19 @@ export default class DocumentationView extends React.Component {
 
           'To know before coding', // To know before coding
 
-          'Toknow before coding/Introduction to language', // Introduction to language
-            'Toknow before coding/Introduction to language/Constants', // Constants
-            'Toknow before coding/Introduction to language/Comments', // Comments
-            'Toknow before coding/Introduction to language/Labels', // Labels
+            'Toknow before coding/Introduction to language', // Introduction to language
+              'Toknow before coding/Introduction to language/Constants', // Constants
+              'Toknow before coding/Introduction to language/Comments', // Comments
+              'Toknow before coding/Introduction to language/Labels', // Labels
 
-          'Toknow before coding/Introduction to machine code', // Introduction to machine code
+            'Toknow before coding/Introduction to machine code', // Introduction to machine code
 
-          'Toknow before coding/Overview of architecture', // Overview of architecture
-            'Toknow before coding/Overview of architecture/CPU', // CPU
-            'Toknow before coding/Overview of architecture/Registers', // Registers
-              'Toknow before coding/Overview of architecture/Registers/R0', // R0
-              'Toknow before coding/Overview of architecture/Registers/R15', // R15
-            'Toknow before coding/Overview of architecture/Memory', // Memory
+            'Toknow before coding/Overview of architecture', // Overview of architecture
+              'Toknow before coding/Overview of architecture/CPU', // CPU
+              'Toknow before coding/Overview of architecture/Registers', // Registers
+                'Toknow before coding/Overview of architecture/Registers/R0', // R0
+                'Toknow before coding/Overview of architecture/Registers/R15', // R15
+              'Toknow before coding/Overview of architecture/Memory', // Memory
 
 
           'Instruction set', // Instruction set
@@ -1990,6 +1990,10 @@ export default class DocumentationView extends React.Component {
                         
                         Also stepping-through the program shows the different <strong>line overlays</strong>. The <span style={{color : 'blue'}}><strong>blue</strong></span> overlay indicates the line that <strong>has</strong> just been <strong>executed</strong>. The <span style={{color : 'green'}}><strong>green</strong></span> overlay shows the line that is <strong>currently being</strong>/<strong>will</strong> be <strong>executed</strong><br/>
                         This same <strong>format</strong> of highlighting is used to show the corresponding <strong>cells</strong> in <strong>memory</strong> are <strong>being</strong>/<strong>have</strong> been executed<br/>
+
+                        <br/>
+
+                        <strong>Memory</strong> cells and <strong>registers</strong> coloured <span style={{color : 'darkorange'}}><strong>dark orange</strong></span> denote values that have been <strong>changed</strong><br/>
                         
                         <br/>
 
