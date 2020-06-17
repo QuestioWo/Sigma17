@@ -1206,6 +1206,24 @@ import * as Emulator from './Emulator';
             {} // error is empty
           ] );
         }
+
+        expect( Emulator.checkCodeIsCompatible( 'data 21' ) ).toStrictEqual( [ // dont add arguments as function only checks if the command is valid and assumes that the arguments are correct
+          true, // is compatible
+          {}, // warn is empty
+          {} // error is empty
+        ] );
+
+        expect( Emulator.checkCodeIsCompatible( 'data $0021' ) ).toStrictEqual( [ // dont add arguments as function only checks if the command is valid and assumes that the arguments are correct
+          true, // is compatible
+          {}, // warn is empty
+          {} // error is empty
+        ] );
+
+        expect( Emulator.checkCodeIsCompatible( 'data #0001110' ) ).toStrictEqual( [ // dont add arguments as function only checks if the command is valid and assumes that the arguments are correct
+          true, // is compatible
+          {}, // warn is empty
+          {} // error is empty
+        ] );
       } );
 
     // PARTIALLY COMPATIBLE
@@ -1221,6 +1239,16 @@ import * as Emulator from './Emulator';
             {} // error is empty
           ] );
         }
+
+        expect( Emulator.checkCodeIsCompatible( 'data 21,$0021,#0001110' ) ).toStrictEqual( [ // dont add arguments as function only checks if the command is valid and assumes that the arguments are correct
+          true, // is compatible
+          { 1 : {
+              'warn' : 'Multiple data constants is not supported by the original emulator',
+              'error' : ''
+            } 
+          }, // warn is empty
+          {} // error is empty
+        ] );
       } );
 
     // NON COMPATIBLE
@@ -2011,6 +2039,12 @@ import * as Emulator from './Emulator';
         expect( Emulator.parseCodeToCompatible( '     data #110000' ) ).toBe( ' data 48\n' );
         expect( Emulator.parseCodeToCompatible( '     data $30' ) ).toBe( ' data 48\n' );
         expect( Emulator.parseCodeToCompatible( 'data 12' ) ).toBe( ' data 12\n' );
+
+        expect( Emulator.parseCodeToCompatible( '     data 48,$30,#110000' ) ).toBe( ' data 48\n data 48\n data 48\n' );
+
+        expect( Emulator.parseCodeToCompatible( 'thing     data 48,$30,#110000' ) ).toBe( 'thing data 48\n data 48\n data 48\n' );
+
+        expect( Emulator.parseCodeToCompatible( '     data 48,$30,#110000;comment' ) ).toBe( ' data 48;comment\n data 48;comment\n data 48;comment\n' );
 
       // NOEXP
         expect( Emulator.parseCodeToCompatible( '     rfi R1,R2' ) ).toBe( ' rfi \n' );

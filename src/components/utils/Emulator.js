@@ -338,11 +338,27 @@
     const registerRegExp = '[rR]((1[0-5])|([0-9]))';
     const controlRegisterRegExp = '((pc)|(ir)|(adr))';
 
-    const constantPositiveRegExp = '((\\$((\\d)|([a-f]))+)|(\\#(1|0)+)|(\\d))+';
-    const constantRegExp = '((\\$((\\d)|([a-f]))+)|(\\#(1|0)+)|(-\\d)|(\\d))+';
+    const constantPositiveRegExp = '((\\$((\\d)|([a-fA-F]))+)|(\\#(1|0)+)|(\\d))+';
+    const constantRegExp = '((\\$((\\d)|([a-fA-F]))+)|(\\#(1|0)+)|(-\\d)|(\\d))+';
 
-    const dispAndIndexRegExp = '((\\$((\\d)|([a-f]))+)|(\\#(1|0)+)|(-(\\d))|(\\d)|(\\w))+\\[' + registerRegExp + '\\]';
-    const dispAndIndexEXPRegExp = '((\\$((\\d)|([a-f]))+)|(\\#(1|0)+)|(\\d))+\\[' + registerRegExp + '\\]';
+    const dispAndIndexRegExp = '((\\$((\\d)|([a-fA-F]))+)|(\\#(1|0)+)|(-(\\d))|(\\d)|(\\w))+\\[' + registerRegExp + '\\]';
+    const dispAndIndexEXPRegExp = '((\\$((\\d)|([a-fA-F]))+)|(\\#(1|0)+)|(\\d))+\\[' + registerRegExp + '\\]';
+
+    // define check regexps here as called when loading file module so doesnt have to made each time the check command is ran
+      const rrRegExp = new RegExp( '^' + registerRegExp + ',' + registerRegExp  + '$' );
+      const rrrRegExp = new RegExp( '^' + registerRegExp + ',' + registerRegExp + ',' + registerRegExp + '$' );
+      const jxRegExp = new RegExp( '^' + dispAndIndexRegExp + '$' );
+      const kxRegExp = new RegExp( '^' + constantPositiveRegExp + ',' + dispAndIndexRegExp + '$' );
+      const rxRegExp = new RegExp( '^' + registerRegExp + ',' + dispAndIndexRegExp + '$' );
+      const xRegExp = new RegExp( '^' + constantRegExp + '$' );
+      const rrxRegExp = new RegExp( '^' + registerRegExp + ',' + registerRegExp + ',' + dispAndIndexEXPRegExp + '$' );
+      const rcRegExp = new RegExp( '^' + registerRegExp + ',' + controlRegisterRegExp + '$' );
+      const rrkRegExp = new RegExp( '^' + registerRegExp + ',' + registerRegExp + ',' + constantPositiveRegExp + '$' );
+      const rkRegExp = new RegExp( '^' + registerRegExp + ',' + constantPositiveRegExp + '$' );
+      const rkkRegExp = new RegExp( '^' + registerRegExp + ',' + constantPositiveRegExp + ',' + constantPositiveRegExp + '$' );
+      const rrkkRegExp = new RegExp( '^' + registerRegExp + ',' + registerRegExp + ',' + constantPositiveRegExp + ',' + constantPositiveRegExp + '$' );
+      const rrrkkRegExp = new RegExp( '^' + registerRegExp + ',' + registerRegExp + ',' + registerRegExp + ',' + constantPositiveRegExp + ',' + constantPositiveRegExp + '$' );
+      const rrrkRegExp = new RegExp( '^' + registerRegExp + ',' + registerRegExp + ',' + registerRegExp + ',' + constantPositiveRegExp + '$' );
 
 // UTIL FUNCTIONS
   export function readSignedHex( a ) {
@@ -551,7 +567,7 @@
 // CHECKING METHODS
   function checkRRCommand( rr ) {
     // check that rrr is in the form of rd,ra,rb
-    if ( !( new RegExp( '^' + registerRegExp + ',' + registerRegExp  + '$' ).test( rr ) ) ) {
+    if ( !( rrRegExp.test( rr ) ) ) {
       return 'arguments must be in the form of "Ra,Rb"';
     }
     return true;
@@ -559,7 +575,7 @@
 
   function checkRRRCommand( rrr ) {
     // check that rrr is in the form of rd,ra,rb
-    if ( !( new RegExp( '^' + registerRegExp + ',' + registerRegExp + ',' + registerRegExp + '$' ).test( rrr ) ) ) {
+    if ( !( rrrRegExp.test( rrr ) ) ) {
       return 'arguments must be in the form of "Rd,Ra,Rb"';
     }
     return true;
@@ -567,7 +583,7 @@
 
   function checkJXCommand( jx, labels ) {
     // check that jx is in the form of disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( new RegExp( '^' + dispAndIndexRegExp + '$' ).test( jx ) ) ) {
+    if ( !( jxRegExp.test( jx ) ) ) {
       return 'arguments must be in the form of "disp[Ra]"';
     }
     var disp = jx.split( '[' )[0];
@@ -583,7 +599,7 @@
 
   function checkKXCommand( kx, labels ) {
     // check that kx is in the form of k,disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( new RegExp( '^' + constantPositiveRegExp + ',' + dispAndIndexRegExp + '$' ).test( kx ) ) ) {
+    if ( !( kxRegExp.test( kx ) ) ) {
       return 'arguments must be in the form of "k,disp[Ra]", negative integers not allowed for k argument';
     }
     var splat = kx.split( ',' );
@@ -605,7 +621,7 @@
 
   function checkRXCommand( rx, labels ) {
     // check that rx is in the form of rd,disp[ra], where disp can be either hex, decimal, or a variable 
-    if ( !( new RegExp( '^' + registerRegExp + ',' + dispAndIndexRegExp + '$' ).test( rx ) ) ) {
+    if ( !( rxRegExp.test( rx ) ) ) {
       return 'arguments must be in the form of "Rd,disp[Ra]"';
     }
     var disp = rx.split( ',' )[1].split( '[' )[0];
@@ -625,7 +641,7 @@
     for ( var i = 0; i < xsplit.length; i++ ) {
       var xtest = xsplit[i];
 
-      if ( !( new RegExp( '^' + constantRegExp + '$' ).test( xtest ) ) ) {
+      if ( !( xRegExp.test( xtest ) ) ) {
         return 'arguments must be in the form of "constant" up to 65535 and down to -32768';
       }
 
@@ -643,7 +659,7 @@
 
   function checkRRXexpCommand( rrx ) {
     // check that rrx is in the form of re,rf,disp[rd], where disp can be either hex, or a decimal integer 
-    if ( !( new RegExp( '^' + registerRegExp + ',' + registerRegExp + ',' + dispAndIndexEXPRegExp + '$' ).test( rrx ) ) ) {
+    if ( !( rrxRegExp.test( rrx ) ) ) {
       return 'arguments must be in the form of "Re,Rf,disp[Rd]", negative integers not allowed';
     }
     var disp = rrx.split( ',' )[2].split( '[' )[0];
@@ -657,7 +673,7 @@
 
   function checkRCexpCommand( rc ) {
     // check that rc is in the form of rd,controlRegister, where controlRegister can be pc, ir, or adr
-    if ( !( new RegExp( '^' + registerRegExp + ',' + controlRegisterRegExp + '$' ).test( rc ) ) ) {
+    if ( !( rcRegExp.test( rc ) ) ) {
       return 'arguments must be in the form of "Rd,controlRegisterName"';
     }
 
@@ -666,7 +682,7 @@
 
   function checkRRKexpCommand( rrk ) {
     // check that rrk is in the form of re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 15
-    if ( !( new RegExp( '^' + registerRegExp + ',' + registerRegExp + ',' + constantPositiveRegExp + '$' ).test( rrk ) ) ) {
+    if ( !( rrkRegExp.test( rrk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,g", negative integers not allowed';
     }
     var g = rrk.split( ',' )[2];
@@ -679,7 +695,7 @@
 
   function checkRKexpCommand( rk ) {
     // check that rk is in the form of rd,g, where g can be either hex, or a decimal integer between 0 and 15
-    if ( !( new RegExp( '^' + registerRegExp + ',' + constantPositiveRegExp + '$' ).test( rk ) ) ) {
+    if ( !( rkRegExp.test( rk ) ) ) {
       return 'arguments must be in the form of "Rd,g", negative integers not allowed';
     }
     var g = rk.split( ',' )[1];
@@ -692,7 +708,7 @@
 
   function checkRKKexpCommand( rkk ) {
     // check that rrk is in the form of rd,g,h where g and h can be either hex, or a decimal integer between 0 and 15
-    if ( !( new RegExp( '^' + registerRegExp + ',' + constantPositiveRegExp + ',' + constantPositiveRegExp + '$' ).test( rkk ) ) ) {
+    if ( !( rkkRegExp.test( rkk ) ) ) {
       return 'arguments must be in the form of "Rd,g,h", negative integers not allowed';
     }
     var g = rkk.split( ',' )[1];
@@ -709,7 +725,7 @@
 
   function checkRRKKexpCommand( rrkk ) {
     // check that rrkk is in the form of rd,re,g,h, where g and h can be either hex, or a decimal integer between 0 and 15
-    if ( !( new RegExp( '^' + registerRegExp + ',' + registerRegExp + ',' + constantPositiveRegExp + ',' + constantPositiveRegExp + '$' ).test( rrkk ) ) ) {
+    if ( !( rrkkRegExp.test( rrkk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,g,h", negative integers not allowed';
     }
     var splat = rrkk.split( ',' );
@@ -727,7 +743,7 @@
 
   function checkRRRKKexpCommand( rrrkk ) {
     // check that rrrkk is in the form of rd,re,rf,g,h, where g and h can be either hex, or a decimal integer between 0 and 15
-    if ( !( new RegExp( '^' + registerRegExp + ',' + registerRegExp + ',' + registerRegExp + ',' + constantPositiveRegExp + ',' + constantPositiveRegExp + '$' ).test( rrrkk ) ) ) {
+    if ( !( rrrkkRegExp.test( rrrkk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,Rf,g,h", negative integers not allowed';
     }
     var splat = rrrkk.split( ',' );
@@ -745,7 +761,7 @@
 
   function checkRRRKexpCommand( rrrk ) {
     // check that rrrk is in the form of rd,re,rf,gh, where gh can be either hex, or a decimal integer between 0 and 255
-    if ( !( new RegExp( '^' + registerRegExp + ',' + registerRegExp + ',' + registerRegExp + ',' + constantPositiveRegExp + '$' ).test( rrrk ) ) ) {
+    if ( !( rrrkRegExp.test( rrrk ) ) ) {
       return 'arguments must be in the form of "Rd,Re,Rf,g", negative integers not allowed';
     }
     var splat = rrrk.split( ',' );
@@ -1033,16 +1049,20 @@
     return error;
   }
 
-  function checkCommandIsCompatible( command ) {
+  function checkCommandIsCompatible( command, argument ) {
     var result = {
       warn : '',
       error : ''
     };
 
     if ( Object.keys( partiallyCompatibleCommands ).includes( command ) ) {
-      result['warn'] = partiallyCompatibleCommands[command]
+      result['warn'] = partiallyCompatibleCommands[command];
     } else if ( nonCompatibleCommands.includes( command ) ) {
-      result['error'] = 'Assembler does not recognise command at all and will return an error'
+      result['error'] = 'Assembler does not recognise command at all and will return an error';
+    } else if ( command === 'data' ) {
+      if ( argument && argument.split( ',' ).length > 1 ) {
+        result['warn'] = 'Multiple data constants is not supported by the original emulator';
+      }
     }
     // else, is fully compatible
 
@@ -1060,13 +1080,13 @@
       // lines isnt empty
       if ( Object.keys( allCommands ).includes( linesplit[0] ) ) {
         // first word is a command
-        parsed = checkCommandIsCompatible( linesplit[0] ); // will return error is arguments not present so dont have to check
+        parsed = checkCommandIsCompatible( linesplit[0], linesplit[1] ); // will return error is arguments not present so dont have to check
       } else if ( /\w/.test( linesplit[0] ) && linesplit[1] && Object.keys( allCommands ).includes( linesplit[1] ) ) {    
-        parsed = checkCommandIsCompatible( linesplit[1] );
+        parsed = checkCommandIsCompatible( linesplit[1], linesplit[2] );
       }
     }
 
-    // return error, as it woud have updated to error message if probelm, otherwise, will have stayed positive
+    // return error, as it woud have updated to error message if problem, otherwise, will have stayed positive
     return parsed;
   }
 
@@ -1681,7 +1701,16 @@
           break;
           
         case 'x' :
-          line += readCompatibleConstant( lineResult['argument'] );
+          const splat = lineResult['argument'].split( ',' );
+          for ( var i = 0; i < splat.length; i++ ) {
+            line += readCompatibleConstant( splat[i] );
+
+            if ( i !== splat.length - 1 ) {
+              line += lineResult['comment'];
+              line += '\n'
+              line += ' ' + lineResult['command'] + ' ';
+            }
+          }
           break;
 
         case 'noEXP' :
