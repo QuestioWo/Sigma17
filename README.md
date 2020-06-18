@@ -106,3 +106,7 @@ This will start the local React.js development server and should open a windown 
 The original Sigma16 language, architecture was software tools are written by, [John O'Donnell](https://jtod.github.io/index.html). Email: john.t.odonnnell9@gmail.com
 
 The current React.js version of the software is being written by [Jim Carty](https://questiowo.github.io). Email: cartyjim1@gmail.com
+
+## License
+
+This project is licensed under the terms of the GNU Public License

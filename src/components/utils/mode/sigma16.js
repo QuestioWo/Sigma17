@@ -1,3 +1,9 @@
+/*
+  Copyright Jim Carty © 2020
+
+  This file is subject to the terms and conditions defined in file 'LICENSE.txt', which is part of this source code package.
+*/
+
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("codemirror"));
