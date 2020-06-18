@@ -1713,7 +1713,7 @@
 
             if ( i !== splat.length - 1 ) {
               line += lineResult['comment'];
-              line += '\n'
+              line += '\n';
               line += ' ' + lineResult['command'] + ' ';
             }
           }
