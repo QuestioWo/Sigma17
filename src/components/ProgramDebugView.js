@@ -98,32 +98,22 @@ export default class ProgramDebugView extends React.Component {
   }
 
   componentDidMount() {
-    var code = '';
-    var breakpoints = [];
+    var propsState = {};
+
     if ( this.props.location.state ) {
-      code = this.props.location.state.code;
-      breakpoints = this.props.location.state.breakpoints;
-
-      this.setState( { 
-        code : this.props.location.state.code, 
-        breakpoints : this.props.location.state.breakpoints, 
-        input : this.props.location.state.input, 
-        inputRan : this.props.location.state.input 
-      } );
+      propsState = this.props.location.state;
+      propsState['inputRan'] = this.props.location.state.input;
     } else if ( this.props.code !== undefined ) {
-      code = this.props.code;
-      breakpoints = this.props.breakpoints;
-
-      this.setState( { 
-        code : this.props.code, 
-        breakpoints : this.props.breakpoints, 
-        input : this.props.input, 
-        inputRan : this.props.input 
-      } );
+      propsState = this.props;
+      propsState['inputRan'] = this.props.input;
     }
-    var machineCode = this.parseCode( code, breakpoints );
 
-    this.setState( { memory : Emulator.setMemory( machineCode ) } );
+    if ( propsState !== {} ) {
+      const machineCode = this.parseCode( propsState['code'], propsState['breakpoints'] );
+      propsState['memory'] = Emulator.setMemory( machineCode );
+    }
+
+    this.setState( propsState );
   }
 
 // ALERT METHODS

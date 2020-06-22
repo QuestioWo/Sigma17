@@ -158,17 +158,9 @@ export default class DocumentationView extends React.Component {
 
     componentDidMount() {
       if ( this.props.location.state ) {
-        this.setState( { 
-          code : this.props.location.state.code,
-          breakpoints : this.props.location.state.breakpoints,
-          input : this.props.location.state.input
-        } );
+        this.setState( this.props.location.state );
       } else if ( this.props.code !== undefined ) {
-        this.setState( { 
-          code : this.props.code,
-          breakpoints : this.props.breakpoints,
-          input : this.props.input
-        } );
+        this.setState( this.props );
       }
     }
 
@@ -366,7 +358,7 @@ export default class DocumentationView extends React.Component {
 
       return(
         <React.Fragment>
-          <NavBar state={this.state}/>
+          <NavBar state={{code : this.state.code, breakpoints : this.state.breakpoints, input : this.state.input}}/>
           <div className="mainbody">
             <Row>
               <Col>
