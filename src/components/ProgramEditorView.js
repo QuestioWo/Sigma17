@@ -86,17 +86,9 @@ export default class ProgramEditorView extends React.PureComponent {
 
   componentDidMount() {
     if ( this.props.location.state ) {
-      this.setState( { 
-        code : this.props.location.state.code, 
-        breakpoints : this.props.location.state.breakpoints, 
-        input : this.props.location.state.input 
-      } );
+      this.setState( this.props.location.state );
     } else if ( this.props.code !== undefined ) {
-      this.setState( { 
-        code : this.props.code, 
-        breakpoints : this.props.breakpoints, 
-        input : this.props.input 
-      } );
+      this.setState( this.props );
     }
   }
 
