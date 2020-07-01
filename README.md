@@ -32,6 +32,65 @@ npm start
 
 This will start the local React.js development server and should open a windown in your default browser to `localhost:3000`, in which the webiste can be used as normal.
 
+## Performance
+
+### [Performance Example Program](https://jtod.github.io/home/Sigma16/releases/3.1.3/examples/Advanced/Testing/Performance.asm.txt) :
+
+#### Original
+
+Measured by stopwatch
+```
+3:44.49
+```
+
+#### This emulator
+
+Measured by 
+```js
+console.time()
+```
+```
+73.39ms
+```
+
+### Memory performance test :
+
+```
+ lea R1,heap[R0]
+ lea R2,1[R0]
+ lea R3,65535[R0]
+ 
+ sub R1,R1,R2
+ 
+loop 
+ add R1,R1,R2
+ store R1,0[R1]
+ 
+ cmp R1,R3
+ 
+ jumpne loop[R0]
+ 
+ trap R0,R0,R0
+ 
+heap 
+```
+
+#### Original
+
+Measured by stopwatch
+```
+25:10.23
+340MB
+```
+
+#### This emulator
+
+Measured by stopwatch
+```
+10:43.55
+1.6GB
+```
+
 ## TODO list
 
 1. Finish code editor
