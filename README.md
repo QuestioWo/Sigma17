@@ -77,7 +77,7 @@ heap
 
 #### Original
 
-Measured by stopwatch
+Measured by stopwatch and Google Chrome Task Manager Tool
 ```
 25:10.23
 340MB
@@ -85,7 +85,7 @@ Measured by stopwatch
 
 #### This emulator
 
-Measured by stopwatch
+Measured by stopwatch and Google Chrome Task Manager Tool
 ```
 10:43.55
 1.6GB
