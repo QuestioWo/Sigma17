@@ -45,10 +45,7 @@ Measured by stopwatch
 
 #### This emulator
 
-Measured by 
-```js
-console.time()
-```
+Measured by `console.time()`
 ```
 73.39ms
 ```
