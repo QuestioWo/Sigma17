@@ -502,42 +502,27 @@
   }
 
   function getBitFromRegister( registerValue, bitNum ) {
-    // push bit to the furthest left to remove bits before
-    var bit = registerValue << bitNum;
-    // remove bits before
-    while ( bit >= 0x10000 ) { bit -= 0x10000; };
-
-    // bit shift back left to furthest left position to remove trailing bits and leave either 1 or 0 to return
-    bit = bit >> 15;
-
-    return bit;
+    return ( ( registerValue >> ( 15 - bitNum ) ) % 2 );
   }
 
   function setBitInRegister( registerValue, bitValue, bitNum ) {
-    // very similar to inject code as a very similar command
-    const shrdist = 15; // shift ffff right to get right-adjusted field
-    const shldist = 15-bitNum;   // shift left to put field into position
+    const shiftLDist = 15 - bitNum;
 
-    var radjustedField = 0xffff >>> shrdist;
-    var maskO = radjustedField << shldist; // 1s in the field
-    var mask = ( ~maskO ) & 0xffff; // mask to clear field in e
-
-    // if either bit is on in registers[15] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
-    return ( ( registerValue & mask ) | ( bitValue << shldist ) );
+    const mask = 0xffff - ( 1 << shiftLDist );
+    
+    return ( ( registerValue & mask ) | ( bitValue << shiftLDist ) );
   }
 
   function setBitInRegisterMultiple( destRegisterValue, sourceRegisterValue, bitFrom, bitTo ) {
-    // Taken from original Sigma16 emulator, from the emulator.js file
-    const shrdist = 15 - bitFrom + bitTo; // shift ffff right to get right-adjusted field
-    const shldist = 15 - bitFrom;   // shift left to put field into position
+    const shiftRDist = 15 - bitFrom + bitTo;
+    const shiftLDist = 15 - bitFrom;
 
-    var radjustedField = 0xffff >>> shrdist;
-    var maskO = radjustedField << shldist; // 1s in the field
-    var mask = ( ~maskO ) & 0xffff; // mask to clear field in e
-    var x = sourceRegisterValue & radjustedField; // value to be injected
+    const radjustedField = 0xffff >> shiftRDist;
+    const mask = ~( radjustedField << shiftLDist ) & 0xffff;
+    const x = sourceRegisterValue & radjustedField;
 
     // if either bit is on in registers[Re] or in x, shifted to the left to fit in correct gap to be injected into then bit is on
-    return ( ( destRegisterValue & mask ) | ( x << shldist ) );
+    return ( ( destRegisterValue & mask ) | ( x << shiftLDist ) );
   }
 
   function getR15Dict() {
@@ -2002,7 +1987,7 @@
 
       case 0x4 :
         // jumpc0
-        if ( ( registers[15] & Math.pow( 2, ( 15 - Rd ) ) ) === 0 ) {
+        if ( getBitFromRegister( registers[15], Rd ) === 0 ) {
           control['pc'] = effectiveADR;
           jumped = true;
         }
@@ -2011,7 +1996,7 @@
 
       case 0x5 :
         // jumpc1
-        if ( ( registers[15] & Math.pow( 2, ( 15 - Rd ) ) ) > 0 ) {
+        if ( getBitFromRegister( registers[15], Rd ) > 0 ) {
           control['pc'] = effectiveADR;
           jumped = true;
         }
