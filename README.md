@@ -90,4 +90,4 @@ This `React.js` version of the Sigma16 emulator has been and is being written by
 
 ## License
 
-This project is licensed under the terms of the GNU Public License. See LICENSE.txt for the full license.
+This project is licensed under the terms of the GNU Public License. See `LICENSE.txt` for the full license.
