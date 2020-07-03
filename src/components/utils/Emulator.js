@@ -555,6 +555,10 @@
     return r15;
   }
 
+  function guarantee16Bits( number ) {
+    return ( number % 0x10000 );
+  }
+
 // CHECKING METHODS
   function checkRRCommand( rr ) {
     // check that rrr is in the form of rd,ra,rb
@@ -1953,9 +1957,7 @@
   }
 
   function processRXInstruction( control, registers, memory, Rd, Ra, Op, adr ) {
-    var effectiveADR = registers[Ra] + adr;
-
-    while ( effectiveADR >= 0x10000 ) { effectiveADR -= 0x10000; };
+    var effectiveADR = guarantee16Bits( registers[Ra] + adr );
 
     var jumped = false;
 
@@ -2086,8 +2088,7 @@
 
         for ( var iSave = Re; iSave <= ( Re + diffSave ); iSave++ ) {
           var regNoSave = iSave % 16;
-          var validMemorySave = effectiveADRsave + ( iSave - Re );
-          if ( validMemorySave >= 0x10000 ) validMemorySave -= 0x10000;
+          var validMemorySave = guarantee16Bits( effectiveADRsave + ( iSave - Re ) );
           memory[validMemorySave] = registers[regNoSave];
         }
 
@@ -2108,8 +2109,7 @@
         for ( var iRestore = Re; iRestore <= ( Re + diffRestore ); iRestore++ ) {
           var regNoRestore = iRestore % 16;
 
-          var validMemoryRestore = effectiveADRrestore + ( iRestore - Re );
-          if ( validMemoryRestore >= 0x10000 ) validMemoryRestore -= 0x10000;
+          var validMemoryRestore = guarantee16Bits( effectiveADRrestore + ( iRestore - Re ) );
 
           if ( memory[validMemoryRestore] ) {
             registers[regNoRestore] = memory[validMemoryRestore];
@@ -2231,7 +2231,7 @@
         if ( registers[Rd] >= 0x10000 && Rd !== 15 ) {
           flagDict['V'] = 1;
 
-          while ( registers[Rd] >= 0x10000 ) { registers[Rd] -= 0x10000; };
+          registers[Rd] = guarantee16Bits( registers[Rd] );
         }
         setR15 = true;
         break;
@@ -2248,8 +2248,7 @@
         var resultExtract = 0;
 
         // shiftl Rd,Re,g
-        resultExtract = registers[Re] << g;
-        while ( resultExtract >= 0x10000 ) { resultExtract -= 0x10000; }
+        resultExtract = guarantee16Bits( registers[Re] << g );
 
         // shiftr Rd,Rr,15-h+g
         resultExtract = resultExtract >> ( 15 - h + g );
@@ -2266,8 +2265,7 @@
         resultExtractI = ( registers[Re] ^ 0xffff );
 
         // shiftl Rd,Rd,g
-        resultExtractI = resultExtractI << g;
-        while ( resultExtractI >= 0x10000 ) { resultExtractI -= 0x10000; }
+        resultExtractI = guarantee16Bits( resultExtractI << g );
 
         // shiftr Rd,Rr,15-h+g
         resultExtractI = resultExtractI >>> ( 15 - h + g );
@@ -2403,7 +2401,7 @@
         registers[Rd] = registers[Re] + registers[Rf] + R15CarryBit;
 
         if ( registers[Rd] >= 0x10000 ) {
-          registers[Rd] -= 0x10000;
+          registers[Rd] = guarantee16Bits( registers[Rd] );
           flagDict['V'] = 1;
           flagDict['C'] = 1;
         }
@@ -2461,7 +2459,7 @@
         registers[Rd] = RaValue + RbValue;
 
         if ( registers[Rd] >= 0x10000 ) {
-          registers[Rd] -= 0x10000;
+          registers[Rd] = guarantee16Bits( registers[Rd] );
           flagDict['V'] = 1;
           flagDict['C'] = 1;
         }
@@ -2498,7 +2496,7 @@
 
         if ( registers[Rd] >= 0x10000 ) {
           flagDict['V'] = 1;
-          while ( registers[Rd] >= 0x10000 ) { registers[Rd] -= 0x10000; };
+          registers[Rd] = guarantee16Bits( registers[Rd] );
         }
         
         flagDict = compareRegisters( registers[Rd], registers[0], flagDict );
