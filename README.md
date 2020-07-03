@@ -16,7 +16,7 @@ Also, the emulator can be ran locally using npm and React.js from the source dir
 
 Visit [the website](https://questiowo.github.io/Sigma17).
 
-### Run with npm locally in browser
+### Run with `npm` locally in browser
 
 The following software needs to be installed in order to build the local server :
 
