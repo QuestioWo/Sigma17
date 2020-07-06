@@ -10,7 +10,7 @@ Sigma16 is a computer architecture designed for research and teaching in compute
 
 Currently, the emulator can be used by visiting the [Sigma17 website](https://questiowo.github.io/Sigma17) which is hosted by github as a `github.io` project site and is kept up to date with all major changes.
 
-Also, the emulator can be ran locally using npm and React.js from the source directory which will support more minor changes that will not effect the overall ability of the `github.io` site.
+Also, the emulator can be ran locally using `npm` and `React.js` from the source directory which will support more minor changes that will not effect the overall ability of the `github.io` site.
 
 ### Run in a browser
 
@@ -30,7 +30,7 @@ npm install
 npm start
 ```
 
-This will start the local React.js development server and should open a windown in your default browser to `localhost:3000`, in which the webiste can be used as normal.
+This will start the local `React.js` development server and should open a window in your default browser to [localhost:3000](https://localhost:3000), in which the website can be used as normal.
 
 ## Performance
 
