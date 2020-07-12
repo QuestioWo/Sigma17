@@ -34,7 +34,7 @@ This will start the local `React.js` development server and should open a window
 
 ## Performance
 
-### [Performance Example Program](https://jtod.github.io/home/Sigma16/releases/3.1.3/examples/Advanced/Testing/Performance.asm.txt) :
+### [Performance example program](https://jtod.github.io/home/Sigma16/releases/3.1.3/examples/Advanced/Testing/Performance.asm.txt) :
 
 Comparison of time to find which is the times to compute a standard program between each emulator
 
