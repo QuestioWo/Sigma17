@@ -1085,10 +1085,10 @@ export default class ProgramDebugView extends React.Component {
                   <div id='code-area-wrapper' className='code-area-wrapper'>
                     { this.state.showCodeChunk &&
                       <React.Fragment>
-                        <div id='breakpoint-column-viewing' className='breakpoint-column viewing'>
+                        <div id='breakpoint-column' className='breakpoint-column'>
                           {this.breakpointsColumn(this.state.code)}
                         </div>
-                        <div className='line-number-column viewing'>
+                        <div className='line-number-column'>
                           {this.createLineNumberColumn()}
                         </div>
                         { this.state.code && this.state.renderCodeChunk &&

@@ -16,22 +16,11 @@
   color : darkorange;
 }
 
-.line-number-column.viewing {
-  min-height: 552px;
-  height: calc( 100vh - 150px );
-}
-
-.breakpoint-column.viewing {
-  min-height: 562px;
-  height: calc( 100vh - 140px );
-}
-
 .code-area.viewing {
-  min-height: 562px;
-  height: calc( 100vh - 140px );
+  min-height: auto;
+  max-height: calc( 100vh - 140px );
   overflow-y: auto; 
   overflow-x: hidden; 
-  background-color: white;
 }
 
 .code-area-wrapper {
