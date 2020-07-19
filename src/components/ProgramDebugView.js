@@ -104,7 +104,7 @@ export default class ProgramDebugView extends React.Component {
       propsState = this.props.location.state;
       propsState['inputRan'] = this.props.location.state.input;
     } else if ( this.props.code !== undefined ) {
-      propsState = this.props;
+      propsState = Object.assign( {}, this.props );
       propsState['inputRan'] = this.props.input;
     }
 
@@ -1067,7 +1067,7 @@ export default class ProgramDebugView extends React.Component {
               <div id='register-column' className='register-column'>
                 {this.registerColumn()}
               </div>
-              <div id='input-column' className='input-column'>
+              <div id='input-column-viewing' className='input-column viewing'>
                 {this.inputColumn()}
               </div>
             </Col>
@@ -1075,7 +1075,7 @@ export default class ProgramDebugView extends React.Component {
               <div id='memory-column-big' className='memory-column big'>
                 {this.memoryColumn()}
               </div>
-              <div id='output-column' className='output-column' onDoubleClick={this.resizeOutput}>
+              <div id='output-column-viewing' className='output-column viewing' onDoubleClick={this.resizeOutput}>
                 {this.outputColumn()}
               </div>
             </Col>
@@ -1085,10 +1085,10 @@ export default class ProgramDebugView extends React.Component {
                   <div id='code-area-wrapper' className='code-area-wrapper'>
                     { this.state.showCodeChunk &&
                       <React.Fragment>
-                        <div id='breakpoint-column' className='breakpoint-column'>
+                        <div id='breakpoint-column-viewing' className='breakpoint-column viewing'>
                           {this.breakpointsColumn(this.state.code)}
                         </div>
-                        <div className='line-number-column'>
+                        <div className='line-number-column viewing'>
                           {this.createLineNumberColumn()}
                         </div>
                         { this.state.code && this.state.renderCodeChunk &&
