@@ -16,12 +16,23 @@
   color : darkorange;
 }
 
-.code-area.viewing {
-  height: 562px;
-  overflow-y: auto; 
-  overflow-x: hidden; 
+.line-number-column.viewing {
+  min-height: 552px;
+  height: calc( 100vh - 150px );
 }
 
+.breakpoint-column.viewing {
+  min-height: 562px;
+  height: calc( 100vh - 140px );
+}
+
+.code-area.viewing {
+  min-height: 562px;
+  height: calc( 100vh - 140px );
+  overflow-y: auto; 
+  overflow-x: hidden; 
+  background-color: white;
+}
 
 .code-area-wrapper {
   width : 100% !important;
@@ -66,10 +77,15 @@
   background: blue;
 }
 
+.output-column.viewing {
+  min-height: 82px;
+  height: 12vh;
+}
 
-.input-column {
+.input-column.viewing {
   width: 100%;
-  height: 56px;
+  min-height: 56px;
+  height: calc( 100vh - 645px );
   border-radius: 7px;
   box-sizing: border-box;
   border-width: 5px;

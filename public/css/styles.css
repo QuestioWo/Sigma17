@@ -248,7 +248,8 @@ p.alertbody {
   overflow-x: hidden;
   margin-bottom: 15px;
 
-  height: 465px;
+  min-height: 463px;
+  height: calc( 100vh - 154px - 12vh );
   font-size: inherit;
 }
 
