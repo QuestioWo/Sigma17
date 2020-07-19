@@ -17,8 +17,8 @@
 }
 
 .code-area.viewing {
-  min-height: auto;
-  max-height: calc( 100vh - 140px );
+  height: auto;
+  max-height: calc( 100vh - 137px );
   overflow-y: auto; 
   overflow-x: hidden; 
 }
@@ -74,7 +74,7 @@
 .input-column.viewing {
   width: 100%;
   min-height: 56px;
-  height: calc( 100vh - 645px );
+  height: calc( 100vh - 643px );
   border-radius: 7px;
   box-sizing: border-box;
   border-width: 5px;
