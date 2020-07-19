@@ -249,7 +249,7 @@ p.alertbody {
   margin-bottom: 15px;
 
   min-height: 463px;
-  height: calc( 100vh - 154px - 12vh );
+  height: calc( 100vh - 152px - 12vh );
   font-size: inherit;
 }
 
