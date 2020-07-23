@@ -1957,7 +1957,7 @@
   }
 
   function processRXInstruction( control, registers, memory, Rd, Ra, Op, adr ) {
-    var effectiveADR = guarantee16Bits( registers[Ra] + adr );
+    const effectiveADR = guarantee16Bits( registers[Ra] + adr );
 
     var jumped = false;
 
@@ -1969,11 +1969,9 @@
 
       case 0x1 :
         // load
-        if ( memory[ effectiveADR ] ) {
-          registers[Rd] = memory[ effectiveADR ];
-        } else {
-          registers[Rd] = 0;
-        }
+        if ( !( memory[ effectiveADR ] ) ) memory[ effectiveADR ] = 0;
+
+        registers[Rd] = memory[ effectiveADR ];
         break;
 
       case 0x2 :
@@ -2054,15 +2052,15 @@
     var flagDict = getR15Dict();
     var setR15 = false;
 
-    var ab = ( Ra * thirdColumn ) + Rb;
+    const ab = ( Ra * thirdColumn ) + Rb;
 
-    var Re = Math.floor( adr / firstColumn );
-    var Rf = Math.floor( ( adr - ( Re * firstColumn ) ) / secondColumn );
+    const Re = Math.floor( adr / firstColumn );
+    const Rf = Math.floor( ( adr - ( Re * firstColumn ) ) / secondColumn );
 
-    var gh = Math.floor( adr - ( Rf * secondColumn ) - ( Re * firstColumn ) );
+    const gh = Math.floor( adr - ( Rf * secondColumn ) - ( Re * firstColumn ) );
 
-    var g = Math.floor( gh / thirdColumn );
-    var h = Math.floor( ( gh - ( g * thirdColumn ) ) / fourthColumn );
+    const g = Math.floor( gh / thirdColumn );
+    const h = Math.floor( ( gh - ( g * thirdColumn ) ) / fourthColumn );
 
     var instructionWords;
 
@@ -2438,10 +2436,10 @@
 
     var instructionWords = 0;
 
-    var Op = Math.floor( instructionIr / firstColumn );
-    var Rd = Math.floor( ( instructionIr - ( Op * firstColumn ) ) / secondColumn );
-    var Ra = Math.floor( ( instructionIr - ( Rd * secondColumn ) - ( Op * firstColumn ) ) / thirdColumn );
-    var Rb = Math.floor( ( instructionIr - ( Ra * thirdColumn ) - ( Rd * secondColumn ) - ( Op * firstColumn ) ) / fourthColumn );
+    const Op = Math.floor( instructionIr / firstColumn );
+    const Rd = Math.floor( ( instructionIr - ( Op * firstColumn ) ) / secondColumn );
+    const Ra = Math.floor( ( instructionIr - ( Rd * secondColumn ) - ( Op * firstColumn ) ) / thirdColumn );
+    const Rb = Math.floor( ( instructionIr - ( Ra * thirdColumn ) - ( Rd * secondColumn ) - ( Op * firstColumn ) ) / fourthColumn );
 
     var RaValue = registers[Ra];
     var RbValue = registers[Rb];
@@ -2472,19 +2470,17 @@
       case 0x1 :
         // sub
         instructionWords = 1;
-
-        RaValue = readSignedHex( RaValue );
-        RbValue = readSignedHex( RbValue );
         
         registers[Rd] = RaValue;
 
         if ( RaValue < RbValue ) {
           flagDict['v'] = 1;
+          registers[Rd] += 0x10000;
         }
 
         registers[Rd] -= RbValue;
         
-        flagDict = compareRegisters( readUnsignedHex( registers[Rd] ), registers[0], flagDict );
+        flagDict = compareRegisters( registers[Rd], registers[0], flagDict );
         setR15 = true;
 
         break;
@@ -2512,12 +2508,14 @@
         RbValue = readSignedHex( RbValue );
 
         if ( RbValue !== 0 ) {
-          registers[Rd] = Math.floor( RaValue / RbValue );
+          registers[Rd] = readUnsignedHex( Math.floor( RaValue / RbValue ) );
+
           if ( Rd !== 15 ) {
-            registers[15] = RaValue % RbValue;
+            registers[15] = readUnsignedHex( RaValue % RbValue );
           }
         } else {
-          registers[Rd] = RaValue;
+          registers[Rd] = readUnsignedHex( RaValue );
+
           if ( Rd !== 15 ) {
             registers[15] = 0;
           }
@@ -2637,12 +2635,6 @@
       registers[15] = setR15Flags( flagDict );
     }
 
-    for ( var it = 0; it < 16; it++ ) {
-      if ( registers[it] < 0 ) {
-        registers[it] = readUnsignedHex( registers[it] );
-      }
-    }
-
     // R0 holds constant 0
     registers[0] = 0;
 
@@ -2658,13 +2650,17 @@
     };
   }
 
-  export function runMemory( control, registers, memory, input, output ) {
-    var instructionIr = memory[control['pc']];
+  export function runMemory( control, registers, memory, input, output, testMode=false ) {
+    // memory for execution is valid
+    const instructionIr = memory[control['pc']];
+    if ( !( memory[control['pc'] + 1] ) && instructionIr >= 0xe008 ) memory[control['pc'] + 1] = 0;
+
+    // update adr with memory values
     var instructionADR = 0;
-    if ( memory[control['pc'] + 1] && instructionIr >=0xe008 ) instructionADR = memory[control['pc'] + 1]; // 0xe008 as this is the start of the EXP4, EXP8, and, RX commands which are all two words
+    if ( instructionIr >= 0xe008 ) instructionADR = memory[control['pc'] + 1]; // 0xe008 as this is the start of the EXP4, EXP8, and, RX commands which are all two words
 
     // run the ir with adr
-    var ran = runFromInstruction( control, registers, memory, input, output, instructionIr, instructionADR );
+    const ran = runFromInstruction( control, registers, memory, input, output, instructionIr, instructionADR );
 
     control = ran['control'];
     registers = ran['registers'];
@@ -2672,21 +2668,31 @@
     input = ran['input'];
     output = ran['output'];
     var halted = ran['halted'];
-    var instructionWords = ran['instructionWords'];
-    var jumped = ran['jumped'];
+    const instructionWords = ran['instructionWords'];
+    const jumped = ran['jumped'];
 
-    if ( !jumped ) control['pc'] += instructionWords;
+    if ( !jumped ) {
+      control['pc'] += instructionWords;
+
+      if ( !( control['pc'] < 0x10000 ) ) {
+        halted = true; 
+        control['pc'] = 0;
+      }
+    }
+
+    if ( !halted && !testMode && !( memory[control['pc']] ) ) memory[control['pc']] = 0;
 
     // checking that happens outwith running that would break the emulator during next execution
-    if ( Object.values( registers ).includes( NaN ) || Object.values( registers ).includes( undefined )  ) {
-      console.log( control );
-      console.log( registers );
-      console.log( memory );
+    // commented out as may be useful as developer to use if such an error does occur, howver assumed that it wont so check in regualr use will slow down program
+    // if ( Object.values( registers ).includes( NaN ) || Object.values( registers ).includes( undefined )  ) {
+    //   console.log( control );
+    //   console.log( registers );
+    //   console.log( memory );
 
-      output += '==== SEVERE SYSTEM ERROR ====';
+    //   output += '==== SEVERE SYSTEM ERROR ====';
 
-      halted = true;
-    }
+    //   halted = true;
+    // }
 
     return { 
       'control' : control, 
