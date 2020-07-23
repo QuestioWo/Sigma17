@@ -512,6 +512,7 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   runCode = button => {
+    // console.time( 'run' );
     var check = this.checkCode( this.state.code );
 
     if ( check[0] ) {
@@ -567,6 +568,7 @@ export default class ProgramEditorView extends React.PureComponent {
 
       this.updateAlert( 'Built unsuccesfully, correct syntax errors at line(s): ' + keysString, 'danger' );
     }
+    // console.timeEnd( 'run' );
   }
 
 // INPUT MODAL METHODS
