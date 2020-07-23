@@ -82,6 +82,8 @@ export default class ProgramEditorView extends React.PureComponent {
 
       input : ''
     };
+
+    this.inputRef = React.createRef();
   }
 
   componentDidMount() {
@@ -536,14 +538,8 @@ export default class ProgramEditorView extends React.PureComponent {
         while ( !( ran['halted'] ) ) {
           ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
 
-          localControl = ran['control'];
-          localRegisters = ran['registers'];
-          localMemory = ran['memory'];
           localInput = ran['input'];
           localOutput = ran['output'];
-
-          // if ran out of commands
-          if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
         }
 
         this.setState( { 
@@ -579,7 +575,7 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   inputUpdate = textarea => {
-    this.setState( { input : textarea.target.value } );
+    this.setState( { input : this.inputRef.value } );
   }
 
   inputModalClose = modal => {
@@ -1184,6 +1180,7 @@ export default class ProgramEditorView extends React.PureComponent {
                 className='input-modal-input'
                 value={this.state.input}
                 onChange={this.inputUpdate}
+                ref={ ref => { this.inputRef = ref; } }
                 autoFocus/>
             </div>
             <div style={{paddingTop : '15px'}}>

@@ -95,6 +95,8 @@ export default class ProgramDebugView extends React.Component {
 
       outputModalShow : false
     };
+
+    this.inputRef = React.createRef();
   }
 
   componentDidMount() {
@@ -416,7 +418,9 @@ export default class ProgramDebugView extends React.Component {
       var linesOfCode = this.state.code.split( '\n' ).length;
       var activeLineInCode = this.state.memoryToLine[ this.state.activeLine ];
 
-      var heightOfOverlay = ( ( activeLineInCode ) * 25 ) + ( 4 ); // 4 for border
+      var overlayDisplay = 'block';
+
+      const heightOfOverlay = ( ( activeLineInCode ) * 25 ) + ( 4 ); // 4 for border
 
       var lineNoWidth = 21;
       var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
@@ -426,10 +430,12 @@ export default class ProgramDebugView extends React.Component {
       }
 
       lineNoWidth = ( lineNoWidth + 25 ) + 'px'; //25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
+
+      if ( isNaN( heightOfOverlay ) ) overlayDisplay = 'none';
       
       return(
         <div 
-          style={{marginTop : heightOfOverlay, marginLeft : lineNoWidth}} 
+          style={{marginTop : heightOfOverlay, marginLeft : lineNoWidth, display : overlayDisplay}} 
           className='line-overlay active'
           id='line-overlay-active'
         />
@@ -444,7 +450,9 @@ export default class ProgramDebugView extends React.Component {
       var linesOfCode = this.state.code.split( '\n' ).length;
       var lastLineInCode = this.state.memoryToLine[ this.state.lastLine ];
 
-      var heightOfOverlay = ( ( lastLineInCode ) * 25 ) + ( 4 ); // 4 for border
+      var overlayDisplay = 'block';
+
+      const heightOfOverlay = ( ( lastLineInCode ) * 25 ) + ( 4 ); // 4 for border
 
       var lineNoWidth = 21;
       var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
@@ -455,9 +463,11 @@ export default class ProgramDebugView extends React.Component {
 
       lineNoWidth = ( lineNoWidth + 25 ) + 'px'; // 25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
 
+      if ( isNaN( heightOfOverlay ) ) overlayDisplay = 'none';
+
       return(
         <div 
-          style={{marginTop : heightOfOverlay, marginLeft : lineNoWidth}} 
+          style={{marginTop : heightOfOverlay, marginLeft : lineNoWidth, display : overlayDisplay}} 
           className='line-overlay last' 
           id='line-overlay-last'
         />
@@ -735,14 +745,8 @@ export default class ProgramDebugView extends React.Component {
 
         ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
 
-        localControl = ran['control'];
-        localRegisters = ran['registers'];
-        localMemory = ran['memory'];
         localInput = ran['input'];
         localOutput = ran['output'];
-
-        // if ran out of commands
-        if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
         
         if ( this.state.breakpointsMachineCode.includes( ran['control']['pc'] ) ) {
           encounteredBreakpoint = true;
@@ -786,14 +790,8 @@ export default class ProgramDebugView extends React.Component {
 
       ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
 
-      localControl = ran['control'];
-      localRegisters = ran['registers'];
-      localMemory = ran['memory'];
       localInput = ran['input'];
       localOutput = ran['output'];
-
-      // if ran out of commands
-      if ( !( Object.keys( localMemory ).includes( String( localControl['pc'] ) ) ) ) ran['halted'] = true;
 
       this.setLastLineScrollPosition( this.state.activeLine );
 
@@ -824,7 +822,7 @@ export default class ProgramDebugView extends React.Component {
 
     this.setState( { 
       memory : Emulator.setMemory( this.state.machineCode ),
-      inputRan : this.state.input ,
+      inputRan : this.state.input,
       lastLine : 0,
       activeLine : 0,
       halted : false
@@ -837,9 +835,7 @@ export default class ProgramDebugView extends React.Component {
   }
 
   inputUpdate = textarea => {
-    this.setState( { input : textarea.target.value, inputRan : textarea.target.value } );
-
-    this.resetDebug();
+    this.setState( { input : this.inputRef.value, inputRan : this.inputRef.value } );
   }
 
   inputModalClose = modal => {
@@ -877,6 +873,7 @@ export default class ProgramDebugView extends React.Component {
                 className='input-modal-input'
                 value={this.state.input}
                 onChange={this.inputUpdate}
+                ref={ ref => { this.inputRef = ref; } }
                 autoFocus/>
             </div>
             <div style={{paddingTop : '15px'}}>

@@ -4,16 +4,16 @@
   This file is subject to the terms and conditions defined in file 'LICENSE.txt', which is part of this source code package.
 */
 
+.systeminfo-column-elem.changed {
+  color : darkorange;
+}
+
 .systeminfo-column-elem.active {
   color : green;
 }
 
 .systeminfo-column-elem.last {
   color : blue;
-}
-
-.systeminfo-column-elem.changed {
-  color : darkorange;
 }
 
 .code-area.viewing {
