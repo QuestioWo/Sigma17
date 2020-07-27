@@ -4,6 +4,9 @@
 
 * ( Possible ) - Write documentation that outlines function calls, i.e how to debug as an outsider. *Possibly on repos rather than in actual website.*
 * Make double clicking on output boxes work properly on Firefox
+* Allow for code, breakpoints, and, input to persit across webpages without having to use the navigation features ( cannot  be done with github pages as the hosting site as it uses HashRouter when we would need BrowserRouter )
+* Change the code editors updating method so that it doesnt lag the webpage when editting larger files ( difficult since breakpoints and line numbers need updating so not sure about how to do it )
+* Change viewing method of the results, namely memory, so that it isnt as laggy to hover over values in larger results; see [Memory performance test](https://github.com/QuestioWo/Sigma17#memory-performance-test-). Also so that it isn't so slow to run a program since [Memory performance test](https://github.com/QuestioWo/Sigma17#memory-performance-test-) takes ~53 ms to execute so the rest of the ~56 s is displaying the results
 
 # Done
 
