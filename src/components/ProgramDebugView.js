@@ -897,7 +897,7 @@ export default class ProgramDebugView extends React.Component {
 
       this.setLastLineScrollPosition( lastRanLine );
 
-      this.setState( { 
+      this.setState( prevState => ( { 
         cpuControl : localControl, 
         registers : localRegisters, 
         memory : localMemory, 
@@ -909,7 +909,7 @@ export default class ProgramDebugView extends React.Component {
 
         changedRegisters : Object.keys( _.omit( localRegisters, function( v, k ) { return initialRegisters[k] === v; } ) ),
         changedMemory : Object.keys( _.omit( localMemory, function( v, k ) { return initialMemory[k] === v; } ) )
-      } );
+      } ) );
 
     } else {
       this.updateAlert( canRun, 'danger' );
