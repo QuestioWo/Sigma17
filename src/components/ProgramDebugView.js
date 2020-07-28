@@ -248,15 +248,15 @@ export default class ProgramDebugView extends React.Component {
   }
 
   memoryViewPrev = e => {
-    this.setState( { 
-      memoryViewStart : this.state.memoryViewStart - 1
-    } );
+    this.setState( prevState => ( { 
+      memoryViewStart : prevState.memoryViewStart - 1
+    } ) );
   }
 
   memoryViewNext = e => {
-    this.setState( { 
-      memoryViewStart : this.state.memoryViewStart + 1
-    } );
+    this.setState( prevState => ( { 
+      memoryViewStart : prevState.memoryViewStart + 1
+    } ) );
   }
 
   handleMemoryViewChange = e => {
@@ -515,11 +515,16 @@ export default class ProgramDebugView extends React.Component {
   }
 
   toggleHighlighting = button => {
-    this.setState( { highlightedCodeChunk : !( this.state.highlightedCodeChunk ) } );
+    this.setState( prevState => ( {  
+      highlightedCodeChunk : !( prevState.highlightedCodeChunk ) 
+    } ) );
   }
 
   toggleCodeChunk = button => {
-    this.setState( { showCodeChunk : !( this.state.showCodeChunk ), renderCodeChunk : false } );
+    this.setState( prevState => ( {
+      showCodeChunk : !( prevState.showCodeChunk ), 
+      renderCodeChunk : false 
+    } ) );
   }
 
 // LINE OVERLAY METHODS
@@ -614,11 +619,15 @@ export default class ProgramDebugView extends React.Component {
   }
 
   toggleFollowCode = e => {
-    this.setState( { updateScrollPositionCode : !( this.state.updateScrollPositionCode ) } )
+    this.setState( prevState => ( { 
+      updateScrollPositionCode : !( prevState.updateScrollPositionCode ) 
+    } ) );
   }
 
   toggleFollowMemory = e => {
-    this.setState( { updateScrollPositionMemory : !( this.state.updateScrollPositionMemory ) } )
+    this.setState( prevState => ( { 
+      updateScrollPositionMemory : !( prevState.updateScrollPositionMemory ) 
+    } ) );
   }
 
 // COLLAPSE CALLBACK METHOD
@@ -930,19 +939,19 @@ export default class ProgramDebugView extends React.Component {
 
       this.setLastLineScrollPosition( this.state.activeLine );
 
-      this.setState( { 
+      this.setState( prevState => ( { 
         cpuControl : localControl, 
         registers : localRegisters, 
         memory : localMemory, 
         inputRan : localInput, 
         output : localOutput, 
-        lastLine : this.state.activeLine ,
+        lastLine : prevState.activeLine,
         activeLine : localControl['pc'],
         halted : ran['halted'],
 
         changedRegisters : Object.keys( _.omit( localRegisters, function( v, k ) { return initialRegisters[k] === v; } ) ),
         changedMemory : Object.keys( _.omit( localMemory, function( v, k ) { return initialMemory[k] === v; } ) )
-      } );
+      } ) );
     } else {
       // machine language is blank
       this.updateAlert( 'Cannot run no code. Try building then running', 'danger' );
@@ -955,13 +964,14 @@ export default class ProgramDebugView extends React.Component {
 
     this.setLastLineScrollPosition( 0 );
 
-    this.setState( { 
-      memory : Emulator.setMemory( this.state.machineCode ),
-      inputRan : this.state.input,
+    this.setState( prevState => ( { 
+      memory : Emulator.setMemory( prevState.machineCode ),
+      inputRan : prevState.input,
       lastLine : 0,
       activeLine : 0,
-      halted : false
-    } );
+      halted : false,
+      memoryViewStart : 0
+    } ) );
   }
 
 // MODAL METHODS

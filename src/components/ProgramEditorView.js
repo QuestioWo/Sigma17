@@ -319,15 +319,15 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   memoryViewPrev = e => {
-    this.setState( { 
-      memoryViewStart : this.state.memoryViewStart - 1
-    } );
+    this.setState( prevState => ( { 
+      memoryViewStart : prevState.memoryViewStart - 1
+    } ) );
   }
 
   memoryViewNext = e => {
-    this.setState( { 
-      memoryViewStart : this.state.memoryViewStart + 1
-    } );
+    this.setState( prevState => ( { 
+      memoryViewStart : prevState.memoryViewStart + 1
+    } ) );
   }
 
   handleMemoryViewChange = e => {
@@ -460,7 +460,9 @@ export default class ProgramEditorView extends React.PureComponent {
       target.style.height = '518px';
     }
 
-    this.setState( { outputZoomed : !( this.state.outputZoomed ) } );
+    this.setState( prevState => ( { 
+      outputZoomed : !( prevState.outputZoomed ) 
+    } ) );
   }
 
 // CHECKING METHOD
@@ -1132,7 +1134,9 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   toggleHighlighting = button => {
-    this.setState( { highlightedCodeChunk : !( this.state.highlightedCodeChunk ) } );
+    this.setState( prevState => ( { 
+      highlightedCodeChunk : !( prevState.highlightedCodeChunk ) 
+    } ) );
   }
 
   codeChunkHandleKeyDown = e => {
