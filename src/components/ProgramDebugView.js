@@ -9,12 +9,13 @@ import React from 'react';
 import 'codemirror/lib/codemirror.css';
 import './ProgramDebugView.css';
 
-import { Alert, Button, ButtonGroup, Col, Collapse, InputGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
+import { Alert, Button, ButtonGroup, Col, Collapse, Dropdown, InputGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 import { FaBackward, FaCheck, FaEye, FaEyeSlash, FaMinus, FaPen, FaPlay, FaStepForward, FaTimes } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
 import * as Emulator from './utils/Emulator';
 
+import { CustomToggle, CustomMenu } from './utils/CustomDropdown';
 import NavBar from './NavBar';
 
 let _ = require( 'underscore' );
@@ -68,6 +69,9 @@ export default class ProgramDebugView extends React.Component {
 
       input : '',
 
+      memoryViewStart : 0,
+      memoryViewOptions : [0, 0x500], // generic values so it doesnt break if something goes catastrophically wrong
+
       // special methods for debugging
       lastLine : 0,
       activeLine : 0,
@@ -113,6 +117,8 @@ export default class ProgramDebugView extends React.Component {
     if ( propsState !== {} ) {
       const machineCode = this.parseCode( propsState['code'], propsState['breakpoints'] );
       propsState['memory'] = Emulator.setMemory( machineCode );
+
+      this.memoryOptions( propsState['memory'] );
     }
 
     this.setState( propsState );
@@ -218,11 +224,52 @@ export default class ProgramDebugView extends React.Component {
     );
   }
   //
+  memoryOptions( memory ) {
+    const memoryKeys = Object.keys( memory ).map( key => Number( key ) );
+
+    const interval = 0x500;
+
+    var memoryViewOptions = [0];
+    var memorykeyindex = 0;
+
+    while ( true ) {
+      if ( memoryKeys[memorykeyindex + interval] ) {
+        memoryViewOptions.push( memoryKeys[memorykeyindex + interval] );
+        memorykeyindex += interval;
+      } else {
+        if ( !( memoryViewOptions.includes( memoryKeys[memoryKeys.length - 1] + 1 ) ) ) {
+          memoryViewOptions.push( memoryKeys[memoryKeys.length - 1] + 1 );
+        }
+        break;
+      }
+    }
+
+    this.setState( { memoryViewOptions : memoryViewOptions } );
+  }
+
+  memoryViewPrev = e => {
+    this.setState( prevState => ( { 
+      memoryViewStart : prevState.memoryViewStart - 1
+    } ) );
+  }
+
+  memoryViewNext = e => {
+    this.setState( prevState => ( { 
+      memoryViewStart : prevState.memoryViewStart + 1
+    } ) );
+  }
+
+  handleMemoryViewChange = e => {
+    this.setState( { 
+      memoryViewStart : Number( e )
+    } );
+  }
+
   memoryColumn() {
     var memoryValues = [];
     var memoryKeys = Object.keys( this.state.memory ).map( key => Number( key ) );
 
-    for ( var i = 0; i < memoryKeys.length; i++ ) {
+    for ( var i = memoryKeys.indexOf( this.state.memoryViewOptions[this.state.memoryViewStart] ); i < memoryKeys.length && memoryKeys[i] < this.state.memoryViewOptions[this.state.memoryViewStart + 1]; i++ ) {
       var classNameMemory = 'systeminfo-column-elem';
       var decoration = '';
       
@@ -263,7 +310,70 @@ export default class ProgramDebugView extends React.Component {
       );
     }
 
-    return memoryValues;
+    return (
+      <div id='memory-column-big' className='memory-column big'>
+        <div className='memory-search'>
+          <Row>
+            <Col>
+              { this.state.memoryViewStart === 0 ?
+                <span className='documentation-page-link disabled'>
+                  &#x25C0;
+                </span>
+              :
+                <span className='documentation-page-link' onClick={this.memoryViewPrev}>
+                  &#x25C0;
+                </span>
+              }
+            </Col>
+            <Col style={{ display : 'contents' }}>
+              <Dropdown onSelect={this.handleMemoryViewChange}>
+                <Dropdown.Toggle as={CustomToggle} id='dropdown-custom-components'>
+                  {Emulator.writeHex( this.state.memoryViewOptions[this.state.memoryViewStart] )}-{Emulator.writeHex( this.state.memoryViewOptions[this.state.memoryViewStart + 1] - 1 )}
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu as={CustomMenu}>
+                  { this.state.memoryViewOptions.map( 
+                      option => {
+                        const index = this.state.memoryViewOptions.indexOf( option );
+
+                        if ( index !== ( this.state.memoryViewOptions.length - 1 ) ) {
+                          return (
+                            <Dropdown.Item key={option} eventKey={index} active={index === this.state.memoryViewStart} className='text-center'>
+                              {Emulator.writeHex( option )}-{Emulator.writeHex( this.state.memoryViewOptions[index + 1] - 1 )}
+                            </Dropdown.Item>
+                          );
+                        } else {
+                          return ( 
+                            <React.Fragment key={option} />
+                          );
+                        }
+                      }
+                    )
+                  }
+                </Dropdown.Menu>
+              </Dropdown>
+            </Col>
+            <Col>
+              <div style={{ float : 'right' }}>
+                { this.state.memoryViewStart + 1 === ( this.state.memoryViewOptions.length - 1 ) ?
+                  <span className='documentation-page-link disabled'>
+                    &#x25B6;
+                  </span>
+                :
+                  <span className='documentation-page-link' onClick={this.memoryViewNext}>
+                    &#x25B6;
+                  </span>
+                }
+              </div>
+            </Col>
+          </Row>
+        </div>
+        <div style={{ height : '25px' }} />
+        <div>
+          {memoryValues}
+        </div>
+      </div>
+    );
   }
 
 // BREAKPOINTS
@@ -405,11 +515,16 @@ export default class ProgramDebugView extends React.Component {
   }
 
   toggleHighlighting = button => {
-    this.setState( { highlightedCodeChunk : !( this.state.highlightedCodeChunk ) } );
+    this.setState( prevState => ( {  
+      highlightedCodeChunk : !( prevState.highlightedCodeChunk ) 
+    } ) );
   }
 
   toggleCodeChunk = button => {
-    this.setState( { showCodeChunk : !( this.state.showCodeChunk ), renderCodeChunk : false } );
+    this.setState( prevState => ( {
+      showCodeChunk : !( prevState.showCodeChunk ), 
+      renderCodeChunk : false 
+    } ) );
   }
 
 // LINE OVERLAY METHODS
@@ -420,7 +535,7 @@ export default class ProgramDebugView extends React.Component {
 
       var overlayDisplay = 'block';
 
-      const heightOfOverlay = ( ( activeLineInCode ) * 25 ) + ( 4 ); // 4 for border
+      var heightOfOverlay = ( ( activeLineInCode ) * 25 ) + ( 4 ); // 4 for border
 
       var lineNoWidth = 21;
       var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
@@ -431,7 +546,10 @@ export default class ProgramDebugView extends React.Component {
 
       lineNoWidth = ( lineNoWidth + 25 ) + 'px'; //25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
 
-      if ( isNaN( heightOfOverlay ) ) overlayDisplay = 'none';
+      if ( isNaN( heightOfOverlay ) ) {
+        overlayDisplay = 'none';
+        heightOfOverlay = '0px';
+      }
       
       return(
         <div 
@@ -452,7 +570,7 @@ export default class ProgramDebugView extends React.Component {
 
       var overlayDisplay = 'block';
 
-      const heightOfOverlay = ( ( lastLineInCode ) * 25 ) + ( 4 ); // 4 for border
+      var heightOfOverlay = ( ( lastLineInCode ) * 25 ) + ( 4 ); // 4 for border
 
       var lineNoWidth = 21;
       var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
@@ -463,7 +581,10 @@ export default class ProgramDebugView extends React.Component {
 
       lineNoWidth = ( lineNoWidth + 25 ) + 'px'; // 25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
 
-      if ( isNaN( heightOfOverlay ) ) overlayDisplay = 'none';
+      if ( isNaN( heightOfOverlay ) ) {
+        overlayDisplay = 'none';
+        heightOfOverlay = '0px';
+      }
 
       return(
         <div 
@@ -476,20 +597,37 @@ export default class ProgramDebugView extends React.Component {
   }
 
   setLastLineScrollPosition( lastLine ) {
-    var lastLineInCode = this.state.memoryToLine[ lastLine ];
+    const lastLineInCode = this.state.memoryToLine[ lastLine ];
 
     const heightOfOverlay = lastLineInCode * 25;
 
-    this.setState( { lastLineScrollPosition : heightOfOverlay } );
-    this.setState( { lastLineScrollPositionMemory : lastLine * 24 } );
+    var i = this.state.memoryViewStart;
+
+    if ( this.state.memoryViewStart !== this.state.memoryViewOptions.length - 1 && lastLine > this.state.memoryViewOptions[this.state.memoryViewStart + 1] ) {
+      for ( i = this.state.memoryViewStart; i < this.state.memoryViewOptions.length - 1; i++ ) {
+        if ( lastLine <= this.state.memoryViewOptions[i + 1] ) {
+          break;
+        }
+      }
+    }
+
+    this.setState( { 
+      lastLineScrollPosition : heightOfOverlay,
+      lastLineScrollPositionMemory : lastLine * 24,
+      memoryViewStart : i
+    } );
   }
 
   toggleFollowCode = e => {
-    this.setState( { updateScrollPositionCode : !( this.state.updateScrollPositionCode ) } )
+    this.setState( prevState => ( { 
+      updateScrollPositionCode : !( prevState.updateScrollPositionCode ) 
+    } ) );
   }
 
   toggleFollowMemory = e => {
-    this.setState( { updateScrollPositionMemory : !( this.state.updateScrollPositionMemory ) } )
+    this.setState( prevState => ( { 
+      updateScrollPositionMemory : !( prevState.updateScrollPositionMemory ) 
+    } ) );
   }
 
 // COLLAPSE CALLBACK METHOD
@@ -694,6 +832,8 @@ export default class ProgramDebugView extends React.Component {
 
     var memoryNew = Emulator.setMemory( this.state.machineCode );
 
+    this.memoryOptions( memoryNew );
+
     this.setState( { 
       cpuControl : cpuControlNew,
       registers : registersNew,
@@ -753,9 +893,11 @@ export default class ProgramDebugView extends React.Component {
         }
       }
 
+      this.memoryOptions( localMemory );
+
       this.setLastLineScrollPosition( lastRanLine );
 
-      this.setState( { 
+      this.setState( prevState => ( { 
         cpuControl : localControl, 
         registers : localRegisters, 
         memory : localMemory, 
@@ -767,7 +909,7 @@ export default class ProgramDebugView extends React.Component {
 
         changedRegisters : Object.keys( _.omit( localRegisters, function( v, k ) { return initialRegisters[k] === v; } ) ),
         changedMemory : Object.keys( _.omit( localMemory, function( v, k ) { return initialMemory[k] === v; } ) )
-      } );
+      } ) );
 
     } else {
       this.updateAlert( canRun, 'danger' );
@@ -793,21 +935,23 @@ export default class ProgramDebugView extends React.Component {
       localInput = ran['input'];
       localOutput = ran['output'];
 
+      this.memoryOptions( localMemory );
+
       this.setLastLineScrollPosition( this.state.activeLine );
 
-      this.setState( { 
+      this.setState( prevState => ( { 
         cpuControl : localControl, 
         registers : localRegisters, 
         memory : localMemory, 
         inputRan : localInput, 
         output : localOutput, 
-        lastLine : this.state.activeLine ,
+        lastLine : prevState.activeLine,
         activeLine : localControl['pc'],
         halted : ran['halted'],
 
         changedRegisters : Object.keys( _.omit( localRegisters, function( v, k ) { return initialRegisters[k] === v; } ) ),
         changedMemory : Object.keys( _.omit( localMemory, function( v, k ) { return initialMemory[k] === v; } ) )
-      } );
+      } ) );
     } else {
       // machine language is blank
       this.updateAlert( 'Cannot run no code. Try building then running', 'danger' );
@@ -820,13 +964,14 @@ export default class ProgramDebugView extends React.Component {
 
     this.setLastLineScrollPosition( 0 );
 
-    this.setState( { 
-      memory : Emulator.setMemory( this.state.machineCode ),
-      inputRan : this.state.input,
+    this.setState( prevState => ( { 
+      memory : Emulator.setMemory( prevState.machineCode ),
+      inputRan : prevState.input,
       lastLine : 0,
       activeLine : 0,
-      halted : false
-    } );
+      halted : false,
+      memoryViewStart : 0
+    } ) );
   }
 
 // MODAL METHODS
@@ -1069,9 +1214,7 @@ export default class ProgramDebugView extends React.Component {
               </div>
             </Col>
             <Col style={{borderRight:'2px solid #eaeef3'}}>
-              <div id='memory-column-big' className='memory-column big'>
-                {this.memoryColumn()}
-              </div>
+              {this.memoryColumn()}
               <div id='output-column-viewing' className='output-column viewing' onDoubleClick={this.resizeOutput}>
                 {this.outputColumn()}
               </div>

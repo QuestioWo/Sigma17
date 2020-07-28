@@ -377,6 +377,7 @@ export default class DocumentationView extends React.Component {
                       options={subHeadings}
                       theme={{borderRadius : 7}}
                       onChange={this.searchChoose}
+                      placeholder='Search section titles...'
                     />
                   </Col>
                   <Col md={2}>
@@ -1915,8 +1916,34 @@ export default class DocumentationView extends React.Component {
                       
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/running1.jpg`} alt='Modal showing program results'/>
                       
-                      To see <strong>more memory</strong> values, it can be <strong>scrolled</strong> through when mousing over it and to <strong>display lower</strong> down memory values<br/>
-                      The <strong>output</strong> can be <strong>double-clicked</strong> to make it larger to get a better view as well. <strong>Another</strong> double click can be used to return the modal to <strong>how it was</strong><br/>
+                      To see <strong>more memory</strong> values, the memory can be <strong>scrolled</strong> through when mousing over it and to <strong>display lower</strong> down memory values<br/>
+
+                      <br/>
+
+                      When a program's <strong>used</strong> memory values <strong>exceeds 500</strong>, the memory values will be rendered in <strong>different</strong> memory <strong>windows</strong>. This is done as <strong>rendering more</strong> memory values <strong>at one time</strong> significantly <strong>effects performance</strong><br/>
+
+                      <br/>
+
+                      To <strong>view</strong> these other memory windows, the <strong>tab</strong> at the <strong>top</strong> of the <strong>memory</strong> column can be used, either to view the <strong>previous</strong> or <strong>next</strong> windows<br/>
+
+                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/running4.jpg`} alt='Modal with arrows in memory column outlined in red'/>
+
+                      <strong>Rather</strong> than using the arrows, a selection from the <strong>dropdown</strong>, displayed after <strong>clicking</strong> the <strong>currently shown</strong> memory values, can be made. This dropdown also displays which memory window is currently being viewed<br/>
+
+                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/running5.jpg`} alt='Modal with dropdown open'/>
+
+                      With the <strong>provided</strong> <q>Hello, World!</q> program, this <strong>memory window navigating cannot</strong> be <strong>used</strong> as there is only <strong>one</strong> memory <strong>window</strong>. However, trying again with a <strong>larger program</strong> such as{'\xa0'/**&nbsp*/}
+                      <a 
+                        target='_blank' 
+                        rel='noopener noreferrer' 
+                        href='https://github.com/QuestioWo/Sigma17#memory-performance-test-'>
+                        this one
+                      </a> 
+                      {'\xa0'/**&nbsp*/}which uses all the memory cells<br/>
+
+                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/running6.jpg`} alt='Modal after running memory performance test and scrolling to $e721'/>
+
+                      Also, the <strong>output</strong> can be <strong>double-clicked</strong> to make it larger to get a better view as well. <strong>Another</strong> double click can be used to return the modal to <strong>how it was</strong><br/>
                       The results modal can also be <strong>closed</strong> by simply <strong>clicking off</strong> of it<br/>
                       
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/running2.jpg`} alt='Modal with larger output field'/>
@@ -1928,6 +1955,8 @@ export default class DocumentationView extends React.Component {
                       When <strong>hovering over</strong> memory and register values, their <strong>decimal</strong> and <strong>two's complement</strong> values will be shown to help make hex values <strong>more readable</strong><br/>
                       
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/running3.jpg`} alt='Modal while mousing over a value to show decimal representation'/><br/>
+
+                      Also <strong>after running</strong> a program <strong>successfully</strong>, the <strong>raw execution time</strong>, <strong>without displaying the results</strong> modal, will be <strong>printed</strong> out in the <strong>console</strong> as <q>Time to run : <i>*execution time*</i></q>
                     </div>
                   </InfoArea>
                   <InfoArea state={this.state} title={'Debugging a program'} depth={2}>

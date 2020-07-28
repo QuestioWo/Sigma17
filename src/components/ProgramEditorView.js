@@ -10,12 +10,13 @@ import 'codemirror/lib/codemirror.css';
 import './ProgramEditorView.css';
 
 import { Link } from 'react-router-dom';
-import { Alert, Button, ButtonGroup, Col, FormControl, InputGroup, Modal, OverlayTrigger, Row, ToggleButton, ToggleButtonGroup, Tooltip } from 'react-bootstrap';
+import { Alert, Button, ButtonGroup, Col, Dropdown, FormControl, InputGroup, Modal, OverlayTrigger, Row, ToggleButton, ToggleButtonGroup, Tooltip } from 'react-bootstrap';
 import { FaBug, FaCheck, FaChevronDown, FaDownload, FaHammer, FaPen, FaPlay, FaTimes, FaUpload } from 'react-icons/fa';
 import CodeMirror from 'react-codemirror';
 
 import * as Emulator from './utils/Emulator';
 
+import { CustomToggle, CustomMenu } from './utils/CustomDropdown';
 import NavBar from './NavBar';
 
 require( './utils/mode/sigma16' );
@@ -39,6 +40,8 @@ export default class ProgramEditorView extends React.PureComponent {
 
       runModalShow : false,
       outputZoomed : false,
+      memoryViewStart : 0,
+      memoryViewOptions : [0, 0x500], // generic values so it doesnt break if something goes catastrophically wrong
 
       inputModalShow : false,
 
@@ -292,11 +295,52 @@ export default class ProgramEditorView extends React.PureComponent {
     );
   }
   //
+  memoryOptions( memory ) {
+    const memoryKeys = Object.keys( memory ).map( key => Number( key ) );
+
+    const interval = 0x500;
+
+    var memoryViewOptions = [0];
+    var memorykeyindex = 0;
+
+    while ( true ) {
+      if ( memoryKeys[memorykeyindex + interval] ) {
+        memoryViewOptions.push( memoryKeys[memorykeyindex + interval] );
+        memorykeyindex += interval;
+      } else {
+        if ( !( memoryViewOptions.includes( memoryKeys[memoryKeys.length - 1] + 1 ) ) ) {
+          memoryViewOptions.push( memoryKeys[memoryKeys.length - 1] + 1 );
+        }
+        break;
+      }
+    }
+
+    this.setState( { memoryViewOptions : memoryViewOptions } );
+  }
+
+  memoryViewPrev = e => {
+    this.setState( prevState => ( { 
+      memoryViewStart : prevState.memoryViewStart - 1
+    } ) );
+  }
+
+  memoryViewNext = e => {
+    this.setState( prevState => ( { 
+      memoryViewStart : prevState.memoryViewStart + 1
+    } ) );
+  }
+
+  handleMemoryViewChange = e => {
+    this.setState( { 
+      memoryViewStart : Number( e )
+    } );
+  }
+
   memoryColumn() {
     var memoryValues = [];
     var memoryKeys = Object.keys( this.state.memory ).map( key => Number( key ) );
 
-    for ( var i = 0; i < memoryKeys.length; i++ ) {
+    for ( var i = memoryKeys.indexOf( this.state.memoryViewOptions[this.state.memoryViewStart] ); i < memoryKeys.length && memoryKeys[i] < this.state.memoryViewOptions[this.state.memoryViewStart + 1]; i++ ) {
       memoryValues.push( 
         <div 
           key={'memory ' + memoryKeys[i]}
@@ -325,7 +369,70 @@ export default class ProgramEditorView extends React.PureComponent {
       );
     }
 
-    return memoryValues;
+    return (
+      <div id='memory-column-small' className='memory-column small'>
+        <div className='memory-search'>
+          <Row>
+            <Col>
+              { this.state.memoryViewStart === 0 ?
+                <span className='documentation-page-link disabled'>
+                  &#x25C0;
+                </span>
+              :
+                <span className='documentation-page-link' onClick={this.memoryViewPrev}>
+                  &#x25C0;
+                </span>
+              }
+            </Col>
+            <Col style={{ display : 'contents' }}>
+              <Dropdown onSelect={this.handleMemoryViewChange}>
+                <Dropdown.Toggle as={CustomToggle} id='dropdown-custom-components'>
+                  {Emulator.writeHex( this.state.memoryViewOptions[this.state.memoryViewStart] )}-{Emulator.writeHex( this.state.memoryViewOptions[this.state.memoryViewStart + 1] - 1 )}
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu as={CustomMenu}>
+                  { this.state.memoryViewOptions.map( 
+                      option => {
+                        const index = this.state.memoryViewOptions.indexOf( option );
+
+                        if ( index !== ( this.state.memoryViewOptions.length - 1 ) ) {
+                          return (
+                            <Dropdown.Item key={option} eventKey={index} active={index === this.state.memoryViewStart} className='text-center'>
+                              {Emulator.writeHex( option )}-{Emulator.writeHex( this.state.memoryViewOptions[index + 1] - 1 )}
+                            </Dropdown.Item>
+                          );
+                        } else {
+                          return ( 
+                            <React.Fragment key={option} />
+                          );
+                        }
+                      }
+                    )
+                  }
+                </Dropdown.Menu>
+              </Dropdown>
+            </Col>
+            <Col>
+              <div style={{ float : 'right' }}>
+                { this.state.memoryViewStart + 1 === ( this.state.memoryViewOptions.length - 1 ) ?
+                  <span className='documentation-page-link disabled'>
+                    &#x25B6;
+                  </span>
+                :
+                  <span className='documentation-page-link' onClick={this.memoryViewNext}>
+                    &#x25B6;
+                  </span>
+                }
+              </div>
+            </Col>
+          </Row>
+        </div>
+        <div style={{ height : '25px' }} />
+        <div>
+          {memoryValues}
+        </div>
+      </div>
+    );
   }
 
 // ALERT METHODS
@@ -353,7 +460,9 @@ export default class ProgramEditorView extends React.PureComponent {
       target.style.height = '518px';
     }
 
-    this.setState( { outputZoomed : !( this.state.outputZoomed ) } );
+    this.setState( prevState => ( { 
+      outputZoomed : !( prevState.outputZoomed ) 
+    } ) );
   }
 
 // CHECKING METHOD
@@ -512,7 +621,7 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   runCode = button => {
-    // console.time( 'run' );
+    console.time( 'Time to run' );
     var check = this.checkCode( this.state.code );
 
     if ( check[0] ) {
@@ -543,13 +652,18 @@ export default class ProgramEditorView extends React.PureComponent {
           localOutput = ran['output'];
         }
 
+        this.memoryOptions( localMemory );
+
         this.setState( { 
           cpuControl : localControl, 
           registers : localRegisters,
           memory : localMemory, 
           output : localOutput, 
+          
           outputZoomed : false, 
-          runModalShow : true 
+          runModalShow : true,
+          
+          memoryViewStart : 0
         } );
       } else {
         this.updateAlert( canRun, 'danger' );
@@ -568,7 +682,7 @@ export default class ProgramEditorView extends React.PureComponent {
 
       this.updateAlert( 'Built unsuccesfully, correct syntax errors at line(s): ' + keysString, 'danger' );
     }
-    // console.timeEnd( 'run' );
+    console.timeEnd( 'Time to run' );
   }
 
 // INPUT MODAL METHODS
@@ -1020,7 +1134,9 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   toggleHighlighting = button => {
-    this.setState( { highlightedCodeChunk : !( this.state.highlightedCodeChunk ) } );
+    this.setState( prevState => ( { 
+      highlightedCodeChunk : !( prevState.highlightedCodeChunk ) 
+    } ) );
   }
 
   codeChunkHandleKeyDown = e => {
@@ -1153,9 +1269,9 @@ export default class ProgramEditorView extends React.PureComponent {
               }
               <Col>
                 { !( this.state.outputZoomed ) &&
-                  <div id='memory-column-small' className='memory-column small'>
+                  <React.Fragment>
                     {this.memoryColumn()}
-                  </div>
+                  </React.Fragment>
                 }
                 <div id='output-column' className='output-column' onDoubleClick={this.resizeOutput}>
                   {this.outputColumn()}
