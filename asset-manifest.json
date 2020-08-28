@@ -1,25 +1,25 @@
 {
   "files": {
-    "main.css": "/Sigma17/static/css/main.d03c6ce5.chunk.css",
-    "main.js": "/Sigma17/static/js/main.84562019.chunk.js",
-    "main.js.map": "/Sigma17/static/js/main.84562019.chunk.js.map",
-    "runtime-main.js": "/Sigma17/static/js/runtime-main.7d3c6e55.js",
-    "runtime-main.js.map": "/Sigma17/static/js/runtime-main.7d3c6e55.js.map",
-    "static/css/2.4116fba5.chunk.css": "/Sigma17/static/css/2.4116fba5.chunk.css",
-    "static/js/2.d3da3e07.chunk.js": "/Sigma17/static/js/2.d3da3e07.chunk.js",
-    "static/js/2.d3da3e07.chunk.js.map": "/Sigma17/static/js/2.d3da3e07.chunk.js.map",
+    "main.css": "/Sigma17/static/css/main.0f9f4920.chunk.css",
+    "main.js": "/Sigma17/static/js/main.0e423078.chunk.js",
+    "main.js.map": "/Sigma17/static/js/main.0e423078.chunk.js.map",
+    "runtime-main.js": "/Sigma17/static/js/runtime-main.ca648892.js",
+    "runtime-main.js.map": "/Sigma17/static/js/runtime-main.ca648892.js.map",
+    "static/css/2.56a1fa8e.chunk.css": "/Sigma17/static/css/2.56a1fa8e.chunk.css",
+    "static/js/2.de5489b3.chunk.js": "/Sigma17/static/js/2.de5489b3.chunk.js",
+    "static/js/2.de5489b3.chunk.js.map": "/Sigma17/static/js/2.de5489b3.chunk.js.map",
     "index.html": "/Sigma17/index.html",
-    "precache-manifest.1ca07c74feb65c8db4be02bfdcde08ac.js": "/Sigma17/precache-manifest.1ca07c74feb65c8db4be02bfdcde08ac.js",
+    "precache-manifest.1d48157182baab551a76d7146c594d84.js": "/Sigma17/precache-manifest.1d48157182baab551a76d7146c594d84.js",
     "service-worker.js": "/Sigma17/service-worker.js",
-    "static/css/2.4116fba5.chunk.css.map": "/Sigma17/static/css/2.4116fba5.chunk.css.map",
-    "static/css/main.d03c6ce5.chunk.css.map": "/Sigma17/static/css/main.d03c6ce5.chunk.css.map",
-    "static/js/2.d3da3e07.chunk.js.LICENSE.txt": "/Sigma17/static/js/2.d3da3e07.chunk.js.LICENSE.txt"
+    "static/css/2.56a1fa8e.chunk.css.map": "/Sigma17/static/css/2.56a1fa8e.chunk.css.map",
+    "static/css/main.0f9f4920.chunk.css.map": "/Sigma17/static/css/main.0f9f4920.chunk.css.map",
+    "static/js/2.de5489b3.chunk.js.LICENSE.txt": "/Sigma17/static/js/2.de5489b3.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.7d3c6e55.js",
-    "static/css/2.4116fba5.chunk.css",
-    "static/js/2.d3da3e07.chunk.js",
-    "static/css/main.d03c6ce5.chunk.css",
-    "static/js/main.84562019.chunk.js"
+    "static/js/runtime-main.ca648892.js",
+    "static/css/2.56a1fa8e.chunk.css",
+    "static/js/2.de5489b3.chunk.js",
+    "static/css/main.0f9f4920.chunk.css",
+    "static/js/main.0e423078.chunk.js"
   ]
 }
