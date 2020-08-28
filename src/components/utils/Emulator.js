@@ -341,6 +341,8 @@
       field : [ 0x15, 0, 0 ]
     };
 
+    const allCommandsList = Object.keys( allCommands );
+
     const registerRegExp = '[rR]((1[0-5])|([0-9]))';
     const controlRegisterRegExp = '((pc)|(ir)|(adr))';
 
@@ -1007,7 +1009,7 @@
 
     if ( linesplit[0] ) {
       // lines isnt empty
-      if ( Object.keys( allCommands ).includes( linesplit[0] ) ) {
+      if ( allCommandsList.includes( linesplit[0] ) ) {
         // first word is a command
         if ( linesplit.length <= 2 ) {
           error = checkCommands( linesplit[0], linesplit[1], labels ); // will return error is arguments not present so dont have to check
@@ -1016,27 +1018,25 @@
         }
       } else {
         // first word is not a command
-        if ( /\w/.test( linesplit[0] ) ) {
-          // first word is a label
-          error = checkLabel( linesplit[0] );
+        // first word is a label
+        error = checkLabel( linesplit[0] );
 
-          if ( !( error.length ) ) {
-            // label is valid
-            if ( linesplit[1] ) {
-              // theres more after label
-              if ( Object.keys( allCommands ).includes( linesplit[1] ) ) {
-                if ( linesplit.length <= 3 ) {
-                  error = checkCommands( linesplit[1], linesplit[2], labels );
-                } else {
-                  error = 'non-comment after arguments';
-                }
+        if ( !( error.length ) ) {
+          // label is valid
+          if ( linesplit[1] ) {
+            // theres more after label
+            if ( allCommandsList.includes( linesplit[1] ) ) {
+              if ( linesplit.length <= 3 ) {
+                error = checkCommands( linesplit[1], linesplit[2], labels );
               } else {
-                error = 'not a valid command following label';
+                error = 'non-comment after arguments';
               }
+            } else {
+              error = 'not a valid command following label';
             }
           }
-          // just a label, therefore allowed and function returns label error check
         }
+        // just a correct label, therefore allowed and function returns label error check
       }
     }
 
@@ -1073,10 +1073,10 @@
 
     if ( linesplit[0] ) {
       // lines isnt empty
-      if ( Object.keys( allCommands ).includes( linesplit[0] ) ) {
+      if ( allCommandsList.includes( linesplit[0] ) ) {
         // first word is a command
         parsed = checkCommandIsCompatible( linesplit[0], linesplit[1] ); // will return error is arguments not present so dont have to check
-      } else if ( /\w/.test( linesplit[0] ) && linesplit[1] && Object.keys( allCommands ).includes( linesplit[1] ) ) {    
+      } else if ( linesplit[0] && linesplit[1] && allCommandsList.includes( linesplit[1] ) ) {    
         parsed = checkCommandIsCompatible( linesplit[1], linesplit[2] );
       }
     }
@@ -1539,7 +1539,7 @@
 
     if ( linesplit[0] && linesplit[0] !== '' ) {
       // lines isnt empty
-      if ( Object.keys( allCommands ).includes( linesplit[0] ) ) {
+      if ( allCommandsList.includes( linesplit[0] ) ) {
         // first word is a command
         result['instructionWords'] = findInstuctionInfo( linesplit[0], linesplit[1] )['words'];
       } else {
@@ -1548,7 +1548,7 @@
           // first word is a label
           if ( linesplit[1] ) {
             // theres more after label
-            if ( Object.keys( allCommands ).includes( linesplit[1] ) ) {
+            if ( allCommandsList.includes( linesplit[1] ) ) {
               result['label'] = linesplit[0];
               result['instructionWords'] = findInstuctionInfo( linesplit[1], linesplit[2] )['words'];
             }
@@ -1571,7 +1571,7 @@
 
     if ( linesplit[0] && linesplit[0] !== '' ) {
       // lines isnt empty
-      if ( Object.keys( allCommands ).includes( linesplit[0] ) ) {
+      if ( allCommandsList.includes( linesplit[0] ) ) {
         // first word is a command
         machineCode = generateMachineCode( linesplit[0], linesplit[1], labels );
       } else {
@@ -1580,7 +1580,7 @@
           // first word is a label
           if ( linesplit[1] ) {
             // theres more after label
-            if ( Object.keys( allCommands ).includes( linesplit[1] ) ) {
+            if ( allCommandsList.includes( linesplit[1] ) ) {
               machineCode = generateMachineCode( linesplit[1], linesplit[2], labels );
             }
           } else {
@@ -1608,7 +1608,7 @@
 
     if ( linesplit[0] && linesplit[0] !== '' ) {
       // lines isnt empty
-      if ( Object.keys( allCommands ).includes( linesplit[0] ) ) {
+      if ( allCommandsList.includes( linesplit[0] ) ) {
         // first word is a command
         lineResult['command'] = linesplit[0];
         lineResult['argument'] = linesplit[1];
@@ -1619,7 +1619,7 @@
           lineResult['label'] = linesplit[0] + ' ';
           if ( linesplit[1] ) {
             // theres more after label
-            if ( Object.keys( allCommands ).includes( linesplit[1] ) ) {
+            if ( allCommandsList.includes( linesplit[1] ) ) {
               lineResult['command'] = linesplit[1];
               lineResult['argument'] = linesplit[2];
             }

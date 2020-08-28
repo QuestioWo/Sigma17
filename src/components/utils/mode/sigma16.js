@@ -74,7 +74,7 @@
       }
       stream.eatWhile(/[\w]/);
       var cur = stream.current();
-      return words.hasOwnProperty(cur) ? words[cur] : 'variable';
+      return words.hasOwnProperty(cur) ? words[cur] : null;
     }
 
     function tokenize(stream, state) {
@@ -85,10 +85,7 @@
       startState: function() {return {tokens:[]};},
       token: function(stream, state) {
         return tokenize(stream, state);
-      },
-      closeBrackets: "[]",
-      lineComment: ';',
-      fold: "brace"
+      }
     };
   });
 

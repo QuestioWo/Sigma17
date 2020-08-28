@@ -6,7 +6,6 @@
 
 import React from 'react';
 
-import { NavLink } from 'react-router-dom';
 import { Nav } from 'react-bootstrap';
 
 export default class NavBar extends React.Component {
@@ -18,49 +17,26 @@ export default class NavBar extends React.Component {
 
   render() {
     return(
-      <Nav fill variant="tabs">
+      <Nav onClick={this.props.onClick} fill variant="tabs" defaultActiveKey={this.props.pathname}>
         <Nav.Item>
-          <NavLink 
-            className="nav-link" 
-            to={{
-              pathname : "/",
-              state : this.props.state
-              }}>
-              Home
-            </NavLink>
+          <Nav.Link href="/">
+            Home
+          </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <NavLink 
-            className="nav-link" 
-            activeClassName="nav-link active" 
-            to={{
-              pathname : "/documentation",
-              state : this.props.state
-              }}>
-              Documentation
-          </NavLink>
+          <Nav.Link href="/#/documentation">
+            Documentation
+          </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <NavLink 
-            className="nav-link" 
-            activeClassName="nav-link active" 
-            to={{
-              pathname : "/editor",
-              state : this.props.state
-              }}>
-              Editor
-          </NavLink>
+          <Nav.Link href="/#/editor">
+            Editor
+          </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <NavLink 
-            className="nav-link" 
-            activeClassName="nav-link active" 
-            to={{
-              pathname : "/debug",
-              state : this.props.state
-              }}>
-              Debug
-          </NavLink>
+          <Nav.Link href="/#/debug">
+            Debug
+          </Nav.Link>
         </Nav.Item>
       </Nav>
     );

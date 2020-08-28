@@ -29,8 +29,8 @@
   position: relative;
 }
 
-.ReactCodeMirror.debug {
-  width: unset;
+.react-codemirror2.debug {
+  width: -webkit-fill-available;
   position: relative;
   display: grid;
   overflow-x: auto;

@@ -6,20 +6,16 @@
 
 import React from 'react';
 
-import 'codemirror/lib/codemirror.css';
 import './ProgramEditorView.css';
 
-import { Link } from 'react-router-dom';
 import { Alert, Button, ButtonGroup, Col, Dropdown, FormControl, InputGroup, Modal, OverlayTrigger, Row, ToggleButton, ToggleButtonGroup, Tooltip } from 'react-bootstrap';
-import { FaBug, FaCheck, FaChevronDown, FaDownload, FaHammer, FaPen, FaPlay, FaTimes, FaUpload } from 'react-icons/fa';
-import CodeMirror from 'react-codemirror';
+import { FaBug, FaChevronDown, FaDownload, FaHammer, FaPen, FaPlay, FaTimes, FaUpload } from 'react-icons/fa';
 
 import * as Emulator from './utils/Emulator';
 
 import { CustomToggle, CustomMenu } from './utils/CustomDropdown';
+import CodeChunk from './utils/CodeChunk';
 import NavBar from './NavBar';
-
-require( './utils/mode/sigma16' );
 
 export default class ProgramEditorView extends React.PureComponent {
 // CLASS METHODS
@@ -29,10 +25,6 @@ export default class ProgramEditorView extends React.PureComponent {
     this.state = {
       code : '',
       breakpoints : [],
-
-      lineError : {},
-
-      highlightedCodeChunk : true,
 
       alertShow : false,
       alertMessage : '',
@@ -51,9 +43,6 @@ export default class ProgramEditorView extends React.PureComponent {
 
       lineCompWarn : {},
       lineCompError : {},
-
-      machineCode : [],
-      machineCodeUpdated : false,
 
       registers : {
         0 : 0,
@@ -86,139 +75,37 @@ export default class ProgramEditorView extends React.PureComponent {
       input : ''
     };
 
+    // this.codeChunkMounted = this.codeChunkMounted.bind( this );
+
     this.inputRef = React.createRef();
+    this.codeRef = React.createRef();
   }
 
   componentDidMount() {
-    if ( this.props.location.state ) {
-      this.setState( this.props.location.state );
+    if ( sessionStorage.getItem( 'code' ) !== null ) {
+      const sessionProps = {
+        code : sessionStorage.getItem( 'code' ),
+        input : sessionStorage.getItem( 'input' ),
+        breakpoints : sessionStorage.getItem( 'breakpoints' ).split( ',' ).map(
+          breakpointString => {
+            return( Number( breakpointString ) );
+          }
+        )
+      };
+
+      this.setState( sessionProps );
+      this.codeRef.current.setState( sessionProps );
     } else if ( this.props.code !== undefined ) {
       this.setState( this.props );
+
+      this.codeRef.current.setState( this.props );
     }
   }
 
-// BREAKPOINTS
-  breakpointsColumn( code ) {
-    var breakpoints = [];
-    var lines = code.split( '\n' );
-
-    var codeArea = document.getElementById( 'code-area' );
-
-    if ( codeArea ) {
-      // deal with code chunk height in this function since only column rendered
-      codeArea.style.height = ( 25 * ( lines.length ) ) + 18 + 'px';
-
-      for ( var i = 0; i < lines.length; i++ ) {
-        var yOffset = 25 * ( i + 0.75 );
-        var styleTop = yOffset + 3 +'px';
-
-        var id = 'breakpoint ' + ( i + 1 );
-        var className = 'breakpoint ' + ( i + 1 );
-
-        if ( this.state.breakpoints.includes( i + 1 ) ) {
-          className = className + ' active';
-        } 
-
-        var error = '';
-
-        if ( Object.keys( this.state.lineError ).includes( String( i + 1 ) ) ) {
-          className = className + ' error';
-
-          error = this.state.lineError[String( i + 1 )];
-
-          breakpoints.push( 
-            <OverlayTrigger
-              key={className+' tooltip'}
-              placement={'right'}
-              overlay={
-                <Tooltip>
-                  {error}
-                </Tooltip>
-              }>
-              <div 
-                key={id}
-                id={id} 
-                className={className} 
-                style={{top : styleTop}} 
-                onClick={this.breakpointOnClick}/>
-            </OverlayTrigger>
-          );
-        } else if ( Object.keys( this.state.lineCompWarn ).includes( String( i + 1 ) ) ) {
-          className = className + ' compwarn';
-
-          error = this.state.lineCompWarn[String( i + 1 )]['warn'];
-
-          breakpoints.push( 
-            <OverlayTrigger
-              key={className+' tooltip'}
-              placement={'right'}
-              overlay={
-                <Tooltip>
-                  {error}
-                </Tooltip>
-              }>
-              <div 
-                key={id}
-                id={id} 
-                className={className} 
-                style={{top : styleTop}} 
-                onClick={this.breakpointOnClick}/>
-            </OverlayTrigger>
-          );
-        } else if ( Object.keys( this.state.lineCompError ).includes( String( i + 1 ) ) ) {
-          className = className + ' comperror';
-
-          error = this.state.lineCompError[String( i + 1 )]['error'];
-
-          breakpoints.push( 
-            <OverlayTrigger
-              key={className+' tooltip'}
-              placement={'right'}
-              overlay={
-                <Tooltip>
-                  {error}
-                </Tooltip>
-              }>
-              <div 
-                key={id}
-                id={id} 
-                className={className} 
-                style={{top : styleTop}} 
-                onClick={this.breakpointOnClick}/>
-            </OverlayTrigger>
-          );
-        } else {
-          breakpoints.push( 
-            <div 
-              key={id}
-              id={id} 
-              className={className} 
-              style={{top : styleTop}} 
-              onClick={this.breakpointOnClick}/>
-          );
-        }
-      }
-      return breakpoints;
-    }
-  }
-
-  breakpointOnClick = breakpoint => {
-    var breakpoints = this.state.breakpoints;
-
-    if ( breakpoint.currentTarget.classList.contains( 'active' ) ) {
-      breakpoint.currentTarget.classList.remove( 'active' );
-      var index = breakpoints.indexOf( Number( breakpoint.currentTarget.id.slice( 'breakpoint '.length, breakpoint.currentTarget.id.length ) ) );
-      breakpoints.splice( index, 1 );
-    } else {
-      breakpoint.currentTarget.classList.add( 'active' );
-      breakpoints.push( Number( breakpoint.currentTarget.id.slice( 'breakpoint '.length, breakpoint.currentTarget.id.length ) ) );
-    }
-
-    this.setState( { breakpoints : breakpoints } );
-  }
-
-  disableBreakpoints = button => {
-    this.setState( { breakpoints : [], lineError : {}, lineCompWarn : {}, lineCompError : {} } );
+  saveStorage = e => {
+    sessionStorage.setItem( 'code', this.codeRef.current.state.code );
+    sessionStorage.setItem( 'input', this.state.input );
+    sessionStorage.setItem( 'breakpoints', this.codeRef.current.state.breakpoints );
   }
 
 // REGISTER/MEMORY METHODS
@@ -284,13 +171,10 @@ export default class ProgramEditorView extends React.PureComponent {
   //
   outputColumn() {
     return ( 
-      <div style={{height:'100%', width:'100%'}}>
-        <InputGroup 
-          className='output-area'
-          as='textarea'
-          value={this.state.output}
-          onClick={this.resizeOutput}
-          disabled/>
+      <div
+        className='output-area'
+        onDoubleClick={this.resizeOutput}>
+        {this.state.output}
       </div>
     );
   }
@@ -451,18 +335,19 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   resizeOutput = outputColumn => {
-    var target = outputColumn.currentTarget;
+    const target = outputColumn.currentTarget;
 
     // if currently zoomed and are setting to smaller
     if ( this.state.outputZoomed ) {
-      target.style.height = '82px';
+      target.style.height = '72px';
     } else {
-      target.style.height = '518px';
+      target.style.height = '508px';
     }
 
     this.setState( prevState => ( { 
-      outputZoomed : !( prevState.outputZoomed ) 
-    } ) );
+        outputZoomed : !( prevState.outputZoomed ) 
+      } 
+    ) );
   }
 
 // CHECKING METHOD
@@ -499,18 +384,21 @@ export default class ProgramEditorView extends React.PureComponent {
       check = Emulator.checkLine( lines[it], labels );
       if ( check.length ) {
         lineErrorCopy[it + 1] = check;
+        // document.getElementById( 'breakpoint ' + ( it + 1 ) ).className = document.getElementById( 'breakpoint ' + ( it + 1 ) ).className + ' error';
         ranSuccessfully = false;
       }
     }
-
-    this.setState( { lineError : lineErrorCopy } );
 
     return [ranSuccessfully, lineErrorCopy];
   }
 
 // PARSING METHOD
-  parseCode = button => {
-    var lines = this.state.code.split( '\n' );
+  parseCode = button => {    
+    const code = this.codeRef.current.state.code;
+
+    this.codeRef.current.checkCode( code, 0, Infinity );
+
+    const lines = code.split( '\n' );
     
     var currentLine = 0;
 
@@ -520,7 +408,7 @@ export default class ProgramEditorView extends React.PureComponent {
 
     var machineCode = [];
 
-    var check = this.checkCode( this.state.code );
+    const check = this.checkCode( code );
 
     if ( check[0] ) {
       for ( var i = 0; i < lines.length; i++ ) {
@@ -553,7 +441,6 @@ export default class ProgramEditorView extends React.PureComponent {
           }
         }
       }
-      this.setState( { machineCode : machineCode, machineCodeUpdated : true } );
 
       this.updateAlert( 'Built successfully', 'success' );
     } else {
@@ -622,18 +509,16 @@ export default class ProgramEditorView extends React.PureComponent {
 
   runCode = button => {
     console.time( 'Time to run' );
-    var check = this.checkCode( this.state.code );
 
+    const code = this.codeRef.current.state.code;
+
+    const check = this.checkCode( code )
     if ( check[0] ) {
       // implicit build if needed
       var machineCode = [];
-      if ( this.state.machineCodeUpdated ) {
-        machineCode = this.state.machineCode;
-      } else {
-        machineCode = this.parseCode();
-      }
+      machineCode = this.parseCode();
 
-      var canRun = this.canRunCode( this.state.code, machineCode );
+      var canRun = this.canRunCode( code, machineCode );
       var ran = {
         halted : false
       };
@@ -713,7 +598,7 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   downloadRaw = button => {
-    const check = this.checkCode( this.state.code );
+    const check = this.checkCode( this.codeRef.current.state.code );
 
     if ( check[0] ) {
       var textValue = this.state.fileName;
@@ -721,7 +606,7 @@ export default class ProgramEditorView extends React.PureComponent {
         textValue += '.asm.txt';
       }
 
-      this.downloadFile( textValue, this.state.code );
+      this.downloadFile( textValue, this.codeRef.current.state.code );
       this.updateAlert( 'Download successful', 'success' );
     } else {
       var keys = Object.keys( check[1] );
@@ -740,21 +625,21 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   downloadRawCompatible() {
-    const check = this.checkCode( this.state.code );
+    const check = this.checkCode( this.codeRef.current.state.code );
 
     var i = 0;
     var keys;
     var keysString;
 
     if ( check[0] ) {
-      const checkCompatible = Emulator.checkCodeIsCompatible( this.state.code );
+      const checkCompatible = Emulator.checkCodeIsCompatible( this.codeRef.current.state.code );
       if ( checkCompatible[0] ) {
         var textValue = this.state.fileName;
         if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
           textValue += '.asm.txt';
         }
 
-        this.downloadFile( textValue, Emulator.parseCodeToCompatible( this.state.code ) );
+        this.downloadFile( textValue, Emulator.parseCodeToCompatible( this.codeRef.current.state.code ) );
 
         keys = Object.keys( checkCompatible[1] );
         if ( keys.length ) {
@@ -806,7 +691,7 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   downloadBinary() {
-    const check = this.checkCode( this.state.code );
+    const check = this.checkCode( this.codeRef.current.state.code );
 
     if ( check[0] ) {
       var machineCode = this.parseCode();
@@ -855,7 +740,7 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   downloadHex() {
-    const check = this.checkCode( this.state.code );
+    const check = this.checkCode( this.codeRef.current.state.code );
 
     if ( check[0] ) {
       var machineCode = this.parseCode();
@@ -889,14 +774,14 @@ export default class ProgramEditorView extends React.PureComponent {
   }
 
   downloadHexCompatible() {
-    const check = this.checkCode( this.state.code );
+    const check = this.checkCode( this.codeRef.current.state.code );
 
     var i = 0;
     var keys;
     var keysString;
 
     if ( check[0] ) {
-      const checkCompatible = Emulator.checkCodeIsCompatible( this.state.code );
+      const checkCompatible = Emulator.checkCodeIsCompatible( this.codeRef.current.state.code );
       if ( checkCompatible[0] ) {
         var machineCode = this.parseCode();
         var stream = '';
@@ -1066,171 +951,17 @@ export default class ProgramEditorView extends React.PureComponent {
         }
       }
 
-      this.updateCode( newCode );
-
-      // highlighting toggles required as CodeMirror component does not update properly
-      if ( this.state.highlightedCodeChunk ) {
-        this.toggleHighlighting();
-        this.toggleHighlighting();
-      }
+      this.codeRef.current.setState( { code : newCode } );
     }
 
     reader.readAsArrayBuffer( e.target.files[0] );
-  }
-
-// CODEMIRROR METHODS
-  updateCode = newCode => {
-    if ( !( newCode.split( '\n' ).length > 500 ) ) {
-      this.checkCode( newCode );
-    }
-
-    // updating code based on contents of codemirror
-    if ( newCode ) {
-      this.setState( { code : newCode, machineCodeUpdated : false } );
-    } else {
-      this.setState( { code : ' ', machineCodeUpdated : false } );
-    }
-  }
-
-// CODE CHUNK METHODS
-  createLineNumberColumn() {
-    var linesOfCode = this.state.code.split( '\n' ).length;
-    var result = [];
-
-    var lineNoWidth = '21px';
-
-    var lineNoWidthLength = ( Math.log( linesOfCode ) * Math.LOG10E + 1 ) | 0;
-
-    if ( lineNoWidthLength > 2 ) {
-      lineNoWidth = ( ( lineNoWidthLength * 7 ) + 7 ) + 'px';
-    }
-
-    for ( var i = 0; i < linesOfCode; i++ ) {
-      var yOffset = 25 * ( i + 0.5 );
-
-      result.push(
-        <div
-          key={'line-number ' + ( i + 1 )} 
-          className='line-number'
-          style={{top:{yOffset}, width:lineNoWidth}}>
-          {i + 1}
-        </div>
-      );
-    }
-
-    return result;
-  }
-  //
-  codeBlockEdit = divContent => {
-    if ( !( divContent.target.value.split( '\n' ).length > 500 ) ) {
-      this.checkCode( divContent.target.value );
-    }
-
-    if ( divContent.target.value ) {
-      this.setState( { code : divContent.target.value, machineCodeUpdated : false } );
-    } else {
-      this.setState( { code : ' ', machineCodeUpdated : false } );
-    }
-  }
-
-  toggleHighlighting = button => {
-    this.setState( prevState => ( { 
-      highlightedCodeChunk : !( prevState.highlightedCodeChunk ) 
-    } ) );
-  }
-
-  codeChunkHandleKeyDown = e => {
-    var element = document.getElementById( 'code-chunk-column' );
-    var text = element.value;
-    var handled = false;
-
-    // Enter Key?
-    if ( e.keyCode === 13 ) {
-      // selection?
-      if ( element.selectionStart === element.selectionEnd ) {
-        // find start of the current line
-        var sel = element.selectionStart;
-        while ( sel > 0 && text[sel-1] !== '\n' ) sel--;
-
-        var lineStart = sel;
-        while ( text[sel] === ' ' || text[sel] === '\t' ) sel++;
-
-        if ( sel > lineStart ) {
-          // Insert carriage return and indented text
-          document.execCommand( 'insertText', false, "\n" + text.substr( lineStart, sel - lineStart ) );
-
-          // Scroll caret visible
-          element.blur();
-          handled = true;
-        }
-      }
-    }
-
-    // Tab key?
-    if( e.keyCode === 9 ) {
-      // selection?
-      if ( element.selectionStart === element.selectionEnd ) {
-        // These single character operations are undoable
-        if ( !e.shiftKey ) {
-          document.execCommand( 'insertText', false, "  " );
-          handled = true;
-        } else {
-          if ( element.selectionStart > 0 && text[element.selectionStart-1] === '\t' ) {
-            document.execCommand( 'delete' );
-            handled = true;
-          } else if ( element.selectionStart > 0 && text.slice( element.selectionStart - 2, element.selectionStart ) === '  ' ) {
-            document.execCommand( 'delete' );
-            document.execCommand( 'delete' );
-            handled = true;
-          }
-        }
-      } else {
-        // Block indent/unindent trashes undo stack.
-        // Select whole lines
-        var selStart = element.selectionStart;
-        var selEnd = element.selectionEnd;
-        while ( selStart > 0 && text[selStart-1] !== '\n' ) selStart--;
-        while ( selEnd > 0 && text[selEnd-1] !== '\n' && selEnd < text.length ) selEnd++;
-
-        // Get selected text
-        var lines = text.substr( selStart, selEnd - selStart ).split( '\n' );
-
-        // Insert tabs
-        for ( var i = 0; i < lines.length; i++ ) {
-          // Don't indent last line if cursor at start of line
-          if ( i === lines.length - 1 && lines[i].length === 0) continue;
-
-          // Tab or Shift+Tab?
-          if ( e.shiftKey ) {
-            if ( lines[i].startsWith( '\t' ) ) {
-              lines[i] = lines[i].substr( 1 );
-            } else if ( lines[i].startsWith( "  " ) ) {
-              lines[i] = lines[i].substr( 2 );
-            }
-          } else {
-            lines[i] = "  " + lines[i];
-          }
-        }
-        lines = lines.join( '\n' );
-
-        // Update the text area
-        element.value = text.substr( 0, selStart ) + lines + text.substr( selEnd );
-        element.selectionStart = selStart;
-        element.selectionEnd = selStart + lines.length; 
-        handled = true;
-      }
-    }
-
-    if ( handled ) e.preventDefault();
-
-    element.focus();
   }
 
 // RENDER
   render() {
     return(
       <React.Fragment>
-        <NavBar state={{code : this.state.code, breakpoints : this.state.breakpoints, input : this.state.input}}/>
+        <NavBar onClick={this.saveStorage} pathname={'/#' + this.props.location.pathname} />
         <Modal
           show={this.state.runModalShow}
           onHide={this.runModalClose}
@@ -1273,7 +1004,7 @@ export default class ProgramEditorView extends React.PureComponent {
                     {this.memoryColumn()}
                   </React.Fragment>
                 }
-                <div id='output-column' className='output-column' onDoubleClick={this.resizeOutput}>
+                <div id='output-column' className='output-column'>
                   {this.outputColumn()}
                 </div>
               </Col>
@@ -1416,23 +1147,21 @@ export default class ProgramEditorView extends React.PureComponent {
               </ButtonGroup>
             </Col>
             <Col>
-              <OverlayTrigger
-                placement={'top'}
-                overlay={
-                  <Tooltip>
-                    {`Disable all breakpoints`}
-                  </Tooltip>
-                }>
-                <Button variant='outline-secondary' size='sm' onClick={this.disableBreakpoints}>
-                  <FaTimes/>
-                </Button>
-              </OverlayTrigger>
+              { this.codeRef.current &&
+                <OverlayTrigger
+                  placement={'top'}
+                  overlay={
+                    <Tooltip>
+                      {`Disable all breakpoints`}
+                    </Tooltip>
+                  }>
+                  <Button variant='outline-secondary' size='sm' onClick={this.codeRef.current.disableBreakpoints}>
+                    <FaTimes/>
+                  </Button>
+                </OverlayTrigger>
+              }
               {' '}
-              
-              <Link to={{
-                pathname : "/debug",
-                state : {code : this.state.code, breakpoints : this.state.breakpoints, input : this.state.input}
-                }}>
+              <a href='/#/debug' onClick={this.saveStorage}>
                 <OverlayTrigger
                   placement={'top'}
                   overlay={
@@ -1444,23 +1173,9 @@ export default class ProgramEditorView extends React.PureComponent {
                     <FaBug/>
                   </Button>
                 </OverlayTrigger>
-              </Link>
+              </a>
             </Col>
             <Col>
-              <OverlayTrigger
-                key={`highlighting-tooltip`}
-                placement={'top'}
-                overlay={
-                  <Tooltip>
-                    {`Toggle highlighting
-                    improves speed if disabled`}
-                  </Tooltip>
-                }>
-                <Button variant='outline-secondary' size='sm' onClick={this.toggleHighlighting} active={this.state.highlightedCodeChunk}>
-                  <FaCheck/>
-                </Button>
-              </OverlayTrigger>
-              {' '}
               <ButtonGroup>
                 <OverlayTrigger
                   key={`export-tooltip`}
@@ -1511,35 +1226,14 @@ export default class ProgramEditorView extends React.PureComponent {
           </Row>
           <Row>
             <Col>
-              <div id="code-area" className='code-area'> 
-                <div id='breakpoint-column' className='breakpoint-column'>
-                  {this.breakpointsColumn( this.state.code )}
-                </div>
-                <div className='line-number-column'>
-                  {this.createLineNumberColumn()}
-                </div>
-                { this.state.code &&
-                  <React.Fragment>
-                    { this.state.highlightedCodeChunk ?
-                      <CodeMirror
-                        mode='sigma16'
-                        value={this.state.code} 
-                        onChange={this.updateCode} 
-                        options={{ lineNumbers : false, scrollbarStyle: "null" }}
-                        autoFocus/>
-                    : 
-                      <InputGroup
-                        as='textarea'
-                        id='code-chunk-column'
-                        className='code-chunk-column'
-                        value={this.state.code}
-                        onChange={this.codeBlockEdit}
-                        onKeyDown={this.codeChunkHandleKeyDown}
-                        autoFocus/>
-                    }
-                  </React.Fragment>
-                }
-              </div>
+              <CodeChunk 
+                ref={this.codeRef}
+                code={this.state.code} 
+                breakpoints={this.state.breakpoints}
+                lineCompWarn={this.state.lineCompWarn} 
+                lineCompError={this.state.lineCompError}
+                alertShow={this.state.alertShow}
+                readOnly={false} />
             </Col>
           </Row>
         </div>
