@@ -14,6 +14,7 @@ import { Col, Row } from 'react-bootstrap';
 import NavBar from './NavBar';
 
 export default class HomeView extends React.Component {
+// CLASS METHODS
   constructor( props, context ) {
     super( props );
 
@@ -21,17 +22,32 @@ export default class HomeView extends React.Component {
   }
 
   componentDidMount() {
-    if ( this.props.location.state ) {
-      this.setState( this.props.location.state );
+    if ( sessionStorage.getItem( 'code' ) !== null && sessionStorage.getItem( 'input' ) !== null && sessionStorage.getItem( 'breakpoints' ) !== null ) {
+      this.setState( {
+        code : sessionStorage.getItem( 'code' ),
+        input : sessionStorage.getItem( 'input' ),
+        breakpoints : sessionStorage.getItem( 'breakpoints' ).split( ',' ).map(
+          breakpointString => {
+            return( Number( breakpointString ) );
+          }
+        )
+      } );
     } else if ( this.props.code !== undefined ) {
       this.setState( this.props );
     }
   }
 
+  saveStorage = e => {
+    sessionStorage.setItem( 'code', this.state.code );
+    sessionStorage.setItem( 'input', this.state.input );
+    sessionStorage.setItem( 'breakpoints', this.state.breakpoints );
+  }
+
+// RENDER
   render() {
     return(
       <React.Fragment>
-        <NavBar state={this.state}/> 
+        <NavBar onClick={this.saveStorage} pathname={this.props.location.pathname} />
         <div className="mainbody">
           <Row>
             <Col>
@@ -45,7 +61,7 @@ export default class HomeView extends React.Component {
           </Row>
           <Row>
             <Col>
-              Currently, this emulator and IDE runs <strong>fully functional</strong> on <strong>Google Chrome</strong> and <strong>Safari</strong>. Minor features - limited to double-clicking to resize outputs - are unavailable on <strong>Firefox</strong> and <strong>Edge</strong>, however the core of the website - breakpoints, emulation, editing and running - are unaffected and the website will still look and operate correctly
+              Currently, this emulator and IDE runs <strong>fully functional</strong> on, but not limited to, <strong>Google Chrome</strong>, <strong>Safari</strong>, and, <strong>Firefox</strong>
             </Col>
           </Row>
           <Row>
