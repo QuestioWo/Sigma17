@@ -9,7 +9,7 @@ import React from 'react';
 import './DocumentationView.css';
 
 import { Button, Col, Collapse, Row, Table } from 'react-bootstrap';
-import { FaBackward, FaBug, FaCheck, FaChevronDown, FaChevronUp, FaDownload, FaEye, FaEyeSlash, FaHammer, FaMinus, FaPen, FaPlay, FaStepForward, FaTimes, FaUpload } from 'react-icons/fa';
+import { FaBackward, FaBug, FaChevronDown, FaChevronUp, FaDownload, FaEye, FaEyeSlash, FaHammer, FaMinus, FaPen, FaPlay, FaStepForward, FaTimes, FaUpload } from 'react-icons/fa';
 import Select from 'react-select';
 
 import * as Emulator from './utils/Emulator';
@@ -119,7 +119,6 @@ export default class DocumentationView extends React.Component {
 
           'Using the IDE/Editing a program', // Editing a program
             'Using the IDE/Editing a program/Input editing', // Input editing
-            'Using the IDE/Editing a program/Highlighting', // Highlighting
 
           'Using the IDE/Running a program', // Running a program
           
@@ -1904,19 +1903,6 @@ export default class DocumentationView extends React.Component {
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/editing2.jpg`} alt='Red box around text box of set input modal'/>
                     </div>
                   </InfoArea>
-                  <InfoArea state={this.state} title={'Highlighting'} depth={3}>
-                    <div className='info-body white'>
-                      The <strong>keyword highlighting</strong> of the code chunk can be <strong>turned off</strong> by pressing the <FaCheck/> icon on the <strong>far right</strong> of the button toolbar. This <strong>increases</strong> the <strong>performance</strong> of the website <strong>slightly</strong> when editing larger files, e.g, thousands of lines<br/>
-                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/editing3.jpg`} alt='Unhighlighted code chunk'/><br/>
-                      However, <strong>indenting</strong> with the <strong>unhighlighted</strong> code chunk is not as <strong>well-formed</strong> so it is suggested that even when editing larger files, to <strong>still</strong> use the highlighting, or, another text Editor, such as{'\xa0'/**&nbsp*/}
-                      <a
-                        href='https://sublimetext.com'
-                        target='_blank'
-                        rel='noopener noreferrer'>
-                        Sublime Text 3
-                      </a><br/>
-                    </div>
-                  </InfoArea>
                 </InfoArea>
                 <InfoArea state={this.state} title={'Running a program'} depth={2}>
                   <div className='info-body white'>
@@ -1982,8 +1968,8 @@ export default class DocumentationView extends React.Component {
                       
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging1.jpg`} alt='Red box around build unsuccessful alert'/><br/>
                       
-                      <strong>Along</strong> with an alert at the top of the window displaying, the <strong>line</strong> in which error has occurred will have a <strong>red box</strong> replacing the regular black circle in the <strong>column</strong> to the <strong>left</strong> of the <strong>line numbers</strong> in the <strong>code chunk</strong><br/>
-                      When <strong>hovering over</strong> this now <strong>red box</strong>, details about why the error occurred will appear<br/>
+                      <strong>Along</strong> with an alert at the top of the window displaying, the <strong>line</strong> in which error has occurred will have a <strong>red box</strong> replacing nothing in the <strong>column</strong> to the <strong>left</strong> of the <strong>line numbers</strong> in the <strong>code chunk</strong><br/>
+                      When <strong>hovering over</strong> this <strong>red box</strong>, details about why the error occurred will appear<br/>
                       
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging2.jpg`} alt='Red box around error details tooltip'/><br/>
                       
@@ -2013,8 +1999,7 @@ export default class DocumentationView extends React.Component {
                       
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging4.jpg`} alt='Red box around success alert'/><br/>
                       
-                      Like the Editor tab, the <strong>highlighting</strong> for the code chunk can be turned <strong>off</strong> and <strong>on</strong> using the <FaCheck/> icon<br/>
-                      <strong>Unlike</strong> the Editor tab, however, the code chunk can be <strong>hidden completely</strong> using the <FaMinus/> icon<br/>
+                      <strong>Unlike</strong> the Editor tab, the code chunk can be <strong>hidden completely</strong> using the <FaMinus/> icon<br/>
                       
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging5.jpg`} alt='Red box around success alert'/><br/>
                       
@@ -2056,8 +2041,8 @@ export default class DocumentationView extends React.Component {
                         
                         <br/>
                         
-                        Breakpoints can be <strong>activated</strong> by <strong>clicking</strong> one of the <strong>circles</strong> on the column to the <strong>left</strong> of the <strong>line numbers</strong><br/>
-                        This will <strong>fill</strong> the <strong>circle</strong> to indicate the breakpoint has been activated. Also, in the Debugger window, the <strong>corresponding</strong> memory cell to the line will become <strong>underlined</strong> to show <strong>where</strong> in <strong>memory</strong> the program's <strong>execution</strong> will <strong>pause</strong><br/>
+                        Breakpoints can be <strong>activated</strong> by <strong>clicking</strong> on the <strong>line number</strong> to the <strong>left</strong> of the <strong>code</strong><br/>
+                        This will then show a <strong>filled circle</strong> to indicate the breakpoint has been activated. Also, in the Debugger window, the <strong>corresponding</strong> memory cell to the line will become <strong>underlined</strong> to show <strong>where</strong> in <strong>memory</strong> the program's <strong>execution</strong> will <strong>pause</strong><br/>
                         
                         <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging8.jpg`} alt='Red box around activated breakpoint and underlined memory value'/><br/>
                         
@@ -2122,7 +2107,7 @@ export default class DocumentationView extends React.Component {
 
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting3.jpg`} alt='Red box around failed download alert'/><br/>
 
-                      Along with the <strong>alert</strong>, the circle in the column to the <strong>left</strong> of the <strong>line numbers</strong> will turn into a <strong>red triangle</strong><br/>
+                      Along with the <strong>alert</strong>, a <strong>red triangle</strong> will appear in the column <strong>next</strong> to the <strong>line numbers</strong><br/>
                       <strong>Hovering over</strong> this triangle will display information for why this line is <strong>incompatible</strong><br/>
 
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting4.jpg`} alt='Red box around failed download tooltip'/><br/>
@@ -2135,7 +2120,7 @@ export default class DocumentationView extends React.Component {
 
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting5.jpg`} alt='Red box around warning download alert'/><br/>
 
-                      Along with the <strong>alert</strong>, the circle in the column to the <strong>left</strong> of the <strong>line numbers</strong> will turn into an <strong>orange triangle</strong><br/>
+                      Along with the <strong>alert</strong>, an <strong>orange triangle</strong> will appear in the column <strong>next</strong> to the <strong>line numbers</strong><br/>
                       <strong>Hovering over</strong> this triangle will display information for why this line may cause <strong>discrepancies</strong><br/>
 
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/exporting6.jpg`} alt='Red box around warning download tooltip'/><br/>

@@ -93,8 +93,6 @@ export default class CodeMirrorComponent extends React.Component {
 
     const lines = this.state.code.split( '\n' );
 
-    const lineErrorKeys = Object.keys( this.state.lineError );
-
     var lineCompWarnKeys = [];
     var lineCompErrorKeys = [];
 
@@ -103,43 +101,39 @@ export default class CodeMirrorComponent extends React.Component {
       lineCompErrorKeys = Object.keys( this.props.lineCompError );
     }
 
-    for ( var i = 0; i < lineErrorKeys.length; i++ ) {
-      const lineI = lineErrorKeys[i] - 1;
+    if ( this.props.lineCompError ) {
+      for ( var i = 0; i < lineCompErrorKeys.length; i++ ) {
+        const lineI = lineCompErrorKeys[i] - 1;
 
-      if ( lineI <= lines.length ) {
-        const styleTop = ( 25 * ( lineI + 0.75 ) ) + 3 +'px';
+        if ( !( linesDotted.includes( lineI ) ) && lineI <= lines.length ) {
+          const styleTop = ( 25 * ( lineI + 0.75 ) ) + 3 +'px';
 
-        var className = 'breakpoint ' + ( lineI + 1 ) + ' error';
+          breakpoints.push( 
+            <OverlayTrigger
+              key={'breakpoint ' + ( lineI + 1 ) + ' comperror tooltip'}
+              placement={'right'}
+              overlay={
+                <Tooltip>
+                  {this.props.lineCompError[lineI + 1]['error']}
+                </Tooltip>
+              }>
+              <div 
+                key={'breakpoint ' + ( lineI + 1 )}
+                id={'breakpoint ' + ( lineI + 1 )} 
+                className={'breakpoint ' + ( lineI + 1 ) + ' comperror'} 
+                style={{top : styleTop}} 
+                onClick={this.breakpointOnClick}/>
+            </OverlayTrigger>
+          );
 
-        if ( this.state.breakpoints.includes( lineI + 1 ) ) {
-          className = className + ' active';
+          linesDotted.push( lineI );
         }
-
-        breakpoints.push( 
-          <OverlayTrigger
-            key={'breakpoint ' + ( lineI + 1 ) + ' error tooltip'}
-            placement={'right'}
-            overlay={
-              <Tooltip>
-                {this.state.lineError[lineI + 1]}
-              </Tooltip>
-            }>
-            <div 
-              key={'breakpoint ' + ( lineI + 1 )}
-              id={'breakpoint ' + ( lineI + 1 )} 
-              className={className} 
-              style={{top : styleTop}} 
-              onClick={this.breakpointOnClick}/>
-          </OverlayTrigger>
-        );
-
-        linesDotted.push( lineI );
       }
     }
 
-    if ( this.props.lineCompWarn ) { 
-      for ( i = 0; i < lineCompWarnKeys.length; i++ ) {
-        const lineI = lineCompWarnKeys[i] - 1;
+    if ( this.props.lineCompWarn ) {
+      for ( var it = 0; it < lineCompWarnKeys.length; it++ ) {
+        const lineI = lineCompWarnKeys[it] - 1;
 
         if ( !( linesDotted.includes( lineI ) ) && lineI <= lines.length ) {
           const styleTop = ( 25 * ( lineI + 0.75 ) ) + 3 +'px';
@@ -165,38 +159,10 @@ export default class CodeMirrorComponent extends React.Component {
           linesDotted.push( lineI );
         }
       }
-
-      for ( i = 0; i < lineCompErrorKeys.length; i++ ) {
-        const lineI = lineCompErrorKeys[i] - 1;
-
-        if ( !( linesDotted.includes( lineI ) ) && lineI <= lines.length ) {
-          const styleTop = ( 25 * ( lineI + 0.75 ) ) + 3 +'px';
-
-          breakpoints.push( 
-            <OverlayTrigger
-              key={'breakpoint ' + ( lineI + 1 ) + ' compwarn tooltip'}
-              placement={'right'}
-              overlay={
-                <Tooltip>
-                  {this.props.lineCompError[lineI + 1]['warn']}
-                </Tooltip>
-              }>
-              <div 
-                key={'breakpoint ' + ( lineI + 1 )}
-                id={'breakpoint ' + ( lineI + 1 )} 
-                className={'breakpoint ' + ( lineI + 1 ) + ' compwarn'} 
-                style={{top : styleTop}} 
-                onClick={this.breakpointOnClick}/>
-            </OverlayTrigger>
-          );
-
-          linesDotted.push( lineI );
-        }
-      }
     }
     
-    for ( i = 0; i < this.state.breakpoints.length; i++ ) {
-      const lineI = this.state.breakpoints[i] - 1;
+    for ( var ite = 0; ite < this.state.breakpoints.length; ite++ ) {
+      const lineI = this.state.breakpoints[ite] - 1;
 
       if ( !( linesDotted.includes( lineI ) ) && lineI <= lines.length ) {
         const styleTop = ( 25 * ( lineI + 0.75 ) ) + 3 +'px';
@@ -242,6 +208,15 @@ export default class CodeMirrorComponent extends React.Component {
       }
     } else {
       breakpointsCopy.push( lineNumber + 1 );
+
+      if ( this.props.breakpointCallback ) {
+        this.props.breakpointCallback( breakpointsCopy );
+      }
+    }
+
+    if ( breakpointsCopy.includes( 0 ) ) {
+      const index0 = breakpointsCopy.indexOf( 0 );
+      breakpointsCopy.splice( index0, 1 );
 
       if ( this.props.breakpointCallback ) {
         this.props.breakpointCallback( breakpointsCopy );

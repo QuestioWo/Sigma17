@@ -291,7 +291,7 @@ p.alertbody {
 }
 
 .output-column .output-area.debug {
-  height: 100%;
+  height: calc( 12vh - 10px );
 }
 
 .memory-column.big {
