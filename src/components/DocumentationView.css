@@ -4,6 +4,59 @@
   This file is subject to the terms and conditions defined in file 'LICENSE.txt', which is part of this source code package.
 */
 
+.css-1layoqn-control {
+  background-color: var( --bg ) !important;
+  border-color : var( --buttoncolour ) !important;
+}
+
+.css-15habef-control {
+  background-color: var( --bg ) !important;
+  border-color : var( --buttoncolour ) !important;
+}
+
+.css-1okebmr-indicatorSeparator {
+  background-color : var( --buttoncolour ) !important;
+}
+
+.css-1gtu0rj-indicatorContainer:hover {
+  color : var( --buttoncolourhover ) !important;
+}
+
+.css-tlfecz-indicatorContainer {
+  color : var( --buttoncolour ) !important;
+}
+
+.css-1uccc91-singleValue {
+  color : var( --text ) !important;
+}
+
+.css-1wa3eu0-placeholder {
+  color : var( --text ) !important;
+}
+
+.css-b8ldur-Input {
+  color : var( --text ) !important;
+}
+
+.css-1m2ow1o-menu {
+  background-color: var( --bg ) !important;
+  color : var( --text ) !important;
+}
+
+.css-yt9ioa-option {
+  background-color: var( --bg ) !important;
+  color : var( --text ) !important;
+}
+
+.css-1n7v3ny-option {
+  background-color: var( --selectbghover ) !important;
+  color : var( --text ) !important;
+}
+
+.css-gg45go-NoOptionsMessage {
+  color : var( --text ) !important;
+}
+
 .btn-md {
   border-radius: 7px;
 }
@@ -59,53 +112,54 @@
 }
 
 .machine-code-template {
-  background-color: #eaeef3;
+  background-color: var( --info1 );
   line-height: normal;
+  color: var( --text );
 }
 
 
 .info-field.depth1 {
-  border-color: #eaeef3;
-  background-color: #eaeef3;
+  border-color: var( --info1 );
+  background-color: var( --info1 );
 }
 
 .info-field.depth2 {
-  border-color: #d8e0e9;
-  background-color: #d8e0e9; 
+  border-color: var( --info2 );
+  background-color: var( --info2 ); 
 }
 
 .info-field.depth3 {
-  border-color: #c4d0de;
-  background-color: #c4d0de;
+  border-color: var( --info3 );
+  background-color: var( --info3 );
 }
 
 .info-field.depth4 {
-  border-color: #b1c1d3;
-  background-color: #b1c1d3;
+  border-color: var( --info4 );
+  background-color: var( --info4 );
 }
 
 
 .info-title.depth1 {
-  border-color: #eaeef3;
-  background-color: #eaeef3;
+  border-color: var( --info1 );
+  background-color: var( --info1 );
 }
 
 .info-title.depth2 {
-  border-color: #d8e0e9;
-  background-color: #d8e0e9;
+  border-color: var( --info2 );
+  background-color: var( --info2 );
 }
 
 .info-title.depth3 {
-  border-color: #c4d0de;
-  background-color: #c4d0de;
+  border-color: var( --info3 );
+  background-color: var( --info3 );
 }
 
 .info-title.depth4 {
-  border-color: #b1c1d3;
-  background-color: #b1c1d3;
+  border-color: var( --info4 );
+  background-color: var( --info4 );
 }
 
 
 .info-body.white {
-  background-color: white;
+  background-color: var( --bg );
 }

@@ -43,8 +43,23 @@ export default class HomeView extends React.Component {
     sessionStorage.setItem( 'breakpoints', this.state.breakpoints );
   }
 
+// DARK MODE
+  toggleDarkMode = e => {
+    localStorage.setItem( 'theme', localStorage.getItem( 'theme' ) === 'light' ? 'dark' : 'light' );
+    
+    document.body.classList.replace( localStorage.getItem( 'theme' ) === 'light' ? 'dark' : 'light', localStorage.getItem( 'theme' ) );
+  }
+
 // RENDER
   render() {
+    if ( localStorage.getItem( 'theme' ) !== null ) {
+      document.body.classList.replace( localStorage.getItem( 'theme' ) === 'light' ? 'dark' : 'light', localStorage.getItem( 'theme' ) );
+    } else {
+      document.body.classList.add( 'light' );
+
+      localStorage.setItem( 'theme', 'light' );
+    }
+
     return(
       <React.Fragment>
         <NavBar onClick={this.saveStorage} pathname={this.props.location.pathname} />
@@ -52,6 +67,21 @@ export default class HomeView extends React.Component {
           <Row>
             <Col>
               <h1>Sigma17 home page</h1>
+            </Col>
+            <Col>
+              <div className='dark-mode-container' >
+                <label className="switch">
+                  <input 
+                    type="checkbox" 
+                    onClick={this.toggleDarkMode}
+                    defaultChecked={localStorage.getItem( 'theme' ) !== null ? localStorage.getItem( 'theme' ) === 'dark' : false }
+                  />
+                  <span className="slider round"></span>
+                </label>
+                <div style={{display : 'inline-block', marginLeft : '10px'}}>
+                  <strong>Dark Mode</strong>
+                </div>
+              </div>
             </Col>
           </Row>
           <Row>

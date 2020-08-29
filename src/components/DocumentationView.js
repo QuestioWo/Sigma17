@@ -177,7 +177,7 @@ export default class DocumentationView extends React.Component {
     sessionStorage.setItem( 'breakpoints', this.state.breakpoints );
   }
 
-// RENDER ABSTRACTION
+// ABSTRACTION
   flagsSet( title, flags, renderUnless=true ) {
     return (
       <React.Fragment>
@@ -359,6 +359,14 @@ export default class DocumentationView extends React.Component {
 
 // RENDER
   render() {
+    if ( localStorage.getItem( 'theme' ) !== null ) {
+      document.body.classList.replace( localStorage.getItem( 'theme' ) === 'light' ? 'dark' : 'light', localStorage.getItem( 'theme' ) );
+    } else {
+      document.body.classList.add( 'light' );
+
+      localStorage.setItem( 'theme', 'light' );
+    }
+    
     var subHeadings = [];
     for ( var i = 0; i < this.state.searchSubHeadings.length; i++ ) {
       var indent = '';

@@ -4,7 +4,6 @@
 
 * ( Possible ) - Write documentation that outlines function calls, i.e how to debug as an outsider. *Possibly on repos rather than in actual website.*
 * Fix memory leaks
-* Dark mode
 * Time-outs for execution so that accidental infinite loops can be handled
 * Saving indefinitely asynchronously after updating
 
@@ -78,3 +77,4 @@
 * √ - Make double clicking on output boxes work properly on Firefox
 * √ - Allow for code, breakpoints, and, input to persit across webpages without having to use the navigation features ( cannot be done with GitHub pages as the hosting site as it uses `HashRouter` when we would need `BrowserRouter` )
 * √ - Change the code editors updating method so that it doesnt lag the webpage when editting larger files ( difficult since breakpoints need updating so not sure about how to do it )
+* √ - Dark mode

@@ -512,7 +512,7 @@ export default class ProgramEditorView extends React.PureComponent {
 
     const code = this.codeRef.current.state.code;
 
-    const check = this.checkCode( code )
+    const check = this.checkCode( code );
     if ( check[0] ) {
       // implicit build if needed
       var machineCode = [];
@@ -959,6 +959,14 @@ export default class ProgramEditorView extends React.PureComponent {
 
 // RENDER
   render() {
+    if ( localStorage.getItem( 'theme' ) !== null ) {
+      document.body.classList.replace( localStorage.getItem( 'theme' ) === 'light' ? 'dark' : 'light', localStorage.getItem( 'theme' ) );
+    } else {
+      document.body.classList.add( 'light' );
+
+      localStorage.setItem( 'theme', 'light' );
+    }
+    
     return(
       <React.Fragment>
         <NavBar onClick={this.saveStorage} pathname={'/#' + this.props.location.pathname} />

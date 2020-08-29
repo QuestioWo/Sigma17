@@ -79,8 +79,8 @@
   box-sizing: border-box;
   border-width: 5px;
   border-style: solid;
-  border-color: #eaeef3;
-  background-color: #eaeef3;
+  border-color: var( --info1 );
+  background-color: var( --info1 );
   margin: 15px 0 0;
 }
 
@@ -91,9 +91,9 @@
   resize: none;
   border-radius: 7px;
   border-width: 5px;
-  border-color: white;
+  border-color: var( --bg );
   white-space: pre;
-  background: white;
-  color: black;
+  background: var( --bg );
+  color: var( --text );
   border-style: solid;
 }
