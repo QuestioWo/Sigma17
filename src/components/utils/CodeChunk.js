@@ -322,7 +322,7 @@ export default class CodeMirrorComponent extends React.Component {
             value={this.state.code}
             className={this.props.codeMirrorClassName}
             onBeforeChange={(editor, data, value) => {
-              if ( data.origin === "paste" && data.to.line === ( this.state.code.split( '\n' ).length - 1 ) ) {
+              if ( data.origin === "paste" ) {
                 this.checkCode( value, data.from.line, Infinity, true );
               }
               this.checkCode( value, data.from.line, data.to.line, true );

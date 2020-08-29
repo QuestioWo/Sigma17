@@ -473,7 +473,7 @@ export default class DocumentationView extends React.Component {
                 </InfoArea>
                 <InfoArea state={this.state} title={'Introduction to machine code'} depth={2}>
                   <div className='info-body white'>
-                    Sigma16's <strong>machine code</strong> is comprised of <strong>16-bit "words"</strong> ( bytes ) which are <strong>compiled</strong> from the assembly <strong>program provided</strong><br/>
+                    Sigma16's <strong>machine code</strong> is comprised of <strong>16-bit "words"</strong> ( 2 bytes ) which are <strong>compiled</strong> from the assembly <strong>program provided</strong><br/>
                     <br/>
                     This <strong>machine code</strong> is then <strong>set</strong> into the <strong>memory</strong>, starting at the <strong>0</strong>th position. The <strong>memory</strong> then <strong>runs</strong> through, taking one or more words and <strong>executing functions</strong> based off of those words' <strong>associated meanings</strong><br/>
                   </div>
@@ -1920,7 +1920,7 @@ export default class DocumentationView extends React.Component {
 
                     <br/>
 
-                    When a program's <strong>used</strong> memory values <strong>exceeds 500</strong>, the memory values will be rendered in <strong>different</strong> memory <strong>windows</strong>. This is done as <strong>rendering more</strong> memory values <strong>at one time</strong> significantly <strong>effects performance</strong><br/>
+                    When a program's <strong>used</strong> memory values <strong>exceeds <code>$500</code>, 1280, </strong>, the memory values will be rendered in <strong>different</strong> memory <strong>windows</strong>. This is done as <strong>rendering more</strong> memory values <strong>at one time</strong> significantly <strong>effects performance</strong><br/>
 
                     <br/>
 
