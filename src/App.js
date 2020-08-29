@@ -1,7 +1,5 @@
 import React from 'react';
 
-import './App.css';
-
 import { HashRouter, Switch } from 'react-router-dom';
 
 import AppliedRoute from './AppliedRoute';

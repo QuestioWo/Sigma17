@@ -14,6 +14,7 @@ import * as Emulator from './Emulator';
 
 import { Controlled as CodeMirror } from 'react-codemirror2';
 
+require( 'codemirror/theme/dracula.css' );
 require( './mode/sigma16' );
 
 export default class CodeMirrorComponent extends React.Component {
@@ -70,7 +71,7 @@ export default class CodeMirrorComponent extends React.Component {
         lineErrorCopy[i + 1] = check;
         ranSuccessfully = false;
       } else {
-        delete lineErrorCopy[i + 1]
+        delete lineErrorCopy[i + 1];
       }
     }
 
@@ -93,6 +94,8 @@ export default class CodeMirrorComponent extends React.Component {
 
     const lines = this.state.code.split( '\n' );
 
+    const lineErrorKeys = Object.keys( this.state.lineError );
+
     var lineCompWarnKeys = [];
     var lineCompErrorKeys = [];
 
@@ -101,8 +104,41 @@ export default class CodeMirrorComponent extends React.Component {
       lineCompErrorKeys = Object.keys( this.props.lineCompError );
     }
 
+    for ( var i = 0; i < lineErrorKeys.length; i++ ) {
+      const lineI = lineErrorKeys[i] - 1;
+
+      if ( !( linesDotted.includes( lineI ) ) && lineI <= lines.length ) {
+        const styleTop = ( 25 * ( lineI + 0.75 ) ) + 3 +'px';
+
+        var className = 'breakpoint ' + ( lineI + 1 ) + ' error';
+        if ( this.state.breakpoints.includes( lineI + 1 ) ) {
+          className = className + ' active';
+        }
+
+        breakpoints.push( 
+          <OverlayTrigger
+            key={'breakpoint ' + ( lineI + 1 ) + ' error tooltip'}
+            placement={'right'}
+            overlay={
+              <Tooltip>
+                {this.state.lineError[lineI + 1]}
+              </Tooltip>
+            }>
+            <div 
+              key={'breakpoint ' + ( lineI + 1 )}
+              id={'breakpoint ' + ( lineI + 1 )} 
+              className={className} 
+              style={{top : styleTop}} 
+              onClick={this.breakpointOnClick}/>
+          </OverlayTrigger>
+        );
+
+        linesDotted.push( lineI );
+      }
+    }
+
     if ( this.props.lineCompError ) {
-      for ( var i = 0; i < lineCompErrorKeys.length; i++ ) {
+      for ( i = 0; i < lineCompErrorKeys.length; i++ ) {
         const lineI = lineCompErrorKeys[i] - 1;
 
         if ( !( linesDotted.includes( lineI ) ) && lineI <= lines.length ) {
@@ -121,8 +157,7 @@ export default class CodeMirrorComponent extends React.Component {
                 key={'breakpoint ' + ( lineI + 1 )}
                 id={'breakpoint ' + ( lineI + 1 )} 
                 className={'breakpoint ' + ( lineI + 1 ) + ' comperror'} 
-                style={{top : styleTop}} 
-                onClick={this.breakpointOnClick}/>
+                style={{top : styleTop}} />
             </OverlayTrigger>
           );
 
@@ -151,8 +186,7 @@ export default class CodeMirrorComponent extends React.Component {
                 key={'breakpoint ' + ( lineI + 1 )}
                 id={'breakpoint ' + ( lineI + 1 )} 
                 className={'breakpoint ' + ( lineI + 1 ) + ' compwarn'} 
-                style={{top : styleTop}} 
-                onClick={this.breakpointOnClick}/>
+                style={{top : styleTop}} />
             </OverlayTrigger>
           );
 
@@ -247,7 +281,7 @@ export default class CodeMirrorComponent extends React.Component {
     var lineNoWidthLength = ( Math.log( this.state.code.split( '\n' ).length ) * Math.LOG10E + 1 ) | 0;
 
     if ( lineNoWidthLength >= 2 ) {
-      lineNoWidth = ( ( lineNoWidthLength * 9 ) + 10 ); // 9 for number padding and 1 for number column border
+      lineNoWidth = ( ( lineNoWidthLength * 9 ) + 9 ); // 9 for number padding
     }
 
     lineNoWidth = ( lineNoWidth + 16 ) + 'px'; //16 for breakpoint column
@@ -274,7 +308,7 @@ export default class CodeMirrorComponent extends React.Component {
     var lineNoWidthLength = ( Math.log( this.state.code.split( '\n' ).length ) * Math.LOG10E + 1 ) | 0;
 
     if ( lineNoWidthLength >= 2 ) {
-      lineNoWidth = ( ( lineNoWidthLength * 9 ) + 10 );
+      lineNoWidth = ( ( lineNoWidthLength * 9 ) + 9 );
     }
 
     lineNoWidth = ( lineNoWidth + 16 ) + 'px'; // 25 because 16 for breakpoint column, 8 for number padding and 1 for number column border
@@ -295,6 +329,17 @@ export default class CodeMirrorComponent extends React.Component {
 
 // RENDER
   render() {
+    var theme;
+    if ( localStorage.getItem( 'theme' ) !== null ) {
+      if ( localStorage.getItem( 'theme' ) === 'light' ) {
+        theme = 'default';
+      } else { 
+        theme = 'dracula';
+      }
+    } else {
+      theme = 'default'; 
+    }
+
     return(
       <React.Fragment>
         <div 
@@ -328,7 +373,7 @@ export default class CodeMirrorComponent extends React.Component {
               this.checkCode( value, data.from.line, data.to.line, true );
             }}
             onGutterClick={this.breakpointToggle}
-            options={{mode : 'sigma16', lineNumbers : this.props.lineNumbersMethod ? false : true, readOnly : this.props.readOnly}}
+            options={{mode : 'sigma16', lineNumbers : this.props.lineNumbersMethod ? false : true, readOnly : this.props.readOnly, theme : theme}}
             autoCursor/>
         </div>
       </React.Fragment>

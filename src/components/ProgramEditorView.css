@@ -10,22 +10,21 @@
   border-radius: 7px;
   border-width: 5px;
   border-style: solid;
-  border-color: #eaeef3;
-  background-color: #eaeef3;
+  border-color: var( --info1 );
+  background-color: var( --info1 );
   height: unset;
 }
 
-.download-modal-download {
-  width: 100%;
-  font-family: 'Fira Code', monospace;
-  resize: none;
-  border-radius: 7px;
-  border-width: 5px;
-  border-color: white;
-  white-space: pre;
-  outline: none;
-  color: black;
-  border-style: solid;
+#download-modal-download {
+  color: var( --text );
+  background-color: var( --bg );
+  border-color: var( --bg );
+}
+
+.input-group-text {
+  color: var( --inputtext );
+  background-color: var( --inputbg );
+  border-color: var( --inputbg );
 }
 
 .breakpoint-column .breakpoint.compwarn {

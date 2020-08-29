@@ -860,6 +860,14 @@ export default class ProgramDebugView extends React.Component {
 
 // RENDER
   render() {
+    if ( localStorage.getItem( 'theme' ) !== null ) {
+      document.body.classList.replace( localStorage.getItem( 'theme' ) === 'light' ? 'dark' : 'light', localStorage.getItem( 'theme' ) );
+    } else {
+      document.body.classList.add( 'light' );
+
+      localStorage.setItem( 'theme', 'light' );
+    }
+    
     const activeLineInCode = this.state.memoryToLine[ this.state.activeLine ];
     const lastLineInCode = this.state.memoryToLine[ this.state.lastLine ];
     
@@ -918,7 +926,7 @@ export default class ProgramDebugView extends React.Component {
           </Modal.Header>
           <Modal.Body>
             <div onDoubleClick={this.outputModalClose} className='output-column' style={{height:'518px', width:'100%'}}>
-              <div className='output-area debug'>
+              <div className='output-area' style={{height : '508px'}}>
                 {this.state.output}
               </div>
             </div>
