@@ -1920,7 +1920,7 @@ export default class DocumentationView extends React.Component {
 
                     <br/>
 
-                    When a program's <strong>used</strong> memory values <strong>exceeds $500, 1280, </strong>, the memory values will be rendered in <strong>different</strong> memory <strong>windows</strong>. This is done as <strong>rendering more</strong> memory values <strong>at one time</strong> significantly <strong>effects performance</strong><br/>
+                    When a program's <strong>used</strong> memory values <strong>exceeds <code>$500</code>, 1280, </strong>, the memory values will be rendered in <strong>different</strong> memory <strong>windows</strong>. This is done as <strong>rendering more</strong> memory values <strong>at one time</strong> significantly <strong>effects performance</strong><br/>
 
                     <br/>
 
