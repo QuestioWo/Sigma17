@@ -1,7 +1,5 @@
 # TODO list
 
-* Fix links
-
 *Will not do unless asked for with good reason since large effort when alternatives are available*
 
 * ( Possible ) - Write documentation that outlines function calls, i.e how to debug as an outsider. *Possibly on repos rather than in actual website.*

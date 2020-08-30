@@ -102,10 +102,7 @@ export default class HomeView extends React.Component {
           <Row>
             <Col>
               <div className="click-editor">
-                <Link to={{
-                  pathname : "/editor",
-                  state : this.state
-                  }}>
+                <Link to={{pathname : "/editor"}}>
                   Click Here To Run IDE
                 </Link>
               </div>
