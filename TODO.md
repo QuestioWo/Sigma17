@@ -6,6 +6,7 @@
 * Fix memory leaks
 * Time-outs for execution so that accidental infinite loops can be handled
 * Saving indefinitely asynchronously after updating
+* Implement linker
 
 # Done
 
