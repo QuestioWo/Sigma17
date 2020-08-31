@@ -10,15 +10,9 @@ import { NavLink } from 'react-router-dom';
 import { Nav } from 'react-bootstrap';
 
 export default class NavBar extends React.Component {
-  constructor ( props ) {
-    super( props )
-
-    this.props = props;
-  }
-
   render() {
     return(
-      <Nav onClick={this.props.onClick} fill variant="tabs" defaultActiveKey={this.props.pathname}>
+      <Nav fill variant="tabs" defaultActiveKey={this.props.pathname}>
         <Nav.Item>
           <NavLink 
             className='nav-link'
