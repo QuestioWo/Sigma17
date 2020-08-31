@@ -135,7 +135,7 @@ export default class ProgramDebugView extends React.Component {
     this.setState( propsState );
   }
 
-  saveStorage = e => {
+  componentWillUnmount() {
     sessionStorage.setItem( 'code', this.state.code );
     sessionStorage.setItem( 'input', this.state.input );
     sessionStorage.setItem( 'breakpoints', this.state.breakpoints );
@@ -884,7 +884,7 @@ export default class ProgramDebugView extends React.Component {
 
     return(
       <React.Fragment>
-        <NavBar onClick={this.saveStorage} pathname={'/#' + this.props.location.pathname} />
+        <NavBar pathname={'/#' + this.props.location.pathname} />
         
         <Modal
           show={this.state.inputModalShow}

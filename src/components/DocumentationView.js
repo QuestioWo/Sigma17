@@ -171,7 +171,7 @@ export default class DocumentationView extends React.Component {
     }
   }
 
-  saveStorage = e => {
+  componentWillUnmount() {
     sessionStorage.setItem( 'code', this.state.code );
     sessionStorage.setItem( 'input', this.state.input );
     sessionStorage.setItem( 'breakpoints', this.state.breakpoints );
@@ -379,7 +379,7 @@ export default class DocumentationView extends React.Component {
 
     return(
       <React.Fragment>
-        <NavBar onClick={this.saveStorage} pathname={'/#' + this.props.location.pathname} />
+        <NavBar pathname={'/#' + this.props.location.pathname} />
         <div className="mainbody">
           <Row>
             <Col>
@@ -1886,8 +1886,8 @@ export default class DocumentationView extends React.Component {
               <InfoArea state={this.state} title={'Using the IDE'} depth={1}>
                 <InfoArea state={this.state} title={'Notes about the IDE that are unbelievably important'} depth={2}>
                   <div className='info-body white'>
-                    Code <strong>persists</strong> between <strong>webpages</strong>. So the Editor and Documentation can be <strong>navigated between</strong> and the <strong>code in the Editor</strong> will be the <strong>same</strong>. However, code can <strong>only</strong> persist if the <strong>supplied buttons</strong> and <strong>tabs</strong> are used to <strong>navigate</strong> between them. This means that using the <strong>browser's history</strong> or <strong>forwards and backwards arrows</strong> will result in code being <strong>lost</strong><br/>
-                    <strong>Breakpoints</strong> and program <strong>input</strong> works in the <strong>same</strong> way and <strong>will persist</strong> so long as the <strong>proper methods</strong> of navigation are <strong>used</strong><br/>
+                    Code <strong>persists</strong> between <strong>webpages</strong>. So the Editor and Documentation can be <strong>navigated between</strong> and the <strong>code in the Editor</strong> will be the <strong>same</strong>. However, code can <strong>only</strong> persist if the <strong>tab being used</strong> is open. This means that using the <strong>brower's history</strong> will result in <strong>code being lost</strong><br/>
+                    <strong>Breakpoints</strong> and program <strong>input</strong> works in the <strong>same</strong> way and <strong>will persist</strong> so long as the <strong>tab</strong> is <strong>not closed</strong><br/>
                     
                     <br/>
                     

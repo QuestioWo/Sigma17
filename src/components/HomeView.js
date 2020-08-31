@@ -37,7 +37,7 @@ export default class HomeView extends React.Component {
     }
   }
 
-  saveStorage = e => {
+  componentWillUnmount() {
     sessionStorage.setItem( 'code', this.state.code );
     sessionStorage.setItem( 'input', this.state.input );
     sessionStorage.setItem( 'breakpoints', this.state.breakpoints );
@@ -62,7 +62,7 @@ export default class HomeView extends React.Component {
 
     return(
       <React.Fragment>
-        <NavBar onClick={this.saveStorage} pathname={this.props.location.pathname} />
+        <NavBar pathname={this.props.location.pathname} />
         <div className="mainbody">
           <Row>
             <Col>
@@ -96,7 +96,7 @@ export default class HomeView extends React.Component {
           </Row>
           <Row>
             <Col>
-              When using the emulator, <strong>do not</strong> navigate the pages with the browser's built-in forward and backwards buttons as <strong>code will not save.</strong> Navigate using <strong>only</strong> the nav bar at the top of the screen
+              When using the emulator, <strong>do not leave the tab</strong> that you are using when using the IDE otherwise code, breakpoints, and, input <strong>will be lost</strong>
             </Col>
           </Row>
           <Row>

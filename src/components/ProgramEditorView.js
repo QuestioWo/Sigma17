@@ -102,7 +102,7 @@ export default class ProgramEditorView extends React.PureComponent {
     }
   }
 
-  saveStorage = e => {
+  componentWillUnmount() {
     sessionStorage.setItem( 'code', this.codeRef.current.state.code );
     sessionStorage.setItem( 'input', this.state.input );
     sessionStorage.setItem( 'breakpoints', this.codeRef.current.state.breakpoints );
@@ -969,7 +969,7 @@ export default class ProgramEditorView extends React.PureComponent {
     
     return(
       <React.Fragment>
-        <NavBar onClick={this.saveStorage} pathname={'/#' + this.props.location.pathname} />
+        <NavBar pathname={'/#' + this.props.location.pathname} />
         <Modal
           show={this.state.runModalShow}
           onHide={this.runModalClose}
