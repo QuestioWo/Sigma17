@@ -75,7 +75,7 @@
 * √ - Binary files properly generate and import.
 * √ - Change viewing method of the results, namely memory, so that it isnt as laggy to hover over values in larger results; see [Memory performance test](https://github.com/QuestioWo/Sigma17#memory-performance-test-). Also so that it isn't so slow to run a program since [Memory performance test](https://github.com/QuestioWo/Sigma17#memory-performance-test-) takes ~53 ms to execute so the rest of the ~56 s is displaying the results
 * √ - Make double clicking on output boxes work properly on Firefox
-* √ - Allow for code, breakpoints, and, input to persit across webpages without having to use the navigation features ( cannot be done with GitHub pages as the hosting site as it uses `HashRouter` when we would need `BrowserRouter` )
+* √ - Allow for code, breakpoints, and, input to persit across webpages without having to use the navigation features
 * √ - Change the code editors updating method so that it doesnt lag the webpage when editting larger files ( difficult since breakpoints need updating so not sure about how to do it )
 * √ - Dark mode
 * √ - Saves when webpage is being left, therefore, so long as same tab is open, code and alike persists
