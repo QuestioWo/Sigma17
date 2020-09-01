@@ -8,6 +8,7 @@ import React from 'react';
 
 import './ProgramEditorView.css';
 
+import { Link } from 'react-router-dom';
 import { Alert, Button, ButtonGroup, Col, Dropdown, FormControl, InputGroup, Modal, OverlayTrigger, Row, ToggleButton, ToggleButtonGroup, Tooltip } from 'react-bootstrap';
 import { FaBug, FaChevronDown, FaDownload, FaHammer, FaPen, FaPlay, FaTimes, FaUpload } from 'react-icons/fa';
 
@@ -1169,7 +1170,7 @@ export default class ProgramEditorView extends React.PureComponent {
                 </OverlayTrigger>
               }
               {' '}
-              <a href='/#/debug' onClick={this.saveStorage}>
+              <Link to={{pathname : '/debug'}}>
                 <OverlayTrigger
                   placement={'top'}
                   overlay={
@@ -1181,7 +1182,7 @@ export default class ProgramEditorView extends React.PureComponent {
                     <FaBug/>
                   </Button>
                 </OverlayTrigger>
-              </a>
+              </Link>
             </Col>
             <Col>
               <ButtonGroup>
