@@ -124,6 +124,7 @@ export default class DocumentationView extends React.Component {
           
           'Using the IDE/Debugging a program', // Debugging a program
             'Using the IDE/Debugging a program/Syntax errors', // Syntax errors
+            'Using the IDE/Debugging a program/Infinite loops', // Infinite loops
             'Using the IDE/Debugging a program/Semantic errors - Debugger', // Semantic errors - Debugger
               'Using the IDE/Debugging a program/Semantic errors - Debugger/Breakpoints', // Breakpoints
 
@@ -1990,6 +1991,17 @@ export default class DocumentationView extends React.Component {
                       If there are <strong>no errors</strong> with building, a <strong>success</strong> alert will be displayed once the program has <strong>finished</strong> been <strong>built</strong><br/>
                       
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging3.jpg`} alt='Red box around success alert'/><br/>
+                    </div>
+                  </InfoArea>
+                  <InfoArea state={this.state} title={'Infinite loops'} depth={3}>
+                    <div className='info-body white'>
+                      If you attempt to run a program with a command with an <strong>infinite loop</strong>, such as a <code>jump 0[r0]</code>, the IDE will <strong>interrupt execution</strong> as it will recognise that <strong>too many</strong> instructions have been <strong>executed</strong><br/>
+                      The <strong>limit</strong> for the number of that the emulator will run is <strong>100 million</strong>, which <strong>equates</strong> to around <strong>5-6 seconds</strong> of execution
+                      The <strong>IDE</strong> will then <strong>display</strong> an alert detailing that an <strong>infinite loop</strong> has been <strong>encountered</strong> during execution :<br/>
+                      
+                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging12.jpg`} alt='Red box around infinite loop error'/><br/>
+
+                      The <strong>results</strong> of running the program till that point will however still be <strong>displayed</strong>
                     </div>
                   </InfoArea>
                   <InfoArea state={this.state} title={'Semantic errors - Debugger'} depth={3}>

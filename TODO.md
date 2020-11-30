@@ -6,6 +6,8 @@
 * Fix memory leaks
 * Time-outs for execution so that accidental infinite loops can be handled
 * Implement linker
+* WASM version of emulator
+* Decompiler
 
 # Done
 
