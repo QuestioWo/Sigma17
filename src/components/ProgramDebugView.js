@@ -741,7 +741,12 @@ export default class ProgramDebugView extends React.Component {
 
       var encounteredBreakpoint = false;
 
-      while ( !( ran['halted'] ) && !encounteredBreakpoint ) {
+      var count = 0;
+
+      // const runCap = 500_000_000; // ~ 25-30 second
+      const runCap = 100_000_000; // ~ 5-6 seconds
+
+      while ( !( ran['halted'] ) && !encounteredBreakpoint && count !== runCap ) {
         if ( ran['control'] !== undefined ) {
           lastRanLine = ran['control']['pc'];
         }
@@ -754,6 +759,8 @@ export default class ProgramDebugView extends React.Component {
         if ( this.state.breakpointsMachineCode.includes( ran['control']['pc'] ) ) {
           encounteredBreakpoint = true;
         }
+
+        count++;
       }
 
       this.memoryOptions( localMemory );
@@ -773,7 +780,10 @@ export default class ProgramDebugView extends React.Component {
         changedRegisters : Object.keys( _.omit( localRegisters, function( v, k ) { return initialRegisters[k] === v; } ) ),
         changedMemory : Object.keys( _.omit( localMemory, function( v, k ) { return initialMemory[k] === v; } ) )
       } ) );
-
+      
+      if ( count === runCap ) {
+        this.updateAlert( '100 million instructions ran, execution interrupted: Infinite loop likely in code', 'danger' );
+      }
     } else {
       this.updateAlert( canRun, 'danger' );
       this.setState( { halted : true } );

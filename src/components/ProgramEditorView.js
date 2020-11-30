@@ -531,11 +531,18 @@ export default class ProgramEditorView extends React.PureComponent {
         var localInput = this.state.input;
         var localOutput = this.state.output;
 
-        while ( !( ran['halted'] ) ) {
+        var count = 0;
+
+        // const runCap = 500_000_000; // ~ 25-30 second
+        const runCap = 100_000_000; // ~ 5-6 seconds
+
+        while ( !( ran['halted'] ) && count !== runCap ) {
           ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
 
           localInput = ran['input'];
           localOutput = ran['output'];
+
+          count++;
         }
 
         this.memoryOptions( localMemory );
@@ -551,6 +558,10 @@ export default class ProgramEditorView extends React.PureComponent {
           
           memoryViewStart : 0
         } );
+        
+        if ( count === runCap ) {
+          this.updateAlert( '100 million instructions ran, execution interrupted: Infinite loop likely in code', 'danger' );
+        }
       } else {
         this.updateAlert( canRun, 'danger' );
       }

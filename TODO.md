@@ -4,8 +4,9 @@
 
 * ( Possible ) - Write documentation that outlines function calls, i.e how to debug as an outsider. *Possibly on repos rather than in actual website.*
 * Fix memory leaks
-* Time-outs for execution so that accidental infinite loops can be handled
 * Implement linker
+* WASM version of emulator
+* Decompiler
 
 # Done
 
@@ -79,3 +80,4 @@
 * √ - Change the code editors updating method so that it doesnt lag the webpage when editting larger files ( difficult since breakpoints need updating so not sure about how to do it )
 * √ - Dark mode
 * √ - Saves when webpage is being left, therefore, so long as same tab is open, code and alike persists
+* √ - Time-outs for execution so that accidental infinite loops can be handled
