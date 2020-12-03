@@ -2001,7 +2001,18 @@ export default class DocumentationView extends React.Component {
                       
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging12.jpg`} alt='Red box around infinite loop error'/><br/>
 
-                      The <strong>results</strong> of running the program till that point will however still be <strong>displayed</strong>
+                      The <strong>results</strong> of running the program till that point will however still be <strong>displayed</strong> <br/>
+
+                      <br/>
+
+                      There is the <strong>option</strong> to, however, <strong>run</strong> the program <strong>without</strong> the <strong>interrupt</strong>. <strong>However</strong>, this is <strong>risky</strong> as <strong>if</strong> there is an <strong>infinite</strong> loop, the <strong>website</strong> will <strong>hang</strong> <br/>
+                      This can be done by <strong>pressing</strong> the enboldened <strong>text</strong> in the alert <br/>
+
+                      <br/>
+
+                      This <strong>interrupt</strong> pauses execution in <strong>both</strong> the Editor and Debug <strong>tabs</strong> <br/>
+
+                      <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging13.jpg`} alt='Red box around infinite loop error in Debug tab'/><br/>
                     </div>
                   </InfoArea>
                   <InfoArea state={this.state} title={'Semantic errors - Debugger'} depth={3}>
