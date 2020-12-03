@@ -83,6 +83,11 @@ pre {
   color: inherit;
 }
 
+.alertlink:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .dark-mode-container {
   position: absolute;
   top: 13px;
