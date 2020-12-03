@@ -721,11 +721,13 @@ export default class ProgramDebugView extends React.Component {
     return error;
   }
 
-  runCode = button => {
+  runCode( button, interrupt=true) {
     var canRun = this.canRunCode( this.state.code, this.state.machineCode );
     var ran = {
       halted : false
     };
+
+    if ( interrupt === false ) this.closeAlert();
 
     if ( !canRun.length ) {
       var localControl = this.state.cpuControl;
@@ -746,7 +748,7 @@ export default class ProgramDebugView extends React.Component {
       // const runCap = 500_000_000; // ~ 25-30 second
       const runCap = 100_000_000; // ~ 5-6 seconds
 
-      while ( !( ran['halted'] ) && !encounteredBreakpoint && count !== runCap ) {
+      while ( !( ran['halted'] ) && !encounteredBreakpoint && ( interrupt ? count !== runCap : true ) ) {
         if ( ran['control'] !== undefined ) {
           lastRanLine = ran['control']['pc'];
         }
@@ -781,8 +783,8 @@ export default class ProgramDebugView extends React.Component {
         changedMemory : Object.keys( _.omit( localMemory, function( v, k ) { return initialMemory[k] === v; } ) )
       } ) );
       
-      if ( count === runCap ) {
-        this.updateAlert( '100 million instructions ran, execution interrupted: Infinite loop likely in code', 'danger' );
+      if ( interrupt && count === runCap ) {
+        this.updateAlert( <span>100 million instructions ran, execution interrupted: Infinite loop likely in code. <strong><span className='alertlink' onClick={e => this.runCode(e, false)}>Press here to run code without interrupt</span></strong></span>, 'danger' );
       }
     } else {
       this.updateAlert( canRun, 'danger' );
@@ -981,7 +983,7 @@ export default class ProgramDebugView extends React.Component {
                       {`Run till next breakpoint`}
                     </Tooltip>
                   }>
-                  <Button variant='outline-secondary' size='sm' onClick={this.runCode} disabled={this.state.halted}>
+                  <Button variant='outline-secondary' size='sm' onClick={e => this.runCode(e)} disabled={this.state.halted}>
                     <FaPlay/>
                   </Button>
                 </OverlayTrigger>

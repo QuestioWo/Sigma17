@@ -508,12 +508,15 @@ export default class ProgramEditorView extends React.PureComponent {
     return error;
   }
 
-  runCode = button => {
+  runCode(button, interrupt=true) {
     console.time( 'Time to run' );
 
     const code = this.codeRef.current.state.code;
 
     const check = this.checkCode( code );
+
+    if ( interrupt === false ) this.closeAlert();
+
     if ( check[0] ) {
       // implicit build if needed
       var machineCode = [];
@@ -536,7 +539,7 @@ export default class ProgramEditorView extends React.PureComponent {
         // const runCap = 500_000_000; // ~ 25-30 second
         const runCap = 100_000_000; // ~ 5-6 seconds
 
-        while ( !( ran['halted'] ) && count !== runCap ) {
+        while ( !( ran['halted'] ) && ( interrupt ? count !== runCap : true ) ) {
           ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
 
           localInput = ran['input'];
@@ -559,8 +562,8 @@ export default class ProgramEditorView extends React.PureComponent {
           memoryViewStart : 0
         } );
         
-        if ( count === runCap ) {
-          this.updateAlert( '100 million instructions ran, execution interrupted: Infinite loop likely in code', 'danger' );
+        if ( interrupt && count === runCap ) {
+          this.updateAlert( <span>100 million instructions ran, execution interrupted: Infinite loop likely in code. <strong><span className='alertlink' onClick={e => this.runCode(e, false)}>Press here to run code without interrupt</span></strong></span>, 'danger' );
         }
       } else {
         this.updateAlert( canRun, 'danger' );
@@ -1160,7 +1163,7 @@ export default class ProgramEditorView extends React.PureComponent {
                       {`Run`}
                     </Tooltip>
                   }>
-                  <Button variant='outline-secondary' size='sm' onClick={this.runCode}>
+                  <Button variant='outline-secondary' size='sm' onClick={e => this.runCode(e)}>
                     <FaPlay/>
                   </Button>
                 </OverlayTrigger>
