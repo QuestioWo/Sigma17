@@ -528,31 +528,26 @@
   }
 
   function getR15Dict() {
-    return {
-      'G' : 0,
-      'g' : 0,
-      'E' : 0,
-      'l' : 0,
-      'L' : 0,
-      'V' : 0,
-      'v' : 0,
-      'C' : 0,
-      'S' : 0
-    };
+    var r15Dict = new Map();
+    const flags = [ 'G', 'g', 'E', 'l', 'L', 'V', 'v', 'C', 'S' ];
+
+    for ( var i = 0; i < flags.length; i++ ) r15Dict.set( flags[i], 0 );
+
+    return r15Dict;
   }
 
   function setR15Flags( flagDict ) {
     var r15 = 0;
 
-    if ( flagDict['G'] === 1 ) r15 += ( 0b1000000000000000 );
-    if ( flagDict['g'] === 1 ) r15 += ( 0b0100000000000000 );
-    if ( flagDict['E'] === 1 ) r15 += ( 0b0010000000000000 );
-    if ( flagDict['l'] === 1 ) r15 += ( 0b0001000000000000 );
-    if ( flagDict['L'] === 1 ) r15 += ( 0b0000100000000000 );
-    if ( flagDict['V'] === 1 ) r15 += ( 0b0000010000000000 );
-    if ( flagDict['v'] === 1 ) r15 += ( 0b0000001000000000 );
-    if ( flagDict['C'] === 1 ) r15 += ( 0b0000000100000000 );
-    if ( flagDict['S'] === 1 ) r15 += ( 0b0000000010000000 );
+    if ( flagDict.get( 'G' ) === 1 ) r15 += ( 0b1000_0000_0000_0000 );
+    if ( flagDict.get( 'g' ) === 1 ) r15 += ( 0b0100_0000_0000_0000 );
+    if ( flagDict.get( 'E' ) === 1 ) r15 += ( 0b0010_0000_0000_0000 );
+    if ( flagDict.get( 'l' ) === 1 ) r15 += ( 0b0001_0000_0000_0000 );
+    if ( flagDict.get( 'L' ) === 1 ) r15 += ( 0b0000_1000_0000_0000 );
+    if ( flagDict.get( 'V' ) === 1 ) r15 += ( 0b0000_0100_0000_0000 );
+    if ( flagDict.get( 'v' ) === 1 ) r15 += ( 0b0000_0010_0000_0000 );
+    if ( flagDict.get( 'C' ) === 1 ) r15 += ( 0b0000_0001_0000_0000 );
+    if ( flagDict.get( 'S' ) === 1 ) r15 += ( 0b0000_0000_1000_0000 );
 
     return r15;
   }
@@ -1870,10 +1865,10 @@
 
 // RUNNING FUNCTIONS
   export function setMemory( machineCode ) {
-    var memory = {};
+    var memory = new Map();
 
     for ( var i = 0; i < machineCode.length; i++ ) {
-      memory[i] = machineCode[i];
+      memory.set(i, machineCode[i]);
     }
 
     return memory;
@@ -1887,20 +1882,20 @@
 
     // signed comparisons
     if ( RaValueSigned > RbValueSigned ) {
-      flagDict['g'] = 1;
+      flagDict.set( 'g', 1 );
     } else if ( RaValueSigned < RbValueSigned ) {
-      flagDict['l'] = 1;
+      flagDict.set( 'l', 1 );
     } else {
       signedEquals = true;
     }
     
     // unsigned comparisons
     if ( RaValue > RbValue ) {
-      flagDict['G'] = 1;
+      flagDict.set( 'G', 1 );
     } else if ( RaValue < RbValue ) {
-      flagDict['L'] = 1;
+      flagDict.set( 'L', 1 );
     } else if ( signedEquals ) {
-      flagDict['E'] = 1;
+      flagDict.set( 'E', 1 );
     }
 
     return flagDict;
@@ -1919,9 +1914,9 @@
 
         for ( var i = 0; i < registers[Rb]; i++ ) {
           if ( input.length > i ) {
-            memory[memoryBufferStartInput + i] = input.charCodeAt( i );
+            memory.set( memoryBufferStartInput + i, input.charCodeAt( i ) );
           } else {
-            memory[memoryBufferStartInput + i] = 0;
+            memory.set( memoryBufferStartInput + i, 0 );
           }
         }
         output += '>>' + input.slice( 0, registers[Rb] );
@@ -1934,8 +1929,8 @@
 
         for ( var it = 0; it < registers[Rb]; it++ ) {
           // if in memory, add to output, else add default memory value
-          if ( memory[memoryBufferStartOutput + it] ) {
-            output += String.fromCharCode( memory[memoryBufferStartOutput + it] );
+          if ( memory.has( memoryBufferStartOutput + it ) ) {
+            output += String.fromCharCode( memory.get( memoryBufferStartOutput + it ) );
           } else {
             output += String.fromCharCode( 0 );
           }
@@ -1969,26 +1964,26 @@
 
       case 0x1 :
         // load
-        if ( !( memory[ effectiveADR ] ) ) memory[ effectiveADR ] = 0;
+        if ( !( memory.has( effectiveADR ) ) ) memory.set( effectiveADR, 0 );
 
-        registers[Rd] = memory[ effectiveADR ];
+        registers[Rd] = memory.get( effectiveADR );
         break;
 
       case 0x2 :
         // store
-        memory[ effectiveADR ] = registers[Rd];
+        memory.set( effectiveADR, registers[Rd] );
         break;
 
       case 0x3 :
         // jump
-        control['pc'] = effectiveADR;
+        control.set( 'pc', effectiveADR );
         jumped = true;
         break;
 
       case 0x4 :
         // jumpc0
         if ( getBitFromRegister( registers[15], Rd ) === 0 ) {
-          control['pc'] = effectiveADR;
+          control.set( 'pc', effectiveADR );
           jumped = true;
         }
 
@@ -1997,7 +1992,7 @@
       case 0x5 :
         // jumpc1
         if ( getBitFromRegister( registers[15], Rd ) > 0 ) {
-          control['pc'] = effectiveADR;
+          control.set( 'pc', effectiveADR );
           jumped = true;
         }
 
@@ -2006,7 +2001,7 @@
       case 0x6 :
         // jumpf
         if ( registers[Rd] === 0 ) {
-          control['pc'] = effectiveADR;
+          control.set( 'pc', effectiveADR );
           jumped = true;
         }
         break;
@@ -2014,22 +2009,24 @@
       case 0x7 :
         // jumpt
         if ( registers[Rd] === 1 ) {
-          control['pc'] = effectiveADR;
+          control.set( 'pc', effectiveADR );
           jumped = true;
         }
         break;
 
       case 0x8 :
         // jal
-        registers[Rd] = control['pc'] + 2;
-        control['pc'] = effectiveADR;
+        registers[Rd] = control.get( 'pc' ) + 2;
+        control.set( 'pc', effectiveADR );
         jumped = true;
         break;
 
       case 0x9 :
         // testset
-        registers[Rd] = memory[effectiveADR];
-        memory[effectiveADR] = 1;
+        if ( !( memory.has( effectiveADR ) ) ) memory.set( effectiveADR, 0 );
+
+        registers[Rd] = memory.get( effectiveADR );
+        memory.set( effectiveADR, 1 );
 
         break;
 
@@ -2087,7 +2084,7 @@
         for ( var iSave = Re; iSave <= ( Re + diffSave ); iSave++ ) {
           var regNoSave = iSave % 16;
           var validMemorySave = guarantee16Bits( effectiveADRsave + ( iSave - Re ) );
-          memory[validMemorySave] = registers[regNoSave];
+          memory.set( validMemorySave, registers[regNoSave] );
         }
 
         break;
@@ -2109,8 +2106,8 @@
 
           var validMemoryRestore = guarantee16Bits( effectiveADRrestore + ( iRestore - Re ) );
 
-          if ( memory[validMemoryRestore] ) {
-            registers[regNoRestore] = memory[validMemoryRestore];
+          if ( memory.get( validMemoryRestore ) ) {
+            registers[regNoRestore] = memory.get( validMemoryRestore );
           } else {
             registers[regNoRestore] = 0;
           }
@@ -2123,15 +2120,15 @@
         instructionWords = 2;
         switch ( g ) {
           case 1 :
-            registers[Rd] = control['pc'];
+            registers[Rd] = control.get( 'pc' );
             break;
 
           case 2 :
-            registers[Rd] = control['ir'];
+            registers[Rd] = control.get( 'ir' );
             break;
 
           case 3 :
-            registers[Rd] = control['adr'];
+            registers[Rd] = control.get( 'adr' );
             break;
 
           default :
@@ -2144,16 +2141,16 @@
         instructionWords = 2;
         switch ( g ) {
           case 1 :
-            control['pc'] = registers[Rd];
+            control.set( 'pc', registers[Rd] );
             jumped = true;
             break;
 
           case 2 :
-            control['ir'] = registers[Rd];
+            control.set( 'ir', registers[Rd] );
             break;
 
           case 3 :
-            control['adr'] = registers[Rd];
+            control.set( 'adr', registers[Rd] );
             break;
 
           default :
@@ -2181,8 +2178,8 @@
           // control['ir'] = registers[Re];
           // control['adr'] = registers[Rf];
 
-          control['ir'] = 0xe00c;
-          control['adr'] = adr;
+          control.set( 'ir', 0xe00c );
+          control.set( 'adr', adr );
 
           setR15 = true;
         } else {
@@ -2197,10 +2194,10 @@
         if ( registers[Re] < registers[Rf] ) {
           registers[Re] += 1;
 
-          memory[registers[Re]] = registers[Rd];
+          memory.set( registers[Re], registers[Rd] );
         } else {
           // stack overflow flag set and nop
-          flagDict['S'] = 1;
+          flagDict.set( 'S', 1 );
           setR15 = true;
         }
         break;
@@ -2209,7 +2206,7 @@
         // pop
         instructionWords = 2;
         if ( registers[Re] <= registers[Rf] ) {
-          registers[Rd] = memory[registers[Re]];
+          registers[Rd] = memory.get( registers[Re] );
 
           registers[Re] -= 1;
         }
@@ -2218,7 +2215,7 @@
       case 0xf :
         // top
         instructionWords = 2;
-        registers[Rd] = memory[registers[Re]];
+        registers[Rd] = memory.get( registers[Re] );
         break;
 
       case 0x10 :
@@ -2227,7 +2224,7 @@
         registers[Rd] = registers[Re] << g;
 
         if ( registers[Rd] >= 0x10000 && Rd !== 15 ) {
-          flagDict['V'] = 1;
+          flagDict.set( 'V', 1 );
 
           registers[Rd] = guarantee16Bits( registers[Rd] );
         }
@@ -2400,8 +2397,8 @@
 
         if ( registers[Rd] >= 0x10000 ) {
           registers[Rd] = guarantee16Bits( registers[Rd] );
-          flagDict['V'] = 1;
-          flagDict['C'] = 1;
+          flagDict.set( 'V', 1 );
+          flagDict.set( 'C', 1 );
         }
         
         flagDict = compareRegisters( registers[Rd], registers[0], flagDict );
@@ -2447,8 +2444,8 @@
     var flagDict = getR15Dict();
     var setR15 = false;
 
-    control['ir'] = instructionIr;
-    control['adr'] = instructionADR;
+    control.set( 'ir', instructionIr );
+    control.set( 'adr', instructionADR );
 
     switch ( Op ) {
       case 0x0 :
@@ -2458,8 +2455,8 @@
 
         if ( registers[Rd] >= 0x10000 ) {
           registers[Rd] = guarantee16Bits( registers[Rd] );
-          flagDict['V'] = 1;
-          flagDict['C'] = 1;
+          flagDict.set( 'V', 1 );
+          flagDict.set( 'C', 1 );
         }
         
         flagDict = compareRegisters( registers[Rd], registers[0], flagDict );
@@ -2474,7 +2471,7 @@
         registers[Rd] = RaValue;
 
         if ( RaValue < RbValue ) {
-          flagDict['v'] = 1;
+          flagDict.set( 'v', 1 );
           registers[Rd] += 0x10000;
         }
 
@@ -2491,7 +2488,7 @@
         registers[Rd] = RaValue * RbValue;
 
         if ( registers[Rd] >= 0x10000 ) {
-          flagDict['V'] = 1;
+          flagDict.set( 'V', 1 );
           registers[Rd] = guarantee16Bits( registers[Rd] );
         }
         
@@ -2652,12 +2649,12 @@
 
   export function runMemory( control, registers, memory, input, output, testMode=false ) {
     // memory for execution is valid
-    const instructionIr = memory[control['pc']];
-    if ( !( memory[control['pc'] + 1] ) && instructionIr >= 0xe008 ) memory[control['pc'] + 1] = 0;
+    const instructionIr = memory.get( control.get( 'pc' ) );
+    if ( !( memory.has( control.get( 'pc' ) + 1) ) && instructionIr >= 0xe008 ) memory.set( control.get( 'pc' ) + 1, 0);
 
     // update adr with memory values
     var instructionADR = 0;
-    if ( instructionIr >= 0xe008 ) instructionADR = memory[control['pc'] + 1]; // 0xe008 as this is the start of the EXP4, EXP8, and, RX commands which are all two words
+    if ( instructionIr >= 0xe008 ) instructionADR = memory.get( control.get( 'pc' ) + 1 ); // 0xe008 as this is the start of the EXP4, EXP8, and, RX commands which are all two words
 
     // run the ir with adr
     const ran = runFromInstruction( control, registers, memory, input, output, instructionIr, instructionADR );
@@ -2672,15 +2669,15 @@
     const jumped = ran['jumped'];
 
     if ( !jumped ) {
-      control['pc'] += instructionWords;
+      control.set( 'pc', control.get( 'pc' ) + instructionWords );
 
-      if ( !( control['pc'] < 0x10000 ) ) {
+      if ( !( control.get( 'pc' ) < 0x10000 ) ) {
         halted = true; 
-        control['pc'] = 0;
+        control.set( 'pc', 0 );
       }
     }
 
-    if ( !halted && !testMode && !( memory[control['pc']] ) ) memory[control['pc']] = 0;
+    if ( !halted && !testMode && !( memory.get( control.get( 'pc' ) ) ) ) memory.set( control.get( 'pc' ), 0);
 
     // checking that happens outwith running that would break the emulator during next execution
     // commented out as may be useful as developer to use if such an error does occur, howver assumed that it wont so check in regualr use will slow down program
@@ -2698,7 +2695,7 @@
       'control' : control, 
       'registers' : registers, 
       'memory' : memory, 
-      'input': input, 
+      'input' : input, 
       'output' : output, 
       'halted' : halted 
     };

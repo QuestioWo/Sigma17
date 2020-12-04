@@ -15,6 +15,7 @@
 
 # binaries
 /public/wasm
+**/*.wat
 
 # misc
 .DS_Store

@@ -45,36 +45,19 @@ export default class ProgramEditorView extends React.PureComponent {
       lineCompWarn : {},
       lineCompError : {},
 
-      registers : {
-        0 : 0,
-        1 : 0,
-        2 : 0,
-        3 : 0,
-        4 : 0,
-        5 : 0,
-        6 : 0,
-        7 : 0,
-        8 : 0,
-        9 : 0,
-        10 : 0,
-        11 : 0,
-        12 : 0,
-        13 : 0,
-        14 : 0,
-        15 : 0
-      },
-      cpuControl : {
-        'pc' : 0,
-        'ir' : 0,
-        'adr' : 0
-      },
+      registers : new Array( 16 ).fill( 0 ),
+      cpuControl : new Map(),
 
-      memory : {},
+      memory : new Map(),
 
       output : '',
 
       input : ''
     };
+
+    this.state.cpuControl.set( 'pc', 0 );
+    this.state.cpuControl.set( 'ir', 0 );
+    this.state.cpuControl.set( 'adr', 0 );
 
     // this.codeChunkMounted = this.codeChunkMounted.bind( this );
 
@@ -112,20 +95,20 @@ export default class ProgramEditorView extends React.PureComponent {
 // REGISTER/MEMORY METHODS
   controlColumn() {
     var controls = [];
-    var controlKeys = Object.keys( this.state.cpuControl );
+    var controlKeys = this.state.cpuControl.keys();
 
-    for ( var i = 0; i < controlKeys.length; i++ ) {
+    for ( const key of controlKeys ) {
       controls.push( 
         <div 
-          key={'control ' + controlKeys[i]}
-          id={'control ' + controlKeys[i]}
+          key={'control ' + key}
+          id={'control ' + key}
           className={'systeminfo-column-elem'}>
           <Row>
             <Col>
-              <strong>{controlKeys[i]}</strong>
+              <strong>{key}</strong>
             </Col>
             <Col style={{textAlign:'right'}}>
-                ${Emulator.writeHex( this.state.cpuControl[controlKeys[i]] )}
+                ${Emulator.writeHex( this.state.cpuControl.get( key ) )}
             </Col>
           </Row>
         </div> 
@@ -181,7 +164,7 @@ export default class ProgramEditorView extends React.PureComponent {
   }
   //
   memoryOptions( memory ) {
-    const memoryKeys = Object.keys( memory ).map( key => Number( key ) );
+    const memoryKeys = Array.from( memory.keys() );
 
     const interval = 0x500;
 
@@ -223,7 +206,7 @@ export default class ProgramEditorView extends React.PureComponent {
 
   memoryColumn() {
     var memoryValues = [];
-    var memoryKeys = Object.keys( this.state.memory ).map( key => Number( key ) );
+    var memoryKeys = Array.from( this.state.memory.keys() );
 
     for ( var i = memoryKeys.indexOf( this.state.memoryViewOptions[this.state.memoryViewStart] ); i < memoryKeys.length && memoryKeys[i] < this.state.memoryViewOptions[this.state.memoryViewStart + 1]; i++ ) {
       memoryValues.push( 
@@ -241,11 +224,11 @@ export default class ProgramEditorView extends React.PureComponent {
                 placement={'left'}
                 overlay={
                   <Tooltip>
-                    { Emulator.readUnsignedHex( this.state.memory[memoryKeys[i]] ) }/{ Emulator.readSignedHex( this.state.memory[memoryKeys[i]] ) }
+                    { Emulator.readUnsignedHex( this.state.memory.get(memoryKeys[i]) ) }/{ Emulator.readSignedHex( this.state.memory.get(memoryKeys[i]) ) }
                   </Tooltip>
                 }>
                 <span>
-                  ${Emulator.writeHex( this.state.memory[memoryKeys[i]] )}
+                  ${Emulator.writeHex( this.state.memory.get(memoryKeys[i]) )}
                 </span>
               </OverlayTrigger>
             </Col>
@@ -464,30 +447,13 @@ export default class ProgramEditorView extends React.PureComponent {
 
 // RUNNING METHODS
   resetCPUandMemory() {
-    var registersNew = {
-      0 : 0,
-      1 : 0,
-      2 : 0,
-      3 : 0,
-      4 : 0,
-      5 : 0,
-      6 : 0,
-      7 : 0,
-      8 : 0,
-      9 : 0,
-      10 : 0,
-      11 : 0,
-      12 : 0,
-      13 : 0,
-      14 : 0,
-      15 : 0
-    };
+    var registersNew = new Array( 16 ).fill( 0 );
 
-    var cpuControlNew = {
-      'pc' : 0,
-      'ir' : 0,
-      'adr' : 0
-    };
+    var cpuControlNew = new Map();
+
+    cpuControlNew.set( 'pc', 0 );
+    cpuControlNew.set( 'ir', 0 );
+    cpuControlNew.set( 'adr', 0 );
 
     var outputNew = '';
 

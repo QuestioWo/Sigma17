@@ -2150,67 +2150,41 @@ import * as Emulator from './Emulator';
   // setMemory
     test( 'RUN setMemory', () => {
       const machineCode = [ 0xf101, 0x0008, 0xf201, 0x0009, 0x0312, 0xf302, 0x000a, 0xd000, 0x0001, 0x0002, 0x0000 ];
-      const memory = {
-        0 : 0xf101,
-        1 : 0x0008,
-        2 : 0xf201,
-        3 : 0x0009,
-        4 : 0x0312,
-        5 : 0xf302,
-        6 : 0x000a,
-        7 : 0xd000,
-        8 : 0x0001,
-        9 : 0x0002,
-        10 : 0x0000
-      };
+      var memory = new Map();
+      for ( var i = 0; i < machineCode.length; i++ ) memory.set(i, machineCode[i]);
+
       expect( Emulator.setMemory( machineCode ) ).toStrictEqual( memory );
     } );
 
   // runMemory is ran with the assumption that lines have been checked, then parsed, and set into memory with previously tested functions
     // SETUP
       function fresh() {
+        var control = new Map();
+        control.set( 'pc', 0 );
+        control.set( 'ir', 0 );
+        control.set( 'adr', 0 );
+
         return {
-          'registers' : {
-            0 : 0,
-            1 : 0,
-            2 : 0,
-            3 : 0,
-            4 : 0,
-            5 : 0,
-            6 : 0,
-            7 : 0,
-            8 : 0,
-            9 : 0,
-            10 : 0,
-            11 : 0,
-            12 : 0,
-            13 : 0,
-            14 : 0,
-            15 : 0
-          },
-          'memory' : {},
-          'control' : {
-            'pc' : 0,
-            'ir' : 0,
-            'adr' : 0
-          }
+          'registers' : new Array( 16 ).fill( 0 ),
+          'memory' : new Map(),
+          'control' : control
         };
       }
 
       function updateControl( inputMemory, inputControl ) {
-        var outputControl = {};
-        outputControl['pc'] = inputControl['pc'] + 1;
-        outputControl['ir'] = ( Object.keys( inputMemory ).includes( '' + inputControl['pc'] ) ) ? inputMemory[inputControl['pc']] : 0x0000;
-        outputControl['adr'] = 0x0000;
+        var outputControl = new Map();
+        outputControl.set( 'pc', inputControl.get( 'pc' ) + 1 );
+        outputControl.set( 'ir', ( inputMemory.has( inputControl.get( 'pc' ) ) ) ? inputMemory.get( inputControl.get( 'pc' ) ) : 0x0000 );
+        outputControl.set( 'adr', 0x0000 );
 
         return outputControl;
       }
 
       function updateControlDouble( inputMemory, inputControl ) {
-        var outputControl = {};
-        outputControl['pc'] = inputControl['pc'] + 2;
-        outputControl['ir'] = ( Object.keys( inputMemory ).includes( '' + inputControl['pc'] ) ) ? inputMemory[inputControl['pc']] : 0x0000;
-        outputControl['adr'] = ( Object.keys( inputMemory ).includes( '' + ( inputControl['pc'] + 1 ) ) ) ? inputMemory[inputControl['pc'] + 1] : 0x0000;
+        var outputControl = new Map();
+        outputControl.set( 'pc', inputControl.get( 'pc' ) + 2 );
+        outputControl.set( 'ir', ( inputMemory.has( inputControl.get( 'pc' ) + 1 ) ) ? inputMemory.get( inputControl.get( 'pc' ) ) : 0x0000 );
+        outputControl.set( 'adr', ( inputMemory.has( inputControl.get( 'pc' ) + 1 ) ) ? inputMemory.get( inputControl.get( 'pc' ) + 1 ) : 0x0000 );
 
         return outputControl;
       }
@@ -2226,8 +2200,8 @@ import * as Emulator from './Emulator';
           var i;
 
           if ( inputs['control'] !== undefined ) {
-            for ( i = 0; i < Object.keys( inputs['control'] ).length; i++ ) {
-              testControl[ Object.keys( inputs['control'] )[i] ] = inputs['control'][ Object.keys( inputs['control'] )[i] ];
+            for ( const key of inputs['control'].keys() ) {
+              testControl.set( key, inputs['control'].get( key ) );
             }
           }
 
@@ -2238,8 +2212,8 @@ import * as Emulator from './Emulator';
           }
 
           if ( inputs['memory'] !== undefined ) {
-            for ( i = 0; i < Object.keys( inputs['memory'] ).length; i++ ) {
-              testMemory[ Object.keys( inputs['memory'] )[i] ] = inputs['memory'][ Object.keys( inputs['memory'] )[i] ];
+            for ( const key of inputs['memory'].keys() ) {
+              testMemory.set( key, inputs['memory'].get( key ) );
             }
           }
 
@@ -2252,9 +2226,9 @@ import * as Emulator from './Emulator';
           }
 
         // OUTPUTS
-          var resultControl = Object.assign( {}, testControl );
-          var resultRegisters = Object.assign( {}, testRegisters );
-          var resultMemory = Object.assign( {}, testMemory );
+          var resultControl = new Map( testControl );
+          var resultRegisters = [...testRegisters];
+          var resultMemory = new Map( testMemory );
           var resultInput = testInput;
           var resultOutput = testOutput;
           var resultHalted = false;
@@ -2266,14 +2240,14 @@ import * as Emulator from './Emulator';
           }
 
           if ( outputs['memory'] !== undefined ) {
-            for ( i = 0; i < Object.keys( outputs['memory'] ).length; i ++ ) {
-              resultMemory[ Object.keys( outputs['memory'] )[i] ] = outputs['memory'][ Object.keys( outputs['memory'] )[i] ];
+            for ( const key of outputs['memory'].keys() ) {
+              resultMemory.set( key, outputs['memory'].get( key ) );
             }
           }
 
           if ( outputs['control'] !== undefined ) {
-            for ( i = 0; i < Object.keys( outputs['control'] ).length; i ++ ) {
-              resultControl[ Object.keys( outputs['control'] )[i] ] = outputs['control'][ Object.keys( outputs['control'] )[i] ];
+            for ( const key of outputs['control'].keys() ) {
+              resultControl.set( key, outputs['control'].get( key ) );
             }
           }
 
@@ -2306,15 +2280,15 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0x0511; // add r5,r1,r1 <- add 5,1,1 <- r5 := 2, r15 := 0xc000
-        inputMemory[1] = 0x0500; // add r5,r0,r0 <- add 5,0,0 <- r5 := 0, r15 := 0x2000
-        inputMemory[2] = 0x0503; // add r5,r0,r3 <- add 5,0,0xffff <- r5 := 0xffff, r15 := 0x9000
+        inputMemory.set( 0, 0x0511 ); // add r5,r1,r1 <- add 5,1,1 <- r5 := 2, r15 := 0xc000
+        inputMemory.set( 1, 0x0500 ); // add r5,r0,r0 <- add 5,0,0 <- r5 := 0, r15 := 0x2000
+        inputMemory.set( 2, 0x0503 ); // add r5,r0,r3 <- add 5,0,0xffff <- r5 := 0xffff, r15 := 0x9000
 
-        inputMemory[3] = 0x0531; // add r5,r3,r1 <- add 5,0xffff,1 <- r5 := 0, r15 := 0x2500 <- ccC, ccV, ccE
+        inputMemory.set( 3, 0x0531 ); // add r5,r3,r1 <- add 5,0xffff,1 <- r5 := 0, r15 := 0x2500 <- ccC, ccV, ccE
 
-        inputMemory[4] = 0x0532; // add r5,r3,r2 <- add 5,0xffff,2 <- r5 := 1, r15 := 0xc500 <- ccC, ccV, ccG, ccg
+        inputMemory.set( 4, 0x0532 ); // add r5,r3,r2 <- add 5,0xffff,2 <- r5 := 1, r15 := 0xc500 <- ccC, ccV, ccG, ccg
 
-        inputMemory[5] = 0x0534; // add r5,r3,r4 <- add 5,0xffff,0xfffe <- r5 := 0xfffd, r15 := 0x9500 <- ccC, ccV, ccG, ccl
+        inputMemory.set( 5, 0x0534 ); // add r5,r3,r4 <- add 5,0xffff,0xfffe <- r5 := 0xfffd, r15 := 0x9500 <- ccC, ccV, ccG, ccl
 
         inputRegisters[1] = 0x0001;
         inputRegisters[2] = 0x0002;
@@ -2356,15 +2330,15 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0x1411; // sub r4,r1,r1 <- sub 4,1,1 <- r4 := 0, r15 := 0x2000
-        inputMemory[1] = 0x1400; // sub r4,r0,r0 <- sub 4,0,0 <- r4 := 0, r15 := 0x2000
-        inputMemory[2] = 0x1402; // sub r4,r0,r2 <- sub 4,0,0xffff <- r4 := 1, r15 := 0xc200 <- ccv, ccE
+        inputMemory.set( 0, 0x1411 ); // sub r4,r1,r1 <- sub 4,1,1 <- r4 := 0, r15 := 0x2000
+        inputMemory.set( 1, 0x1400 ); // sub r4,r0,r0 <- sub 4,0,0 <- r4 := 0, r15 := 0x2000
+        inputMemory.set( 2, 0x1402 ); // sub r4,r0,r2 <- sub 4,0,0xffff <- r4 := 1, r15 := 0xc200 <- ccv, ccE
 
-        inputMemory[3] = 0x1422; // sub r4,r2,r2 <- sub 4,0xffff,0xffff <- r4 := 0, r15 := 0x2000
-        inputMemory[4] = 0x1423; // sub r4,r2,r3 <- sub 4,0xffff,0xfffe <- r4 := 1, r15 := 0xc000
+        inputMemory.set( 3, 0x1422 ); // sub r4,r2,r2 <- sub 4,0xffff,0xffff <- r4 := 0, r15 := 0x2000
+        inputMemory.set( 4, 0x1423 ); // sub r4,r2,r3 <- sub 4,0xffff,0xfffe <- r4 := 1, r15 := 0xc000
 
-        inputMemory[5] = 0x1421; // sub r4,r2,r1 <- sub 4,0xffff,1 <- r4 := fffe, r15 := 0x9000 <- ccG, ccl
-        inputMemory[6] = 0x1432; // sub r4,r3,r2 <- sub 4,0xfffe,0xffff <- r4 := ffff, r15 := 0x9200 <- ccv, ccG, ccl
+        inputMemory.set( 5, 0x1421 ); // sub r4,r2,r1 <- sub 4,0xffff,1 <- r4 := fffe, r15 := 0x9000 <- ccG, ccl
+        inputMemory.set( 6, 0x1432 ); // sub r4,r3,r2 <- sub 4,0xfffe,0xffff <- r4 := ffff, r15 := 0x9200 <- ccv, ccG, ccl
 
         inputRegisters[1] = 0x0001;
         inputRegisters[2] = 0xffff;
@@ -2406,15 +2380,15 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0x2511; // mul r5,r1,r1 <- mul 5,1,1 <- r5 := 1, r15 := 0xc000
-        inputMemory[1] = 0x2500; // mul r5,r0,r0 <- mul 5,0,0 <- r5 := 0, r15 := 0x2000
-        inputMemory[2] = 0x2501; // mul r5,r0,r1 <- mul 5,0,1 <- r5 := 0, r15 := 0x2000
-        inputMemory[3] = 0x2512; // mul r5,r1,r2 <- mul 5,1,2 <- r5 := 2, r15 := 0xc000
-        inputMemory[4] = 0x2513; // mul r5,r1,r3 <- mul 5,1,3 <- r5 := 0xffff, r15 := 0x9000
-        inputMemory[5] = 0x2523; // mul r5,r2,r3 <- mul 5,2,3 <- r5 := 0xfffe, r15 := 0x9400
+        inputMemory.set( 0, 0x2511 ); // mul r5,r1,r1 <- mul 5,1,1 <- r5 := 1, r15 := 0xc000
+        inputMemory.set( 1, 0x2500 ); // mul r5,r0,r0 <- mul 5,0,0 <- r5 := 0, r15 := 0x2000
+        inputMemory.set( 2, 0x2501 ); // mul r5,r0,r1 <- mul 5,0,1 <- r5 := 0, r15 := 0x2000
+        inputMemory.set( 3, 0x2512 ); // mul r5,r1,r2 <- mul 5,1,2 <- r5 := 2, r15 := 0xc000
+        inputMemory.set( 4, 0x2513 ); // mul r5,r1,r3 <- mul 5,1,3 <- r5 := 0xffff, r15 := 0x9000
+        inputMemory.set( 5, 0x2523 ); // mul r5,r2,r3 <- mul 5,2,3 <- r5 := 0xfffe, r15 := 0x9400
 
-        inputMemory[6] = 0x2533; // mul r5,r3,r3 <- mul 5,3,3 <- r5 := 1, r15 := 0xc400 <- ccG, ccg, ccV
-        inputMemory[7] = 0x2543; // mul r5,r4,r3 <- mul 5,4,3 <- r5 := 0x0012, r15 := 0xc400 <- ccG, ccg, ccV
+        inputMemory.set( 6, 0x2533 ); // mul r5,r3,r3 <- mul 5,3,3 <- r5 := 1, r15 := 0xc400 <- ccG, ccg, ccV
+        inputMemory.set( 7, 0x2543 ); // mul r5,r4,r3 <- mul 5,4,3 <- r5 := 0x0012, r15 := 0xc400 <- ccG, ccg, ccV
 
         inputRegisters[1] = 0x0001;
         inputRegisters[2] = 0x0002;
@@ -2458,16 +2432,16 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0x3611; // div r6,r1,r1 <- div 6,1,1 <- r6 := 1, r15 := 0x0
-        inputMemory[1] = 0x3600; // div r6,r0,r0 <- div 6,0,0 <- r6 := 0, r15 := 0x0
-        inputMemory[2] = 0x3610; // div r6,r1,r0 <- div 6,1,0 <- r6 := 1, r15 := 0x0
+        inputMemory.set( 0, 0x3611 ); // div r6,r1,r1 <- div 6,1,1 <- r6 := 1, r15 := 0x0
+        inputMemory.set( 1, 0x3600 ); // div r6,r0,r0 <- div 6,0,0 <- r6 := 0, r15 := 0x0
+        inputMemory.set( 2, 0x3610 ); // div r6,r1,r0 <- div 6,1,0 <- r6 := 1, r15 := 0x0
 
-        inputMemory[3] = 0x3623; // div r6,r2,r3 <- div 6,0x0011,3 <- r6 := 5, r15 := 2
-        inputMemory[4] = 0x3f23; // div r15,r2,r3 <- div 15,0x0011,2 <- r6 := 5, r15 := 5
+        inputMemory.set( 3, 0x3623 ); // div r6,r2,r3 <- div 6,0x0011,3 <- r6 := 5, r15 := 2
+        inputMemory.set( 4, 0x3f23 ); // div r15,r2,r3 <- div 15,0x0011,2 <- r6 := 5, r15 := 5
 
-        inputMemory[5] = 0x3643; // div r6,r4,r3 <- div 6,0xffef,3 <- r6 := 0xfffa, r15 := 0xfffe
+        inputMemory.set( 5, 0x3643 ); // div r6,r4,r3 <- div 6,0xffef,3 <- r6 := 0xfffa, r15 := 0xfffe
 
-        inputMemory[6] = 0x3645; // div r6,r4,r5 <- div 6,0xffef,0xfffd <- r6 := 5, r15 := 0xfffe
+        inputMemory.set( 6, 0x3645 ); // div r6,r4,r5 <- div 6,0xffef,0xfffd <- r6 := 5, r15 := 0xfffe
 
         inputRegisters[1] = 1;
         inputRegisters[2] = 17;
@@ -2511,19 +2485,19 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0x4112; // cmp r1,r2 <- cmp 1,2 <- r15 := 0x1800
-        inputMemory[1] = 0x4111; // cmp r1,r1 <- cmp 1,1 <- r15 := 0x2000
-        inputMemory[2] = 0x4110; // cmp r1,r0 <- cmp 1,0 <- r15 := 0xc000
+        inputMemory.set( 0, 0x4112 ); // cmp r1,r2 <- cmp 1,2 <- r15 := 0x1800
+        inputMemory.set( 1, 0x4111 ); // cmp r1,r1 <- cmp 1,1 <- r15 := 0x2000
+        inputMemory.set( 2, 0x4110 ); // cmp r1,r0 <- cmp 1,0 <- r15 := 0xc000
 
-        inputMemory[3] = 0x4330; // cmp r3,r0 <- cmp 0xffff,0 <- r15 := 0x9000
-        inputMemory[4] = 0x4333; // cmp r3,r3 <- cmp 0xffff,0xffff <- r15 := 0x2000
-        inputMemory[5] = 0x4334; // cmp r3,r4 <- cmp 0xffff,0xfffe <- r15 := 0xc000
+        inputMemory.set( 3, 0x4330 ); // cmp r3,r0 <- cmp 0xffff,0 <- r15 := 0x9000
+        inputMemory.set( 4, 0x4333 ); // cmp r3,r3 <- cmp 0xffff,0xffff <- r15 := 0x2000
+        inputMemory.set( 5, 0x4334 ); // cmp r3,r4 <- cmp 0xffff,0xfffe <- r15 := 0xc000
 
-        inputMemory[6] = 0x4332; // cmp r3,r2 <- cmp 0xffff,2 <- r15 := 0x9000
-        inputMemory[7] = 0x4000; // cmp r0,r0 <- cmp 0,0 <- r15 := 0x2000
-        inputMemory[8] = 0x4223; // cmp r2,r3 <- cmp 0xffff,2 <- r15 := 0x4800
+        inputMemory.set( 6, 0x4332 ); // cmp r3,r2 <- cmp 0xffff,2 <- r15 := 0x9000
+        inputMemory.set( 7, 0x4000 ); // cmp r0,r0 <- cmp 0,0 <- r15 := 0x2000
+        inputMemory.set( 8, 0x4223 ); // cmp r2,r3 <- cmp 0xffff,2 <- r15 := 0x4800
 
-        inputMemory[9] = 0x4003; // cmp r0,r3 <- cmp 0,0xffff <- r15 := 0x4800
+        inputMemory.set( 9, 0x4003 ); // cmp r0,r3 <- cmp 0,0xffff <- r15 := 0x4800
 
         inputRegisters[1] = 0x0001;
         inputRegisters[2] = 0x0002;
@@ -2568,14 +2542,14 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0x5512; // cmplt r5,r1,r2 <- cmplt 5,1,2 <- r5 := 1
-        inputMemory[1] = 0x5511; // cmplt r5,r1,r1 <- cmplt 5,1,1 <- r5 := 0
-        inputMemory[2] = 0x5521; // cmplt r5,r2,r1 <- cmplt 5,2,1 <- r5 := 0
+        inputMemory.set( 0, 0x5512 ); // cmplt r5,r1,r2 <- cmplt 5,1,2 <- r5 := 1
+        inputMemory.set( 1, 0x5511 ); // cmplt r5,r1,r1 <- cmplt 5,1,1 <- r5 := 0
+        inputMemory.set( 2, 0x5521 ); // cmplt r5,r2,r1 <- cmplt 5,2,1 <- r5 := 0
 
-        inputMemory[3] = 0x5534; // cmplt r5,r3,r4 <- cmplt 5,0xffff,0xfffe <- r5 := 0
-        inputMemory[4] = 0x5533; // cmplt r5,r3,r3 <- cmplt 5,0xffff,0xffff <- r5 := 0
-        inputMemory[5] = 0x5543; // cmplt r5,r4,r3 <- cmplt 5,0xfffe,0xffff <- r5 := 1
-        inputMemory[6] = 0x5530; // cmplt r5,r3,r0 <- cmplt 5,0xffff,0 <- r5 := 1
+        inputMemory.set( 3, 0x5534 ); // cmplt r5,r3,r4 <- cmplt 5,0xffff,0xfffe <- r5 := 0
+        inputMemory.set( 4, 0x5533 ); // cmplt r5,r3,r3 <- cmplt 5,0xffff,0xffff <- r5 := 0
+        inputMemory.set( 5, 0x5543 ); // cmplt r5,r4,r3 <- cmplt 5,0xfffe,0xffff <- r5 := 1
+        inputMemory.set( 6, 0x5530 ); // cmplt r5,r3,r0 <- cmplt 5,0xffff,0 <- r5 := 1
 
         inputRegisters[1] = 1;
         inputRegisters[2] = 2;
@@ -2617,14 +2591,14 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0x6512; // cmpeq r5,r1,r2 <- cmpeq 5,1,2 <- r5 := 0
-        inputMemory[1] = 0x6511; // cmpeq r5,r1,r1 <- cmpeq 5,1,1 <- r5 := 1
-        inputMemory[2] = 0x6521; // cmpeq r5,r2,r1 <- cmpeq 5,2,1 <- r5 := 0
+        inputMemory.set( 0, 0x6512 ); // cmpeq r5,r1,r2 <- cmpeq 5,1,2 <- r5 := 0
+        inputMemory.set( 1, 0x6511 ); // cmpeq r5,r1,r1 <- cmpeq 5,1,1 <- r5 := 1
+        inputMemory.set( 2, 0x6521 ); // cmpeq r5,r2,r1 <- cmpeq 5,2,1 <- r5 := 0
 
-        inputMemory[3] = 0x6534; // cmpeq r5,r3,r4 <- cmpeq 5,0xffff,0xfffe <- r5 := 0
-        inputMemory[4] = 0x6533; // cmpeq r5,r3,r3 <- cmpeq 5,0xffff,0xffff <- r5 := 1
-        inputMemory[5] = 0x6543; // cmpeq r5,r4,r3 <- cmpeq 5,0xfffe,0xffff <- r5 := 0
-        inputMemory[6] = 0x6530; // cmpeq r5,r3,r0 <- cmpeq 5,0xffff,0 <- r5 := 0
+        inputMemory.set( 3, 0x6534 ); // cmpeq r5,r3,r4 <- cmpeq 5,0xffff,0xfffe <- r5 := 0
+        inputMemory.set( 4, 0x6533 ); // cmpeq r5,r3,r3 <- cmpeq 5,0xffff,0xffff <- r5 := 1
+        inputMemory.set( 5, 0x6543 ); // cmpeq r5,r4,r3 <- cmpeq 5,0xfffe,0xffff <- r5 := 0
+        inputMemory.set( 6, 0x6530 ); // cmpeq r5,r3,r0 <- cmpeq 5,0xffff,0 <- r5 := 0
 
         inputRegisters[1] = 1;
         inputRegisters[2] = 2;
@@ -2666,14 +2640,14 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0x7512; // cmpgt r5,r1,r2 <- cmpgt 5,1,2 <- r5 := 0
-        inputMemory[1] = 0x7511; // cmpgt r5,r1,r1 <- cmpgt 5,1,1 <- r5 := 0
-        inputMemory[2] = 0x7521; // cmpgt r5,r2,r1 <- cmpgt 5,2,1 <- r5 := 1
+        inputMemory.set( 0, 0x7512 ); // cmpgt r5,r1,r2 <- cmpgt 5,1,2 <- r5 := 0
+        inputMemory.set( 1, 0x7511 ); // cmpgt r5,r1,r1 <- cmpgt 5,1,1 <- r5 := 0
+        inputMemory.set( 2, 0x7521 ); // cmpgt r5,r2,r1 <- cmpgt 5,2,1 <- r5 := 1
 
-        inputMemory[3] = 0x7534; // cmpgt r5,r3,r4 <- cmpgt 5,0xffff,0xfffe <- r5 := 1
-        inputMemory[4] = 0x7533; // cmpgt r5,r3,r3 <- cmpgt 5,0xffff,0xffff <- r5 := 0
-        inputMemory[5] = 0x7543; // cmpgt r5,r4,r3 <- cmpgt 5,0xfffe,0xffff <- r5 := 0
-        inputMemory[6] = 0x7530; // cmpgt r5,r3,r0 <- cmpgt 5,0xffff,0 <- r5 := 0
+        inputMemory.set( 3, 0x7534 ); // cmpgt r5,r3,r4 <- cmpgt 5,0xffff,0xfffe <- r5 := 1
+        inputMemory.set( 4, 0x7533 ); // cmpgt r5,r3,r3 <- cmpgt 5,0xffff,0xffff <- r5 := 0
+        inputMemory.set( 5, 0x7543 ); // cmpgt r5,r4,r3 <- cmpgt 5,0xfffe,0xffff <- r5 := 0
+        inputMemory.set( 6, 0x7530 ); // cmpgt r5,r3,r0 <- cmpgt 5,0xffff,0 <- r5 := 0
 
         inputRegisters[1] = 1;
         inputRegisters[2] = 2;
@@ -2715,9 +2689,9 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0x8441; // inv r4,r1 <- inv 4,0x0f0f <- r4 := 0xf0f0
-        inputMemory[1] = 0x8442; // inv r4,r2 <- inv 4,0x00ff <- r4 := 0xff00
-        inputMemory[2] = 0x8443; // inv r4,r2 <- inv 4,0xffff <- r4 := 0x0000
+        inputMemory.set( 0, 0x8441 ); // inv r4,r1 <- inv 4,0x0f0f <- r4 := 0xf0f0
+        inputMemory.set( 1, 0x8442 ); // inv r4,r2 <- inv 4,0x00ff <- r4 := 0xff00
+        inputMemory.set( 2, 0x8443 ); // inv r4,r2 <- inv 4,0xffff <- r4 := 0x0000
 
         inputRegisters[1] = 0x0f0f;
         inputRegisters[2] = 0x00ff;
@@ -2754,10 +2728,10 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0x9412; // and r4,r1,r2 <- and 4,0x00ff,0x0f0f <- r4 := 0x000f
-        inputMemory[1] = 0x9413; // and r4,r1,r3 <- and 4,0x00ff,0xffff <- r4 := 0x00ff
-        inputMemory[2] = 0x9410; // and r4,r1,r0 <- and 4,0x00ff,0 <- r4 := 0x0000
-        inputMemory[3] = 0x9433; // and r4,r3,r3 <- and 4,0xffff,0xffff <- r4 := 0xffff
+        inputMemory.set( 0, 0x9412 ); // and r4,r1,r2 <- and 4,0x00ff,0x0f0f <- r4 := 0x000f
+        inputMemory.set( 1, 0x9413 ); // and r4,r1,r3 <- and 4,0x00ff,0xffff <- r4 := 0x00ff
+        inputMemory.set( 2, 0x9410 ); // and r4,r1,r0 <- and 4,0x00ff,0 <- r4 := 0x0000
+        inputMemory.set( 3, 0x9433 ); // and r4,r3,r3 <- and 4,0xffff,0xffff <- r4 := 0xffff
 
         inputRegisters[1] = 0x00ff;
         inputRegisters[2] = 0x0f0f;
@@ -2795,10 +2769,10 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xa412; // or r4,r1,r2 <- or 4,0x00ff,0x0f0f <- r4 := 0x0fff
-        inputMemory[1] = 0xa413; // or r4,r1,r3 <- or 4,0x00ff,0xffff <- r4 := 0xffff
-        inputMemory[2] = 0xa410; // or r4,r1,r0 <- or 4,0x00ff,0 <- r4 := 0x00ff
-        inputMemory[3] = 0xa433; // or r4,r3,r3 <- or 4,0xffff,0xffff <- r4 := 0xffff
+        inputMemory.set( 0, 0xa412 ); // or r4,r1,r2 <- or 4,0x00ff,0x0f0f <- r4 := 0x0fff
+        inputMemory.set( 1, 0xa413 ); // or r4,r1,r3 <- or 4,0x00ff,0xffff <- r4 := 0xffff
+        inputMemory.set( 2, 0xa410 ); // or r4,r1,r0 <- or 4,0x00ff,0 <- r4 := 0x00ff
+        inputMemory.set( 3, 0xa433 ); // or r4,r3,r3 <- or 4,0xffff,0xffff <- r4 := 0xffff
 
         inputRegisters[1] = 0x00ff;
         inputRegisters[2] = 0x0f0f;
@@ -2836,10 +2810,10 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xb412; // xor r4,r1,r2 <- xor 4,0x00ff,0x0f0f <- r4 := 0x0ff0
-        inputMemory[1] = 0xb413; // xor r4,r1,r3 <- xor 4,0x00ff,0xffff <- r4 := 0xff00
-        inputMemory[2] = 0xb410; // xor r4,r1,r0 <- xor 4,0x00ff,0 <- r4 := 0x00ff
-        inputMemory[3] = 0xb433; // xor r4,r3,r3 <- xor 4,0xffff,0xffff <- r4 := 0x0000
+        inputMemory.set( 0, 0xb412 ); // xor r4,r1,r2 <- xor 4,0x00ff,0x0f0f <- r4 := 0x0ff0
+        inputMemory.set( 1, 0xb413 ); // xor r4,r1,r3 <- xor 4,0x00ff,0xffff <- r4 := 0xff00
+        inputMemory.set( 2, 0xb410 ); // xor r4,r1,r0 <- xor 4,0x00ff,0 <- r4 := 0x00ff
+        inputMemory.set( 3, 0xb433 ); // xor r4,r3,r3 <- xor 4,0xffff,0xffff <- r4 := 0x0000
 
         inputRegisters[1] = 0x00ff;
         inputRegisters[2] = 0x0f0f;
@@ -2877,7 +2851,7 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xc123; // nop r1,r2,r3 <- nop 1,0x0f0f,0xffff <- NO CHANGE
+        inputMemory.set( 0, 0xc123 ); // nop r1,r2,r3 <- nop 1,0x0f0f,0xffff <- NO CHANGE
 
         inputRegisters[2] = 0x0f0f;
         inputRegisters[3] = 0xffff;
@@ -2908,26 +2882,26 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xd123; // trap r1,r2,r3 <- trap 1,23,16 <- input := '', output := '>>Hello, Computer!', mem[16 -> 31] = charcodes
-        inputMemory[1] = 0xd456; // trap r4,r5,r6 <- trap 2,10,13 <- output := '>>Hello, Computer!Hello, World!'
-        inputMemory[2] = 0xd000; // trap r0,r0,r0 <- trap 0,0,0 <- halted = true
-        inputMemory[3] = 0xd123; // trap r1,r2,r3 <- trap 1,23,16 <- mem[16 -> 31] = 0
+        inputMemory.set( 0, 0xd123 ); // trap r1,r2,r3 <- trap 1,23,16 <- input := '', output := '>>Hello, Computer!', mem[16 -> 31] = charcodes
+        inputMemory.set( 1, 0xd456 ); // trap r4,r5,r6 <- trap 2,10,13 <- output := '>>Hello, Computer!Hello, World!'
+        inputMemory.set( 2, 0xd000 ); // trap r0,r0,r0 <- trap 0,0,0 <- halted = true
+        inputMemory.set( 3, 0xd123 ); // trap r1,r2,r3 <- trap 1,23,16 <- mem[16 -> 31] = 0
 
-        inputMemory[10] = 0x0048; // outputbuffer start -> H
-        inputMemory[11] = 0x0065; // -> e
-        inputMemory[12] = 0x006c; // -> l
-        inputMemory[13] = 0x006c; // -> l
-        inputMemory[14] = 0x006f; // -> o
-        inputMemory[15] = 0x002c; // -> ,
-        inputMemory[16] = 0x0020; // ->  
-        inputMemory[17] = 0x0057; // -> W
-        inputMemory[18] = 0x006f; // -> o
-        inputMemory[19] = 0x0072; // -> r
-        inputMemory[20] = 0x006c; // -> l
-        inputMemory[21] = 0x0064; // -> d
-        inputMemory[22] = 0x0021; // -> !
+        inputMemory.set( 10, 0x0048 ); // outputbuffer start -> H
+        inputMemory.set( 11, 0x0065 ); // -> e
+        inputMemory.set( 12, 0x006c ); // -> l
+        inputMemory.set( 13, 0x006c ); // -> l
+        inputMemory.set( 14, 0x006f ); // -> o
+        inputMemory.set( 15, 0x002c ); // -> ,
+        inputMemory.set( 16, 0x0020 ); // ->  
+        inputMemory.set( 17, 0x0057 ); // -> W
+        inputMemory.set( 18, 0x006f ); // -> o
+        inputMemory.set( 19, 0x0072 ); // -> r
+        inputMemory.set( 20, 0x006c ); // -> l
+        inputMemory.set( 21, 0x0064 ); // -> d
+        inputMemory.set( 22, 0x0021 ); // -> !
 
-        inputMemory[23] = 0x0000; // inputbuffer start -> *blank*
+        inputMemory.set( 23, 0x0000 ); // inputbuffer start -> *blank*
 
         inputRegisters[1] = 1;
         inputRegisters[2] = 23;
@@ -2949,24 +2923,23 @@ import * as Emulator from './Emulator';
         // trap r1,r2,r3
           outputControl = updateControl( inputMemory, parsed['control'] );
 
-          var outputMemory = {
-            23 : 0x0048, // -> H
-            24 : 0x0065, // -> e
-            25 : 0x006c, // -> l
-            26 : 0x006c, // -> l
-            27 : 0x006f, // -> o
-            28 : 0x002c, // -> ,
-            29 : 0x0020, // ->  
-            30 : 0x0043, // -> C
-            31 : 0x006f, // -> o
-            32 : 0x006d, // -> m
-            33 : 0x0070, // -> p
-            34 : 0x0075, // -> u
-            35 : 0x0074, // -> t
-            36 : 0x0065, // -> e
-            37 : 0x0072, // -> r
-            38 : 0x0021 // -> !
-          };
+          var outputMemory = new Map();
+          outputMemory.set( 23, 0x0048 ); // -> H
+          outputMemory.set( 24, 0x0065 ); // -> e
+          outputMemory.set( 25, 0x006c ); // -> l
+          outputMemory.set( 26, 0x006c ); // -> l
+          outputMemory.set( 27, 0x006f ); // -> o
+          outputMemory.set( 28, 0x002c ); // -> ,
+          outputMemory.set( 29, 0x0020 ); // ->  
+          outputMemory.set( 30, 0x0043 ); // -> C
+          outputMemory.set( 31, 0x006f ); // -> o
+          outputMemory.set( 32, 0x006d ); // -> m
+          outputMemory.set( 33, 0x0070 ); // -> p
+          outputMemory.set( 34, 0x0075 ); // -> u
+          outputMemory.set( 35, 0x0074 ); // -> t
+          outputMemory.set( 36, 0x0065 ); // -> e
+          outputMemory.set( 37, 0x0072 ); // -> r
+          outputMemory.set( 38, 0x0021 ); // -> !
 
           parsed = testFromChanges( parsed,
           {
@@ -2997,24 +2970,23 @@ import * as Emulator from './Emulator';
         // trap r1,r2,r3
           outputControl = updateControl( inputMemory, parsed['control'] );
 
-          var outputMemory = {
-            23 : 0x0,
-            24 : 0x0,
-            25 : 0x0,
-            26 : 0x0,
-            27 : 0x0,
-            28 : 0x0,
-            29 : 0x0,
-            30 : 0x0,
-            31 : 0x0,
-            32 : 0x0,
-            33 : 0x0,
-            34 : 0x0,
-            35 : 0x0,
-            36 : 0x0,
-            37 : 0x0,
-            38 : 0x0
-          };
+          var outputMemory = new Map();
+          outputMemory.set( 23, 0x0 );
+          outputMemory.set( 24, 0x0 );
+          outputMemory.set( 25, 0x0 );
+          outputMemory.set( 26, 0x0 );
+          outputMemory.set( 27, 0x0 );
+          outputMemory.set( 28, 0x0 );
+          outputMemory.set( 29, 0x0 );
+          outputMemory.set( 30, 0x0 );
+          outputMemory.set( 31, 0x0 );
+          outputMemory.set( 32, 0x0 );
+          outputMemory.set( 33, 0x0 );
+          outputMemory.set( 34, 0x0 );
+          outputMemory.set( 35, 0x0 );
+          outputMemory.set( 36, 0x0 );
+          outputMemory.set( 37, 0x0 );
+          outputMemory.set( 38, 0x0 );
 
           console.log( parsed['input'] )
 
@@ -3031,20 +3003,20 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xf400; // lea r4,------[r0]
-        inputMemory[1] = 0x0001; // lea r4,0x0001[r0] <- lea 4,0x0001,0 <- r4 := 1
-        inputMemory[2] = 0xf400; // lea r4,------[r0] 
-        inputMemory[3] = 0x0002; // lea r4,0x0002[r0] <- lea 4,0x0002,0 <- r4 := 2
+        inputMemory.set( 0, 0xf400 ); // lea r4,------[r0]
+        inputMemory.set( 1, 0x0001 ); // lea r4,0x0001[r0] <- lea 4,0x0001,0 <- r4 := 1
+        inputMemory.set( 2, 0xf400 ); // lea r4,------[r0] 
+        inputMemory.set( 3, 0x0002 ); // lea r4,0x0002[r0] <- lea 4,0x0002,0 <- r4 := 2
 
-        inputMemory[4] = 0xf410; // lea r4,------[r1] 
-        inputMemory[5] = 0xfffe; // lea r4,0xfffe[r1] <- lea 4,0xfffe,1 <- r4 := 0xffff
+        inputMemory.set( 4, 0xf410 ); // lea r4,------[r1] 
+        inputMemory.set( 5, 0xfffe ); // lea r4,0xfffe[r1] <- lea 4,0xfffe,1 <- r4 := 0xffff
 
-        inputMemory[6] = 0xf410; // lea r4,------[r1] 
-        inputMemory[7] = 0xffff; // lea r4,0xffff[r1] <- lea 4,0xffff,1 <- r4 := 0x0
-        inputMemory[8] = 0xf420; // lea r4,------[r2] 
-        inputMemory[9] = 0xffff; // lea r4,0xffff[r2] <- lea 4,0xffff,2 <- r4 := 1
-        inputMemory[10] = 0xf430; // lea r4,------[r3] 
-        inputMemory[11] = 0x0003; // lea r4,0x0003[r3] <- lea 4,0x0003,3 <- r4 := 2
+        inputMemory.set( 6, 0xf410 ); // lea r4,------[r1] 
+        inputMemory.set( 7, 0xffff ); // lea r4,0xffff[r1] <- lea 4,0xffff,1 <- r4 := 0x0
+        inputMemory.set( 8, 0xf420 ); // lea r4,------[r2] 
+        inputMemory.set( 9, 0xffff ); // lea r4,0xffff[r2] <- lea 4,0xffff,2 <- r4 := 1
+        inputMemory.set( 10, 0xf430 ); // lea r4,------[r3] 
+        inputMemory.set( 11, 0x0003 ); // lea r4,0x0003[r3] <- lea 4,0x0003,3 <- r4 := 2
 
         inputRegisters[1] = 1;
         inputRegisters[2] = 2;
@@ -3084,32 +3056,35 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xf401; // load r4,------[r0]
-        inputMemory[1] = 0x0001; // load r4,0x0001[r0] <- load 4,0x0001,0 <- r4 := mem[1] <- 0x0001
-        inputMemory[2] = 0xf401; // load r4,------[r0] 
-        inputMemory[3] = 0x0002; // load r4,0x0002[r0] <- load 4,0x0002,0 <- r4 := mem[2] <- 0xf401
+        inputMemory.set( 0, 0xf401 ); // load r4,------[r0]
+        inputMemory.set( 1, 0x0001 ); // load r4,0x0001[r0] <- load 4,0x0001,0 <- r4 := mem[1] <- 0x0001
+        inputMemory.set( 2, 0xf401 ); // load r4,------[r0] 
+        inputMemory.set( 3, 0x0002 ); // load r4,0x0002[r0] <- load 4,0x0002,0 <- r4 := mem[2] <- 0xf401
 
-        inputMemory[4] = 0xf411; // load r4,------[r1] 
-        inputMemory[5] = 0xfffe; // load r4,0xfffe[r1] <- load 4,0xfffe,1 <- r4 := mem[0xffff] <- 0x0
+        inputMemory.set( 4, 0xf411 ); // load r4,------[r1] 
+        inputMemory.set( 5, 0xfffe ); // load r4,0xfffe[r1] <- load 4,0xfffe,1 <- r4 := mem[0xffff] <- 0x0
 
-        inputMemory[6] = 0xf411; // load r4,------[r1] 
-        inputMemory[7] = 0xffff; // load r4,0xffff[r1] <- load 4,0xffff,1 <- r4 := mem[0x0] <- 0xf401
-        inputMemory[8] = 0xf421; // load r4,------[r2] 
-        inputMemory[9] = 0xffff; // load r4,0xffff[r2] <- load 4,0xffff,2 <- r4 := mem[1] <- 0x0001
-        inputMemory[10] = 0xf431; // load r4,------[r3] 
-        inputMemory[11] = 0x0003; // load r4,0x0003[r3] <- load 4,0x0003,3 <- r4 := mem[2] <- 0xf401
+        inputMemory.set( 6, 0xf411 ); // load r4,------[r1] 
+        inputMemory.set( 7, 0xffff ); // load r4,0xffff[r1] <- load 4,0xffff,1 <- r4 := mem[0x0] <- 0xf401
+        inputMemory.set( 8, 0xf421 ); // load r4,------[r2] 
+        inputMemory.set( 9, 0xffff ); // load r4,0xffff[r2] <- load 4,0xffff,2 <- r4 := mem[1] <- 0x0001
+        inputMemory.set( 10, 0xf431 ); // load r4,------[r3] 
+        inputMemory.set( 11, 0x0003 ); // load r4,0x0003[r3] <- load 4,0x0003,3 <- r4 := mem[2] <- 0xf401
 
         inputRegisters[1] = 1;
         inputRegisters[2] = 2;
         inputRegisters[3] = 0xffff;
 
+        var outputMemory = new Map();
+        outputMemory.set( 65535, 0 );
+
         var results = [
-          [ 0x0001, {}],
-          [ 0xf401, {}],
-          [ 0x0000, { 65535 : 0}],
-          [ 0xf401, {}],
-          [ 0x0001, {}],
-          [ 0xf401, {}]
+          [ 0x0001, new Map()],
+          [ 0xf401, new Map()],
+          [ 0x0000, outputMemory],
+          [ 0xf401, new Map()],
+          [ 0x0001, new Map()],
+          [ 0xf401, new Map()]
         ];
 
         var outputControl = updateControl( inputMemory, fresh()['control'] );
@@ -3138,13 +3113,13 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xf402; // store r4,------[r0]
-        inputMemory[1] = 0x0010; // store r4,0x0010[r0] <- store 4,0x0010,0 <- mem[0x10] := r4 <- 0x0010
+        inputMemory.set( 0, 0xf402 ); // store r4,------[r0]
+        inputMemory.set( 1, 0x0010 ); // store r4,0x0010[r0] <- store 4,0x0010,0 <- mem[0x10] := r4 <- 0x0010
 
-        inputMemory[2] = 0xf412; // store r4,------[r1] 
-        inputMemory[3] = 0xffff; // store r4,0xffff[r1] <- store 4,0xffff,1 <- mem[0xf] := r4 <- 0x000f
-        inputMemory[4] = 0xf422; // store r4,------[r2] 
-        inputMemory[5] = 0x0011; // store r4,0x0011[r2] <- store 4,0x0011,2 <- mem[2] := r4 <- 0x0010
+        inputMemory.set( 2, 0xf412 ); // store r4,------[r1] 
+        inputMemory.set( 3, 0xffff ); // store r4,0xffff[r1] <- store 4,0xffff,1 <- mem[0xf] := r4 <- 0x000f
+        inputMemory.set( 4, 0xf422 ); // store r4,------[r2] 
+        inputMemory.set( 5, 0x0011 ); // store r4,0x0011[r2] <- store 4,0x0011,2 <- mem[2] := r4 <- 0x0010
 
         inputRegisters[1] = 0x0010;
         inputRegisters[2] = 0xffff;
@@ -3167,8 +3142,8 @@ import * as Emulator from './Emulator';
         for ( var i = 0; i < results.length; i++ ) {
           outputControl = updateControlDouble( inputMemory, parsed['control'] );
           
-          var outputMemory = {};
-          outputMemory[results[i]] = inputRegisters[4];
+          var outputMemory = new Map();
+          outputMemory.set( results[i], inputRegisters[4] );
 
           parsed = testFromChanges( parsed,
           {
@@ -3182,13 +3157,13 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xf003; // jump ------[r0]
-        inputMemory[1] = 0x0010; // jump 0x0010[r0] <- jump 0x0010,0 <- pc := mem[0x0010]
-        inputMemory[16] = 0xf013; // jump ------[r1] 
-        inputMemory[17] = 0x0020; // jump 0x0020[r1] <- jump 0x0020,2 <- pc := mem[0x0022]
+        inputMemory.set( 0, 0xf003 ); // jump ------[r0]
+        inputMemory.set( 1, 0x0010 ); // jump 0x0010[r0] <- jump 0x0010,0 <- pc := mem[0x0010]
+        inputMemory.set( 16, 0xf013 ); // jump ------[r1] 
+        inputMemory.set( 17, 0x0020 ); // jump 0x0020[r1] <- jump 0x0020,2 <- pc := mem[0x0022]
         
-        inputMemory[0x0022] = 0xf003; // jump ------[r0] 
-        inputMemory[0x0023] = 0xfff0; // jump 0xfff0[r0] <- jump 0xfff0,0 <- pc := mem[0xfff0]
+        inputMemory.set( 0x0022, 0xf003 ); // jump ------[r0] 
+        inputMemory.set( 0x0023, 0xfff0 ); // jump 0xfff0[r0] <- jump 0xfff0,0 <- pc := mem[0xfff0]
         
         inputRegisters[1] = 2;
 
@@ -3225,15 +3200,18 @@ import * as Emulator from './Emulator';
         for ( var i = 0; i < results.length; i++ ) {
           outputControl = updateControlDouble( inputMemory, parsed['control'] );
 
-          outputControl['pc'] = results[i][0];
+          outputControl.set( 'pc', results[i][0] );
 
           var outputRegisters = {};
           if ( results[i][0] > 0xfff0 ) outputRegisters[15] = 0x2000; // since command is add R0,R0,R0 and will result in R15 being set to 0x2000 <- ccE
 
+          var outputMemory = new Map();
+          for ( const key of Object.keys( results[i][1] ) ) outputMemory.set( Number.parseInt( key ), results[i][1][key] );
+
           parsed = testFromChanges( parsed,
           {
             'control' : outputControl,
-            'memory' : results[i][1],
+            'memory' : outputMemory,
             'halted' : results[i][2],
             'registers' : outputRegisters
           },
@@ -3245,14 +3223,14 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xf004; // jumpc0 0,------[r0]
-        inputMemory[1] = 0x0010; // jumpc0 0,0x0010[r0] <- jumpc0 0,0x0010,0
-        inputMemory[2] = 0xf104; // jumpc0 1,------[r0] 
-        inputMemory[3] = 0x0010; // jumpc0 1,0x0010[r0] <- jumpc0 1,0x0010,0 <- pc := mem[0x0010]
-        inputMemory[16] = 0xf114; // jumpc0 1,------[r1] 
-        inputMemory[17] = 0x0020; // jumpc0 1,0x0020[r1] <- jumpc0 1,0x0020,2 <- pc := mem[0x0022]
+        inputMemory.set( 0, 0xf004 ); // jumpc0 0,------[r0]
+        inputMemory.set( 1, 0x0010 ); // jumpc0 0,0x0010[r0] <- jumpc0 0,0x0010,0
+        inputMemory.set( 2, 0xf104 ); // jumpc0 1,------[r0] 
+        inputMemory.set( 3, 0x0010 ); // jumpc0 1,0x0010[r0] <- jumpc0 1,0x0010,0 <- pc := mem[0x0010]
+        inputMemory.set( 16, 0xf114 ); // jumpc0 1,------[r1] 
+        inputMemory.set( 17, 0x0020 ); // jumpc0 1,0x0020[r1] <- jumpc0 1,0x0020,2 <- pc := mem[0x0022]
         
-        inputMemory[0x0022] = 0x0000; // jump testMode setting produces 0 in place of next instruction
+        inputMemory.set( 0x0022, 0x0000 ); // jump testMode setting produces 0 in place of next instruction
         
         inputRegisters[1] = 2;
         inputRegisters[15] = 0x8000; // <- ccG, bits[0] := 1
@@ -3274,7 +3252,7 @@ import * as Emulator from './Emulator';
         for ( var i = 0; i < results.length; i++ ) {
           outputControl = updateControlDouble( inputMemory, parsed['control'] );
 
-          outputControl['pc'] = results[i];
+          outputControl.set( 'pc', results[i] );
 
           parsed = testFromChanges( parsed,
           {
@@ -3288,14 +3266,14 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xf105; // jumpc1 1,------[r0]
-        inputMemory[1] = 0x0010; // jumpc1 1,0x0010[r0] <- jumpc1 1,0x0010,0
-        inputMemory[2] = 0xf005; // jumpc1 0,------[r0] 
-        inputMemory[3] = 0x0010; // jumpc1 0,0x0010[r0] <- jumpc1 0,0x0010,0 <- pc := mem[0x0010]
-        inputMemory[16] = 0xf015; // jumpc1 0,------[r1] 
-        inputMemory[17] = 0x0020; // jumpc1 0,0x0020[r1] <- jumpc1 0,0x0020,2 <- pc := mem[0x0022]
+        inputMemory.set( 0, 0xf105 ); // jumpc1 1,------[r0]
+        inputMemory.set( 1, 0x0010 ); // jumpc1 1,0x0010[r0] <- jumpc1 1,0x0010,0
+        inputMemory.set( 2, 0xf005 ); // jumpc1 0,------[r0] 
+        inputMemory.set( 3, 0x0010 ); // jumpc1 0,0x0010[r0] <- jumpc1 0,0x0010,0 <- pc := mem[0x0010]
+        inputMemory.set( 16, 0xf015 ); // jumpc1 0,------[r1] 
+        inputMemory.set( 17, 0x0020 ); // jumpc1 0,0x0020[r1] <- jumpc1 0,0x0020,2 <- pc := mem[0x0022]
         
-        inputMemory[0x0022] = 0x0000; // jump testMode setting produces 0 in place of next instruction
+        inputMemory.set( 0x0022, 0x0000 ); // jump testMode setting produces 0 in place of next instruction
 
         inputRegisters[1] = 2;
         inputRegisters[15] = 0x8000; // <- ccG, bits[0] := 1
@@ -3317,7 +3295,7 @@ import * as Emulator from './Emulator';
         for ( var i = 0; i < results.length; i++ ) {
           outputControl = updateControlDouble( inputMemory, parsed['control'] );
 
-          outputControl['pc'] = results[i];
+          outputControl.set( 'pc', results[i] );
 
           parsed = testFromChanges( parsed,
           {
@@ -3331,14 +3309,14 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xf106; // jumpf r1,------[r0]
-        inputMemory[1] = 0x0010; // jumpf r1,0x0010[r0] <- jumpf 1,0x0010,0 <- pc := mem[0x0010]
-        inputMemory[2] = 0xf206; // jumpf r2,------[r0] 
-        inputMemory[3] = 0x0010; // jumpf r2,0x0010[r0] <- jumpf 2,0x0010,0 <- pc := mem[0x0010]
-        inputMemory[4] = 0xf326; // jumpf r3,------[r2] 
-        inputMemory[5] = 0x0010; // jumpf r3,0x0010[r2] <- jumpf 3,0x0010,2 <- pc := mem[0x0012]
+        inputMemory.set( 0, 0xf106 ); // jumpf r1,------[r0]
+        inputMemory.set( 1, 0x0010 ); // jumpf r1,0x0010[r0] <- jumpf 1,0x0010,0 <- pc := mem[0x0010]
+        inputMemory.set( 2, 0xf206 ); // jumpf r2,------[r0] 
+        inputMemory.set( 3, 0x0010 ); // jumpf r2,0x0010[r0] <- jumpf 2,0x0010,0 <- pc := mem[0x0010]
+        inputMemory.set( 4, 0xf326 ); // jumpf r3,------[r2] 
+        inputMemory.set( 5, 0x0010 ); // jumpf r3,0x0010[r2] <- jumpf 3,0x0010,2 <- pc := mem[0x0012]
 
-        inputMemory[0x0012] = 0x0000; // jump testMode setting produces 0 in place of next instruction
+        inputMemory.set( 0x0012, 0x0000 ); // jump testMode setting produces 0 in place of next instruction
 
         inputRegisters[1] = 1;
         inputRegisters[2] = 2;
@@ -3361,7 +3339,7 @@ import * as Emulator from './Emulator';
         for ( var i = 0; i < results.length; i++ ) {
           outputControl = updateControlDouble( inputMemory, parsed['control'] );
 
-          outputControl['pc'] = results[i];
+          outputControl.set( 'pc', results[i] );
 
           parsed = testFromChanges( parsed,
           {
@@ -3375,14 +3353,14 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xf107; // jumpt r1,------[r0]
-        inputMemory[1] = 0x0010; // jumpt r1,0x0010[r0] <- jumpt 1,0x0010,0 <- pc := mem[0x0010]
-        inputMemory[2] = 0xf207; // jumpt r2,------[r0] 
-        inputMemory[3] = 0x0010; // jumpt r2,0x0010[r0] <- jumpt 2,0x0010,0 <- pc := mem[0x0010]
-        inputMemory[4] = 0xf327; // jumpt r3,------[r2] 
-        inputMemory[5] = 0x0010; // jumpt r3,0x0010[r2] <- jumpt 3,0x0010,2 <- pc := mem[0x0012]
+        inputMemory.set( 0, 0xf107 ); // jumpt r1,------[r0]
+        inputMemory.set( 1, 0x0010 ); // jumpt r1,0x0010[r0] <- jumpt 1,0x0010,0 <- pc := mem[0x0010]
+        inputMemory.set( 2, 0xf207 ); // jumpt r2,------[r0] 
+        inputMemory.set( 3, 0x0010 ); // jumpt r2,0x0010[r0] <- jumpt 2,0x0010,0 <- pc := mem[0x0010]
+        inputMemory.set( 4, 0xf327 ); // jumpt r3,------[r2] 
+        inputMemory.set( 5, 0x0010 ); // jumpt r3,0x0010[r2] <- jumpt 3,0x0010,2 <- pc := mem[0x0012]
 
-        inputMemory[0x0012] = 0x0000; // jump testMode setting produces 0 in place of next instruction
+        inputMemory.set( 0x0012, 0x0000 ); // jump testMode setting produces 0 in place of next instruction
 
         inputRegisters[1] = 0;
         inputRegisters[2] = 2;
@@ -3405,7 +3383,7 @@ import * as Emulator from './Emulator';
         for ( var i = 0; i < results.length; i++ ) {
           outputControl = updateControlDouble( inputMemory, parsed['control'] );
 
-          outputControl['pc'] = results[i];
+          outputControl.set( 'pc', results[i] );
 
           parsed = testFromChanges( parsed,
           {
@@ -3419,12 +3397,12 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xfd08; // jal r13,------[r0]
-        inputMemory[1] = 0x0010; // jal r13,0x0010[r0] <- jal 13,0x0010,0 <- r13 := 0x0002, pc := mem[0x0010]
-        inputMemory[16] = 0xfd18; // jal r13,------[r0] 
-        inputMemory[17] = 0x0020; // jal r13,0x0020[r0] <- jal 13,0x0020,0 <- r13 := 0x0012, pc := mem[0x0010]
+        inputMemory.set( 0, 0xfd08 ); // jal r13,------[r0]
+        inputMemory.set( 1, 0x0010 ); // jal r13,0x0010[r0] <- jal 13,0x0010,0 <- r13 := 0x0002, pc := mem[0x0010]
+        inputMemory.set( 16, 0xfd18 ); // jal r13,------[r0] 
+        inputMemory.set( 17, 0x0020 ); // jal r13,0x0020[r0] <- jal 13,0x0020,0 <- r13 := 0x0012, pc := mem[0x0010]
 
-        inputMemory[0x0022] = 0x0000; // jump testMode setting produces 0 in place of next instruction
+        inputMemory.set( 0x0022, 0x0000 ); // jump testMode setting produces 0 in place of next instruction
 
         inputRegisters[1] = 2;
 
@@ -3444,7 +3422,7 @@ import * as Emulator from './Emulator';
         for ( var i = 0; i < results.length; i++ ) {
           outputControl = updateControlDouble( inputMemory, parsed['control'] );
 
-          outputControl['pc'] = results[i][0];
+          outputControl.set( 'pc', results[i][0] );
 
           parsed = testFromChanges( parsed,
           {
@@ -3461,12 +3439,12 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xf209; // testset r2,------[r0]
-        inputMemory[1] = 0x0010; // testset r2,0x0010[r0] <- testset 13,0x0010,0 <- r13 := 0x0010, pc := mem[0x0010]
-        inputMemory[2] = 0xf219; // testset r2,------[r0] 
-        inputMemory[3] = 0x0020; // testset r2,0x0020[r0] <- testset 13,0x0020,0 <- r13 := 0x0022, pc := mem[0x0010]
-        inputMemory[16] = 0x0020; // 0x0020
-        inputMemory[34] = 0x0040; // 0x0040
+        inputMemory.set( 0, 0xf209 ); // testset r2,------[r0]
+        inputMemory.set( 1, 0x0010 ); // testset r2,0x0010[r0] <- testset 13,0x0010,0 <- r13 := 0x0010, pc := mem[0x0010]
+        inputMemory.set( 2, 0xf219 ); // testset r2,------[r0] 
+        inputMemory.set( 3, 0x0020 ); // testset r2,0x0020[r0] <- testset 13,0x0020,0 <- r13 := 0x0022, pc := mem[0x0010]
+        inputMemory.set( 16, 0x0020 ); // 0x0020
+        inputMemory.set( 34, 0x0040 ); // 0x0040
 
         inputRegisters[1] = 2;
 
@@ -3486,8 +3464,8 @@ import * as Emulator from './Emulator';
         for ( var i = 0; i < results.length; i++ ) {
           outputControl = updateControlDouble( inputMemory, parsed['control'] );
 
-          var outputMemory = {};
-          outputMemory[results[i][1]] = 1;
+          var outputMemory = new Map();
+          outputMemory.set( results[i][1], 1 );
 
           parsed = testFromChanges( parsed,
           {
@@ -3505,7 +3483,7 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe000; // rfi
+        inputMemory.set( 0, 0xe000 ); // rfi
 
         inputRegisters[2] = 0x0f0f;
         inputRegisters[3] = 0xffff;
@@ -3536,10 +3514,10 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe508; // save rx,rx,----,r5
-        inputMemory[1] = 0x1400; // save r1,r4,0x00,r5 <- save 1,4,0,5 <- mem[0x0010 -> 0x0014] = regsiters[1 -> 4]
-        inputMemory[2] = 0xe508; // save rx,rx,----,r5
-        inputMemory[3] = 0x1410; // save r1,r4,0x10,r5 <- save 1,4,0x10,5 <- mem[0x0020 -> 0x0024] = regsiters[1 -> 4]
+        inputMemory.set( 0, 0xe508 ); // save rx,rx,----,r5
+        inputMemory.set( 1, 0x1400 ); // save r1,r4,0x00,r5 <- save 1,4,0,5 <- mem[0x0010 -> 0x0014] = regsiters[1 -> 4]
+        inputMemory.set( 2, 0xe508 ); // save rx,rx,----,r5
+        inputMemory.set( 3, 0x1410 ); // save r1,r4,0x10,r5 <- save 1,4,0x10,5 <- mem[0x0020 -> 0x0024] = regsiters[1 -> 4]
 
         inputRegisters[1] = 0x0010;
         inputRegisters[2] = 0xffff;
@@ -3570,10 +3548,10 @@ import * as Emulator from './Emulator';
         for ( var i = 0; i < results.length; i++ ) {
           outputControl = updateControlDouble( inputMemory, parsed['control'] );
           
-          var outputMemory = {};
+          var outputMemory = new Map();
 
           for ( var it = 0; it < results[i].length; it++ ) {
-            outputMemory[results[i][it][0]] = results[i][it][1];
+            outputMemory.set( results[i][it][0], results[i][it][1] );
           }
 
           parsed = testFromChanges( parsed,
@@ -3588,20 +3566,20 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe909; // restore rx,rx,----,r9
-        inputMemory[1] = 0x1400; // restore r1,r4,0x00,r9 <- restore 1,4,0,9 <- regsiters[1 -> 4] = mem[0x0010 -> 0x0014]
-        inputMemory[2] = 0xe909; // restore rx,rx,----,r9
-        inputMemory[3] = 0x5810; // restore r5,r8,0x10,r9 <- restore 1,4,0x10,9 <- regsiters[5 -> 8] = mem[0x0020 -> 0x0024]
+        inputMemory.set( 0, 0xe909 ); // restore rx,rx,----,r9
+        inputMemory.set( 1, 0x1400 ); // restore r1,r4,0x00,r9 <- restore 1,4,0,9 <- regsiters[1 -> 4] = mem[0x0010 -> 0x0014]
+        inputMemory.set( 2, 0xe909 ); // restore rx,rx,----,r9
+        inputMemory.set( 3, 0x5810 ); // restore r5,r8,0x10,r9 <- restore 1,4,0x10,9 <- regsiters[5 -> 8] = mem[0x0020 -> 0x0024]
 
-        inputMemory[0x0010] = 0x0010;
-        inputMemory[0x0011] = 0xffff;
-        inputMemory[0x0012] = 0x0000;
-        inputMemory[0x0013] = 0x0f0f;
+        inputMemory.set( 0x0010, 0x0010 );
+        inputMemory.set( 0x0011, 0xffff );
+        inputMemory.set( 0x0012, 0x0000 );
+        inputMemory.set( 0x0013, 0x0f0f );
 
-        inputMemory[0x0020] = 0x0010;
-        inputMemory[0x0021] = 0xffff;
-        inputMemory[0x0022] = 0x0000;
-        inputMemory[0x0023] = 0x0f0f;
+        inputMemory.set( 0x0020, 0x0010 );
+        inputMemory.set( 0x0021, 0xffff );
+        inputMemory.set( 0x0022, 0x0000 );
+        inputMemory.set( 0x0023, 0x0f0f );
 
         inputRegisters[9] = 0x0010
 
@@ -3645,12 +3623,12 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe10a; // getctl r1,--
-        inputMemory[1] = 0x0020; // getctl r1,ir <- getctl 1,2 <- r1 := control['ir']
-        inputMemory[2] = 0xe10a; // getctl r1,--
-        inputMemory[3] = 0x0010; // getctl r1,pc <- getctl 1,1 <- r1 := control['pc']
-        inputMemory[4] = 0xe10a; // getctl r1,---
-        inputMemory[5] = 0x0030; // getctl r1,adr <- getctl 1,3 <- r1 := control['adr']
+        inputMemory.set( 0, 0xe10a ); // getctl r1,--
+        inputMemory.set( 1, 0x0020 ); // getctl r1,ir <- getctl 1,2 <- r1 := control['ir']
+        inputMemory.set( 2, 0xe10a ); // getctl r1,--
+        inputMemory.set( 3, 0x0010 ); // getctl r1,pc <- getctl 1,1 <- r1 := control['pc']
+        inputMemory.set( 4, 0xe10a ); // getctl r1,---
+        inputMemory.set( 5, 0x0030 ); // getctl r1,adr <- getctl 1,3 <- r1 := control['adr']
 
         var results = [
           0xe10a,
@@ -3683,12 +3661,12 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe00b; // putctl r0,--
-        inputMemory[1] = 0x0020; // putctl r0,ir <- putctl 0,2 <- control['ir'] := 0x0000
-        inputMemory[2] = 0xe10b; // putctl r1,--
-        inputMemory[3] = 0x0010; // putctl r1,pc <- putctl 1,1 <- control['pc'] := 0x0010
-        inputMemory[16] = 0xe10b; // putctl r1,---
-        inputMemory[17] = 0x0030; // putctl r1,adr <- putctl 1,3 <- control['adr'] := 0x0010
+        inputMemory.set( 0, 0xe00b ); // putctl r0,--
+        inputMemory.set( 1, 0x0020 ); // putctl r0,ir <- putctl 0,2 <- control['ir'] := 0x0000
+        inputMemory.set( 2, 0xe10b ); // putctl r1,--
+        inputMemory.set( 3, 0x0010 ); // putctl r1,pc <- putctl 1,1 <- control['pc'] := 0x0010
+        inputMemory.set( 16, 0xe10b ); // putctl r1,---
+        inputMemory.set( 17, 0x0030 ); // putctl r1,adr <- putctl 1,3 <- control['adr'] := 0x0010
 
         inputRegisters[1] = 0x0010;
 
@@ -3709,7 +3687,7 @@ import * as Emulator from './Emulator';
         for ( var i = 0; i < results.length; i++ ) {
           outputControl = updateControlDouble( inputMemory, parsed['control'] );
 
-          outputControl[results[i][0]] = results[i][1];
+          outputControl.set( results[i][0], results[i][1] );
 
           parsed = testFromChanges( parsed,
           {
@@ -3722,20 +3700,20 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe00c; // execute rx,rx
-        inputMemory[1] = 0x1200; // execute r1,r2 <- execute 0x0720,0x0020 <- add r11,r2,r0 <- r11 := 0x0020
+        inputMemory.set( 0, 0xe00c ); // execute rx,rx
+        inputMemory.set( 1, 0x1200 ); // execute r1,r2 <- execute 0x0720,0x0020 <- add r11,r2,r0 <- r11 := 0x0020
 
-        inputMemory[2] = 0xe00c; // execute rx,rx
-        inputMemory[3] = 0x3400; // execute r3,r4 <- execute 0xfa01,0x0001 <- load r2,0x0001[r0] <- r2 := 0x1200
+        inputMemory.set( 2, 0xe00c ); // execute rx,rx
+        inputMemory.set( 3, 0x3400 ); // execute r3,r4 <- execute 0xfa01,0x0001 <- load r2,0x0001[r0] <- r2 := 0x1200
 
-        inputMemory[4] = 0xe00c; // execute rx,rx
-        inputMemory[5] = 0x5600; // execute r5,r6 <- execute 0xe00c,0x1200 <- execute r1,r2 <- add r11,r2,r0 <- r11 := 0x1200
+        inputMemory.set( 4, 0xe00c ); // execute rx,rx
+        inputMemory.set( 5, 0x5600 ); // execute r5,r6 <- execute 0xe00c,0x1200 <- execute r1,r2 <- add r11,r2,r0 <- r11 := 0x1200
 
-        inputMemory[6] = 0xe00c; // execute rx,rx
-        inputMemory[7] = 0x7800; // execute r7,r8 <- execute 0xf003,0x0010 <- jump 0x0010[r0] <- control['pc'] := 0x0010
+        inputMemory.set( 6, 0xe00c ); // execute rx,rx
+        inputMemory.set( 7, 0x7800 ); // execute r7,r8 <- execute 0xf003,0x0010 <- jump 0x0010[r0] <- control['pc'] := 0x0010
         
-        inputMemory[16] = 0xe00c; // execute rx,rx
-        inputMemory[17] = 0x9a00; // execute r9,r10 <- execute 0xe00c,0x9a00 <- execute r9,r10 <- execute r9,r10 <- execute r9,r10 .....
+        inputMemory.set( 16, 0xe00c ); // execute rx,rx
+        inputMemory.set( 17, 0x9a00 ); // execute r9,r10 <- execute 0xe00c,0x9a00 <- execute r9,r10 <- execute r9,r10 <- execute r9,r10 .....
 
 
         inputRegisters[1] = 0x0b20; // <- add r11,r2,r0 <- r11 := 0x0020
@@ -3776,7 +3754,7 @@ import * as Emulator from './Emulator';
           var outputHalted = false;
 
           if ( results[i][0].length ) {
-            outputControl[results[i][0][0]] = results[i][0][1];
+            outputControl.set( results[i][0][0], results[i][0][1] );
           }
 
           if ( results[i][1] !== {} ) {
@@ -3798,15 +3776,15 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe10d; // push r1,rx,rx
-        inputMemory[1] = 0x2300; // push r1,r2,r3 <- push 1,2,3 <- mem[0x0010] := r1, r2 := 0x0010
-        inputMemory[2] = 0xe10d; // push r1,rx,rx
-        inputMemory[3] = 0x2300; // push r1,r2,r3 <- push 1,2,3 <- mem[0x0011] := r1, r2 := 0x0011
-        inputMemory[4] = 0xe10d; // push r1,rx,rx
-        inputMemory[5] = 0x2300; // push r1,r2,r3 <- push 1,2,3 <- mem[0x0012] := r1, r2 := 0x0012
+        inputMemory.set( 0, 0xe10d ); // push r1,rx,rx
+        inputMemory.set( 1, 0x2300 ); // push r1,r2,r3 <- push 1,2,3 <- mem[0x0010] := r1, r2 := 0x0010
+        inputMemory.set( 2, 0xe10d ); // push r1,rx,rx
+        inputMemory.set( 3, 0x2300 ); // push r1,r2,r3 <- push 1,2,3 <- mem[0x0011] := r1, r2 := 0x0011
+        inputMemory.set( 4, 0xe10d ); // push r1,rx,rx
+        inputMemory.set( 5, 0x2300 ); // push r1,r2,r3 <- push 1,2,3 <- mem[0x0012] := r1, r2 := 0x0012
 
-        inputMemory[6] = 0xe10d; // push r1,rx,rx
-        inputMemory[7] = 0x2300; // push r1,r2,r3 <- push 1,2,3 <- r15 := 0x0080 <- ccS
+        inputMemory.set( 6, 0xe10d ); // push r1,rx,rx
+        inputMemory.set( 7, 0x2300 ); // push r1,r2,r3 <- push 1,2,3 <- r15 := 0x0080 <- ccS
 
         inputRegisters[1] = 0x0010;
         inputRegisters[2] = 0x000f; // stacktop - 1
@@ -3830,7 +3808,9 @@ import * as Emulator from './Emulator';
         for ( var i = 0; i < results.length; i++ ) {
           outputControl = updateControlDouble( inputMemory, parsed['control'] );
           
-          var outputMemory = results[i][0];
+          var outputMemory = new Map();
+          for ( const key of Object.keys( results[i][0] ) ) outputMemory.set( Number.parseInt( key ), results[i][0][key] );
+
           var outputRegisters = results[i][1];
 
           parsed = testFromChanges( parsed,
@@ -3846,20 +3826,20 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe10e; // pop r1,rx,rx
-        inputMemory[1] = 0x2300; // pop r1,r2,r3 <- pop 1,2,3 <- r1 := mem[0x0012], r2 := 0x0011
-        inputMemory[2] = 0xe10e; // pop r1,rx,rx
-        inputMemory[3] = 0x2300; // pop r1,r2,r3 <- pop 1,2,3 <- r1 := mem[0x0011], r2 := 0x0010
-        inputMemory[4] = 0xe10e; // pop r1,rx,rx
-        inputMemory[5] = 0x2300; // pop r1,r2,r3 <- pop 1,2,3 <- r1 := mem[0x0010], r2 := 0x000f
+        inputMemory.set( 0, 0xe10e ); // pop r1,rx,rx
+        inputMemory.set( 1, 0x2300 ); // pop r1,r2,r3 <- pop 1,2,3 <- r1 := mem[0x0012], r2 := 0x0011
+        inputMemory.set( 2, 0xe10e ); // pop r1,rx,rx
+        inputMemory.set( 3, 0x2300 ); // pop r1,r2,r3 <- pop 1,2,3 <- r1 := mem[0x0011], r2 := 0x0010
+        inputMemory.set( 4, 0xe10e ); // pop r1,rx,rx
+        inputMemory.set( 5, 0x2300 ); // pop r1,r2,r3 <- pop 1,2,3 <- r1 := mem[0x0010], r2 := 0x000f
 
-        inputMemory[6] = 0xe10e; // pop r1,rx,rx
-        inputMemory[7] = 0x2300; // pop r1,r2,r3 <- pop 1,2,3 <- r1 := mem[0x000f], r2 := 0x000e
+        inputMemory.set( 6, 0xe10e ); // pop r1,rx,rx
+        inputMemory.set( 7, 0x2300 ); // pop r1,r2,r3 <- pop 1,2,3 <- r1 := mem[0x000f], r2 := 0x000e
 
-        inputMemory[0x0012] = 0x0022;
-        inputMemory[0x0011] = 0x0021;
-        inputMemory[0x0010] = 0x0020;
-        inputMemory[0x000f] = 0x0019;
+        inputMemory.set( 0x0012, 0x0022 );
+        inputMemory.set( 0x0011, 0x0021 );
+        inputMemory.set( 0x0010, 0x0020 );
+        inputMemory.set( 0x000f, 0x0019 );
 
         inputRegisters[2] = 0x0012; // stacktop == stackbottom therefore, full stack
         inputRegisters[3] = 0x0012; // stackbottom
@@ -3896,15 +3876,15 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe10f; // top r1,rx,rx
-        inputMemory[1] = 0x2300; // top r1,r2,r3 <- top 1,2,3 <- r1 := mem[0x0012]
-        inputMemory[2] = 0xe10f; // top r1,rx,rx
-        inputMemory[3] = 0x2300; // top r1,r2,r3 <- top 1,2,3 <- r1 := mem[0x0012]
+        inputMemory.set( 0, 0xe10f ); // top r1,rx,rx
+        inputMemory.set( 1, 0x2300 ); // top r1,r2,r3 <- top 1,2,3 <- r1 := mem[0x0012]
+        inputMemory.set( 2, 0xe10f ); // top r1,rx,rx
+        inputMemory.set( 3, 0x2300 ); // top r1,r2,r3 <- top 1,2,3 <- r1 := mem[0x0012]
         
-        inputMemory[0x0012] = 0x0022;
-        inputMemory[0x0011] = 0x0021;
-        inputMemory[0x0010] = 0x0020;
-        inputMemory[0x000f] = 0x0019;
+        inputMemory.set( 0x0012, 0x0022 );
+        inputMemory.set( 0x0011, 0x0021 );
+        inputMemory.set( 0x0010, 0x0020 );
+        inputMemory.set( 0x000f, 0x0019 );
 
         inputRegisters[2] = 0x0012; // stacktop == stackbottom therefore, full stack
         inputRegisters[3] = 0x0012; // stackbottom
@@ -3939,14 +3919,14 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe510; // shiftl r5,rx,---
-        inputMemory[1] = 0x1000; // shiftl r5,r1,0x0 <- shiftl 5,1,0 <- r5 := 0x00ff
-        inputMemory[2] = 0xe510; // shiftl r5,rx,---
-        inputMemory[3] = 0x2010; // shiftl r5,r2,0x1 <- shiftl 5,2,1 <- r5 := 0x1e1e
-        inputMemory[4] = 0xe510; // shiftl r5,rx,---
-        inputMemory[5] = 0x30f0; // shiftl r5,r3,0xf <- shiftl 5,3,16 <- r5 := 0x8000, r15 := 0x0400 <- ccV
-        inputMemory[6] = 0xe510; // shiftl r5,rx,---
-        inputMemory[7] = 0x40f0; // shiftl r5,r4,0xf <- shiftl 5,4,16 <- r5 := 0x0000
+        inputMemory.set( 0, 0xe510 ); // shiftl r5,rx,---
+        inputMemory.set( 1, 0x1000 ); // shiftl r5,r1,0x0 <- shiftl 5,1,0 <- r5 := 0x00ff
+        inputMemory.set( 2, 0xe510 ); // shiftl r5,rx,---
+        inputMemory.set( 3, 0x2010 ); // shiftl r5,r2,0x1 <- shiftl 5,2,1 <- r5 := 0x1e1e
+        inputMemory.set( 4, 0xe510 ); // shiftl r5,rx,---
+        inputMemory.set( 5, 0x30f0 ); // shiftl r5,r3,0xf <- shiftl 5,3,16 <- r5 := 0x8000, r15 := 0x0400 <- ccV
+        inputMemory.set( 6, 0xe510 ); // shiftl r5,rx,---
+        inputMemory.set( 7, 0x40f0 ); // shiftl r5,r4,0xf <- shiftl 5,4,16 <- r5 := 0x0000
 
         inputRegisters[1] = 0x00ff
         inputRegisters[2] = 0x0f0f
@@ -3986,14 +3966,14 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe511; // shiftr r5,rx,---
-        inputMemory[1] = 0x1000; // shiftr r5,r1,0x0 <- shiftr 5,1,0 <- r5 := 0x00ff
-        inputMemory[2] = 0xe511; // shiftr r5,rx,---
-        inputMemory[3] = 0x2010; // shiftr r5,r2,0x1 <- shiftr 5,2,1 <- r5 := 0x0787
-        inputMemory[4] = 0xe511; // shiftr r5,rx,---
-        inputMemory[5] = 0x30f0; // shiftr r5,r3,0xf <- shiftr 5,3,16 <- r5 := 0x0001
-        inputMemory[6] = 0xe511; // shiftr r5,rx,---
-        inputMemory[7] = 0x40f0; // shiftr r5,r4,0xf <- shiftr 5,4,16 <- r5 := 0x0000
+        inputMemory.set( 0, 0xe511 ); // shiftr r5,rx,---
+        inputMemory.set( 1, 0x1000 ); // shiftr r5,r1,0x0 <- shiftr 5,1,0 <- r5 := 0x00ff
+        inputMemory.set( 2, 0xe511 ); // shiftr r5,rx,---
+        inputMemory.set( 3, 0x2010 ); // shiftr r5,r2,0x1 <- shiftr 5,2,1 <- r5 := 0x0787
+        inputMemory.set( 4, 0xe511 ); // shiftr r5,rx,---
+        inputMemory.set( 5, 0x30f0 ); // shiftr r5,r3,0xf <- shiftr 5,3,16 <- r5 := 0x0001
+        inputMemory.set( 6, 0xe511 ); // shiftr r5,rx,---
+        inputMemory.set( 7, 0x40f0 ); // shiftr r5,r4,0xf <- shiftr 5,4,16 <- r5 := 0x0000
 
         inputRegisters[1] = 0x00ff
         inputRegisters[2] = 0x0f0f
@@ -4032,16 +4012,16 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe512; // extract r5,rx,---,---
-        inputMemory[1] = 0x100f; // extract r5,r1,0x0,0xf <- extract 5,1,0,16 <- r5 := 0x00ff
-        inputMemory[2] = 0xe512; // extract r5,rx,---,---
-        inputMemory[3] = 0x206f; // extract r5,r2,0x6,0xf <- extract 5,2,6,16 <- r5 := 0x030f
-        inputMemory[4] = 0xe512; // extract r5,rx,---,---
-        inputMemory[5] = 0x3009; // extract r5,r3,0x0,0x9 <- extract 5,3,0,9 <- r5 := 0x03ff
-        inputMemory[6] = 0xe512; // extract r5,rx,---,---
-        inputMemory[7] = 0x30f1; // extract r5,r3,0xf,0x1 <- extract 5,3,16,1 <- r5 := 0x0000
-        inputMemory[8] = 0xe512; // extract r5,rx,---,---
-        inputMemory[9] = 0x4007; // extract r5,r4,0x0,0x7 <- extract 5,4,0,7 <- r5 := 0x0000
+        inputMemory.set( 0, 0xe512 ); // extract r5,rx,---,---
+        inputMemory.set( 1, 0x100f ); // extract r5,r1,0x0,0xf <- extract 5,1,0,16 <- r5 := 0x00ff
+        inputMemory.set( 2, 0xe512 ); // extract r5,rx,---,---
+        inputMemory.set( 3, 0x206f ); // extract r5,r2,0x6,0xf <- extract 5,2,6,16 <- r5 := 0x030f
+        inputMemory.set( 4, 0xe512 ); // extract r5,rx,---,---
+        inputMemory.set( 5, 0x3009 ); // extract r5,r3,0x0,0x9 <- extract 5,3,0,9 <- r5 := 0x03ff
+        inputMemory.set( 6, 0xe512 ); // extract r5,rx,---,---
+        inputMemory.set( 7, 0x30f1 ); // extract r5,r3,0xf,0x1 <- extract 5,3,16,1 <- r5 := 0x0000
+        inputMemory.set( 8, 0xe512 ); // extract r5,rx,---,---
+        inputMemory.set( 9, 0x4007 ); // extract r5,r4,0x0,0x7 <- extract 5,4,0,7 <- r5 := 0x0000
 
         inputRegisters[1] = 0x00ff
         inputRegisters[2] = 0x0f0f
@@ -4081,16 +4061,16 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe513; // extracti r5,rx,---,---
-        inputMemory[1] = 0x100f; // extracti r5,r1,0x0,0xf <- extracti 5,1,0,16 <- r5 := 0xff00
-        inputMemory[2] = 0xe513; // extracti r5,rx,---,---
-        inputMemory[3] = 0x206f; // extracti r5,r2,0x6,0xf <- extracti 5,2,6,16 <- r5 := 0x00f0
-        inputMemory[4] = 0xe513; // extracti r5,rx,---,---
-        inputMemory[5] = 0x3009; // extracti r5,r3,0x0,0x9 <- extracti 5,3,0,9 <- r5 := 0x0000
-        inputMemory[6] = 0xe513; // extracti r5,rx,---,---
-        inputMemory[7] = 0x30f1; // extracti r5,r3,0xf,0x1 <- extracti 5,3,16,1 <- r5 := 0x0000
-        inputMemory[8] = 0xe513; // extracti r5,rx,---,---
-        inputMemory[9] = 0x4007; // extracti r5,r4,0x0,0x7 <- extracti 5,4,0,7 <- r5 := 0x00ff
+        inputMemory.set( 0, 0xe513 ); // extracti r5,rx,---,---
+        inputMemory.set( 1, 0x100f ); // extracti r5,r1,0x0,0xf <- extracti 5,1,0,16 <- r5 := 0xff00
+        inputMemory.set( 2, 0xe513 ); // extracti r5,rx,---,---
+        inputMemory.set( 3, 0x206f ); // extracti r5,r2,0x6,0xf <- extracti 5,2,6,16 <- r5 := 0x00f0
+        inputMemory.set( 4, 0xe513 ); // extracti r5,rx,---,---
+        inputMemory.set( 5, 0x3009 ); // extracti r5,r3,0x0,0x9 <- extracti 5,3,0,9 <- r5 := 0x0000
+        inputMemory.set( 6, 0xe513 ); // extracti r5,rx,---,---
+        inputMemory.set( 7, 0x30f1 ); // extracti r5,r3,0xf,0x1 <- extracti 5,3,16,1 <- r5 := 0x0000
+        inputMemory.set( 8, 0xe513 ); // extracti r5,rx,---,---
+        inputMemory.set( 9, 0x4007 ); // extracti r5,r4,0x0,0x7 <- extracti 5,4,0,7 <- r5 := 0x00ff
 
         inputRegisters[1] = 0x00ff
         inputRegisters[2] = 0x0f0f
@@ -4130,12 +4110,12 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe514; // inject r5,rx,rx,---,---
-        inputMemory[1] = 0x430f; // inject r5,r4,r3,0x0,0xf <- inject 5,4,3,0,16 <- r5 := 0xffff
-        inputMemory[2] = 0xe514; // inject r5,rx,rx,---,---
-        inputMemory[3] = 0x344b; // inject r5,r3,r4,0x4,0xb <- inject 5,3,4,4,11 <- r5 := 0xf00f
-        inputMemory[4] = 0xe514; // inject r5,rx,rx,---,---
-        inputMemory[5] = 0x13f0; // inject r5,r1,r3,0xf,0x0 <- inject 5,1,3,16,0 <- r5 := 0x00ff
+        inputMemory.set( 0, 0xe514 ); // inject r5,rx,rx,---,---
+        inputMemory.set( 1, 0x430f ); // inject r5,r4,r3,0x0,0xf <- inject 5,4,3,0,16 <- r5 := 0xffff
+        inputMemory.set( 2, 0xe514 ); // inject r5,rx,rx,---,---
+        inputMemory.set( 3, 0x344b ); // inject r5,r3,r4,0x4,0xb <- inject 5,3,4,4,11 <- r5 := 0xf00f
+        inputMemory.set( 4, 0xe514 ); // inject r5,rx,rx,---,---
+        inputMemory.set( 5, 0x13f0 ); // inject r5,r1,r3,0xf,0x0 <- inject 5,1,3,16,0 <- r5 := 0x00ff
 
         inputRegisters[1] = 0x00ff
         inputRegisters[2] = 0x0f0f
@@ -4173,12 +4153,12 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe515; // injecti r5,rx,rx,---,---
-        inputMemory[1] = 0x430f; // injecti r5,r4,r3,0x0,0xf <- injecti 5,4,3,0,16 <- r5 := 0x0000
-        inputMemory[2] = 0xe515; // injecti r5,rx,rx,---,---
-        inputMemory[3] = 0x344b; // injecti r5,r3,r4,0x4,0xb <- injecti 5,3,4,4,11 <- r5 := 0xffff
-        inputMemory[4] = 0xe515; // injecti r5,rx,rx,---,---
-        inputMemory[5] = 0x13f0; // injecti r5,r1,r3,0xf,0x0 <- injecti 5,1,3,16,0 <- r5 := 0x00ff
+        inputMemory.set( 0, 0xe515 ); // injecti r5,rx,rx,---,---
+        inputMemory.set( 1, 0x430f ); // injecti r5,r4,r3,0x0,0xf <- injecti 5,4,3,0,16 <- r5 := 0x0000
+        inputMemory.set( 2, 0xe515 ); // injecti r5,rx,rx,---,---
+        inputMemory.set( 3, 0x344b ); // injecti r5,r3,r4,0x4,0xb <- injecti 5,3,4,4,11 <- r5 := 0xffff
+        inputMemory.set( 4, 0xe515 ); // injecti r5,rx,rx,---,---
+        inputMemory.set( 5, 0x13f0 ); // injecti r5,r1,r3,0xf,0x0 <- injecti 5,1,3,16,0 <- r5 := 0x00ff
 
         inputRegisters[1] = 0x00ff
         inputRegisters[2] = 0x0f0f
@@ -4217,42 +4197,42 @@ import * as Emulator from './Emulator';
         var inputRegisters = fresh()['registers'];
 
         // inv
-        inputMemory[0] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[1] = 0x10c0; // logicw r4,r1,r0,0xc <- invnew r4,r1 <- inv 4,0x00ff <- r4 := 0xff00
-        inputMemory[2] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[3] = 0x20c0; // logicw r4,r2,r0,0xc <- invnew r4,r2 <- inv 4,0x0f0f <- r4 := 0xf0f0
-        inputMemory[4] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[5] = 0x30c0; // logicw r4,r3,r0,0xc <- invnew r4,r3 <- inv 4,0xffff <- r4 := 0x0000
+        inputMemory.set( 0, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 1, 0x10c0 ); // logicw r4,r1,r0,0xc <- invnew r4,r1 <- inv 4,0x00ff <- r4 := 0xff00
+        inputMemory.set( 2, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 3, 0x20c0 ); // logicw r4,r2,r0,0xc <- invnew r4,r2 <- inv 4,0x0f0f <- r4 := 0xf0f0
+        inputMemory.set( 4, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 5, 0x30c0 ); // logicw r4,r3,r0,0xc <- invnew r4,r3 <- inv 4,0xffff <- r4 := 0x0000
 
         // and
-        inputMemory[6] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[7] = 0x1210; // logicw r4,r1,r2,0x1 <- andnew r4,r1,r2 <- and 4,0x00ff,0x0f0f <- r4 := 0x000f
-        inputMemory[8] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[9] = 0x1310; // logicw r4,r1,r3,0x1 <- andnew r4,r1,r3 <- and 4,0x00ff,0xffff <- r4 := 0x00ff
-        inputMemory[10] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[11] = 0x1010; // logicw r4,r1,r0,0x1 <- andnew r4,r1,r0 <- and 4,0x00ff,0x0000 <- r4 := 0x0000
-        inputMemory[12] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[13] = 0x3310; // logicw r4,r3,r3,0x1 <- andnew r4,r3,r3 <- and 4,0xffff,0xffff <- r4 := 0xffff
+        inputMemory.set( 6, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 7, 0x1210 ); // logicw r4,r1,r2,0x1 <- andnew r4,r1,r2 <- and 4,0x00ff,0x0f0f <- r4 := 0x000f
+        inputMemory.set( 8, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 9, 0x1310 ); // logicw r4,r1,r3,0x1 <- andnew r4,r1,r3 <- and 4,0x00ff,0xffff <- r4 := 0x00ff
+        inputMemory.set( 10, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 11, 0x1010 ); // logicw r4,r1,r0,0x1 <- andnew r4,r1,r0 <- and 4,0x00ff,0x0000 <- r4 := 0x0000
+        inputMemory.set( 12, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 13, 0x3310 ); // logicw r4,r3,r3,0x1 <- andnew r4,r3,r3 <- and 4,0xffff,0xffff <- r4 := 0xffff
 
         //or
-        inputMemory[14] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[15] = 0x1270; // logicw r4,r1,r2,0x1 <- ornew r4,r1,r2 <- or 4,0x00ff,0x0f0f <- r4 := 0x0fff
-        inputMemory[16] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[17] = 0x1370; // logicw r4,r1,r3,0x1 <- ornew r4,r1,r3 <- or 4,0x00ff,0xffff <- r4 := 0xffff
-        inputMemory[18] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[19] = 0x1070; // logicw r4,r1,r0,0x1 <- ornew r4,r1,r0 <- or 4,0x00ff,0x0000 <- r4 := 0x00ff
-        inputMemory[20] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[21] = 0x3370; // logicw r4,r3,r3,0x1 <- ornew r4,r3,r3 <- or 4,0xffff,0xffff <- r4 := 0xffff
+        inputMemory.set( 14, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 15, 0x1270 ); // logicw r4,r1,r2,0x1 <- ornew r4,r1,r2 <- or 4,0x00ff,0x0f0f <- r4 := 0x0fff
+        inputMemory.set( 16, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 17, 0x1370 ); // logicw r4,r1,r3,0x1 <- ornew r4,r1,r3 <- or 4,0x00ff,0xffff <- r4 := 0xffff
+        inputMemory.set( 18, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 19, 0x1070 ); // logicw r4,r1,r0,0x1 <- ornew r4,r1,r0 <- or 4,0x00ff,0x0000 <- r4 := 0x00ff
+        inputMemory.set( 20, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 21, 0x3370 ); // logicw r4,r3,r3,0x1 <- ornew r4,r3,r3 <- or 4,0xffff,0xffff <- r4 := 0xffff
 
         // xor
-        inputMemory[22] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[23] = 0x1260; // logicw r4,r1,r2,0x1 <- xornew r4,r1,r2 <- xor 4,0x00ff,0x0f0f <- r4 := 0x0ff0
-        inputMemory[24] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[25] = 0x1360; // logicw r4,r1,r3,0x1 <- xornew r4,r1,r3 <- xor 4,0x00ff,0xffff <- r4 := 0xff00
-        inputMemory[26] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[27] = 0x1060; // logicw r4,r1,r0,0x1 <- xornew r4,r1,r0 <- xor 4,0x00ff,0x0000 <- r4 := 0x00ff
-        inputMemory[28] = 0xe416; // logicw r4,rx,rx,---
-        inputMemory[29] = 0x3360; // logicw r4,r3,r3,0x1 <- xornew r4,r3,r3 <- xor 4,0xffff,0xffff <- r4 := 0x0000
+        inputMemory.set( 22, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 23, 0x1260 ); // logicw r4,r1,r2,0x1 <- xornew r4,r1,r2 <- xor 4,0x00ff,0x0f0f <- r4 := 0x0ff0
+        inputMemory.set( 24, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 25, 0x1360 ); // logicw r4,r1,r3,0x1 <- xornew r4,r1,r3 <- xor 4,0x00ff,0xffff <- r4 := 0xff00
+        inputMemory.set( 26, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 27, 0x1060 ); // logicw r4,r1,r0,0x1 <- xornew r4,r1,r0 <- xor 4,0x00ff,0x0000 <- r4 := 0x00ff
+        inputMemory.set( 28, 0xe416 ); // logicw r4,rx,rx,---
+        inputMemory.set( 29, 0x3360 ); // logicw r4,r3,r3,0x1 <- xornew r4,r3,r3 <- xor 4,0xffff,0xffff <- r4 := 0x0000
 
 
         inputRegisters[1] = 0x00ff;
@@ -4307,42 +4287,42 @@ import * as Emulator from './Emulator';
         var inputRegisters = fresh()['registers'];
 
         // inv
-        inputMemory[0] = 0xe417; // logicb r4,rx,rx,---,---
-        inputMemory[1] = 0x10c0; // logicb r4,r1,r0,0xc,0x0 <- invb r4,r1,0 <- r4 := 0x8000
-        inputMemory[2] = 0xe417; // logicb r4,rx,rx,---,---
-        inputMemory[3] = 0x20c8; // logicb r4,r2,r0,0xc,0x8 <- invb r4,r2,8 <- r4 := 0x8080
-        inputMemory[4] = 0xe417; // logicb r4,rx,rx,---,---
-        inputMemory[5] = 0x30cf; // logicb r4,r3,r0,0xc,--- <- invb r4,r3,15 <- r4 := 0x8080
+        inputMemory.set( 0, 0xe417 ); // logicb r4,rx,rx,---,---
+        inputMemory.set( 1, 0x10c0 ); // logicb r4,r1,r0,0xc,0x0 <- invb r4,r1,0 <- r4 := 0x8000
+        inputMemory.set( 2, 0xe417 ); // logicb r4,rx,rx,---,---
+        inputMemory.set( 3, 0x20c8 ); // logicb r4,r2,r0,0xc,0x8 <- invb r4,r2,8 <- r4 := 0x8080
+        inputMemory.set( 4, 0xe417 ); // logicb r4,rx,rx,---,---
+        inputMemory.set( 5, 0x30cf ); // logicb r4,r3,r0,0xc,--- <- invb r4,r3,15 <- r4 := 0x8080
 
         // and
-        inputMemory[6] = 0xe517; // logicb r5,rx,rx,---,---
-        inputMemory[7] = 0x121f; // logicb r5,r1,r2,0x1,0xf <- andb r5,r1,r2,15 <- r5 := 0x0001
-        inputMemory[8] = 0xe517; // logicb r5,rx,rx,---,---
-        inputMemory[9] = 0x131c; // logicb r5,r1,r3,0x1,0xc <- andb r5,r1,r3, <- r5 := 0x0009
-        inputMemory[10] = 0xe517; // logicb r5,rx,rx,---,---
-        inputMemory[11] = 0x1010; // logicb r5,r1,r0,0x1,0x0 <- andb r5,r1,r0,0 <- r5 := 0x0009
-        inputMemory[12] = 0xe517; // logicb r5,rx,rx,---,---
-        inputMemory[13] = 0x3314; // logicb r5,r3,r3,0x1,0x4 <- andb r5,r3,r3,4 <- r5 := 0x0809
+        inputMemory.set( 6, 0xe517 ); // logicb r5,rx,rx,---,---
+        inputMemory.set( 7, 0x121f ); // logicb r5,r1,r2,0x1,0xf <- andb r5,r1,r2,15 <- r5 := 0x0001
+        inputMemory.set( 8, 0xe517 ); // logicb r5,rx,rx,---,---
+        inputMemory.set( 9, 0x131c ); // logicb r5,r1,r3,0x1,0xc <- andb r5,r1,r3, <- r5 := 0x0009
+        inputMemory.set( 10, 0xe517 ); // logicb r5,rx,rx,---,---
+        inputMemory.set( 11, 0x1010 ); // logicb r5,r1,r0,0x1,0x0 <- andb r5,r1,r0,0 <- r5 := 0x0009
+        inputMemory.set( 12, 0xe517 ); // logicb r5,rx,rx,---,---
+        inputMemory.set( 13, 0x3314 ); // logicb r5,r3,r3,0x1,0x4 <- andb r5,r3,r3,4 <- r5 := 0x0809
 
         //or
-        inputMemory[14] = 0xe617; // logicb r6,rx,rx,---,---
-        inputMemory[15] = 0x127f; // logicb r6,r1,r2,0x1,0xf <- orb r6,r1,r2,15 <- r6 := 0x0001
-        inputMemory[16] = 0xe617; // logicb r6,rx,rx,---,---
-        inputMemory[17] = 0x1370; // logicb r6,r1,r3,0x1,0x0 <- orb r6,r1,r3,0 <- r6 := 0x8001
-        inputMemory[18] = 0xe617; // logicb r6,rx,rx,---,---
-        inputMemory[19] = 0x107f; // logicb r6,r1,r0,0x1,0xf <- orb r6,r1,r0,15 <- r6 := 0x8001
-        inputMemory[20] = 0xe617; // logicb r6,rx,rx,---,---
-        inputMemory[21] = 0x337c; // logicb r6,r3,r3,0x1,0xc <- orb r6,r3,r3, <- r6 := 0x8009
+        inputMemory.set( 14, 0xe617 ); // logicb r6,rx,rx,---,---
+        inputMemory.set( 15, 0x127f ); // logicb r6,r1,r2,0x1,0xf <- orb r6,r1,r2,15 <- r6 := 0x0001
+        inputMemory.set( 16, 0xe617 ); // logicb r6,rx,rx,---,---
+        inputMemory.set( 17, 0x1370 ); // logicb r6,r1,r3,0x1,0x0 <- orb r6,r1,r3,0 <- r6 := 0x8001
+        inputMemory.set( 18, 0xe617 ); // logicb r6,rx,rx,---,---
+        inputMemory.set( 19, 0x107f ); // logicb r6,r1,r0,0x1,0xf <- orb r6,r1,r0,15 <- r6 := 0x8001
+        inputMemory.set( 20, 0xe617 ); // logicb r6,rx,rx,---,---
+        inputMemory.set( 21, 0x337c ); // logicb r6,r3,r3,0x1,0xc <- orb r6,r3,r3, <- r6 := 0x8009
 
         // xor
-        inputMemory[22] = 0xe717; // logicb r7,rx,rx,---,---
-        inputMemory[23] = 0x126b; // logicb r7,r1,r2,0x1,0xb <- xorb r7,r1,r2,11 <- r7 := 0x0010
-        inputMemory[24] = 0xe717; // logicb r7,rx,rx,---,---
-        inputMemory[25] = 0x1360; // logicb r7,r1,r3,0x1,0x0 <- xorb r7,r1,r3,0 <- r7 := 0x8010
-        inputMemory[26] = 0xe717; // logicb r7,rx,rx,---,---
-        inputMemory[27] = 0x106f; // logicb r7,r1,r0,0x1,0xf <- xorb r7,r1,r0,15 <- r7 := 0x8011
-        inputMemory[28] = 0xe717; // logicb r7,rx,rx,---,---
-        inputMemory[29] = 0x3363; // logicb r7,r3,r3,0x1,0x3 <- xorb r7,r3,r3,3 <- r7 := 0x8011
+        inputMemory.set( 22, 0xe717 ); // logicb r7,rx,rx,---,---
+        inputMemory.set( 23, 0x126b ); // logicb r7,r1,r2,0x1,0xb <- xorb r7,r1,r2,11 <- r7 := 0x0010
+        inputMemory.set( 24, 0xe717 ); // logicb r7,rx,rx,---,---
+        inputMemory.set( 25, 0x1360 ); // logicb r7,r1,r3,0x1,0x0 <- xorb r7,r1,r3,0 <- r7 := 0x8010
+        inputMemory.set( 26, 0xe717 ); // logicb r7,rx,rx,---,---
+        inputMemory.set( 27, 0x106f ); // logicb r7,r1,r0,0x1,0xf <- xorb r7,r1,r0,15 <- r7 := 0x8011
+        inputMemory.set( 28, 0xe717 ); // logicb r7,rx,rx,---,---
+        inputMemory.set( 29, 0x3363 ); // logicb r7,r3,r3,0x1,0x3 <- xorb r7,r3,r3,3 <- r7 := 0x8011
 
 
         inputRegisters[1] = 0x00ff;
@@ -4441,10 +4421,10 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe118; // getbit r1,---
-        inputMemory[1] = 0x00f0; // getbit r1,0xf <- getbit 5,15 <- r1 := 0x0000
-        inputMemory[2] = 0xe118; // getbit r1,---
-        inputMemory[3] = 0x0000; // getbit r1,0x0 <- getbit 5,0 <- r1 := 0x0001
+        inputMemory.set( 0, 0xe118 ); // getbit r1,---
+        inputMemory.set( 1, 0x00f0 ); // getbit r1,0xf <- getbit 5,15 <- r1 := 0x0000
+        inputMemory.set( 2, 0xe118 ); // getbit r1,---
+        inputMemory.set( 3, 0x0000 ); // getbit r1,0x0 <- getbit 5,0 <- r1 := 0x0001
 
         inputRegisters[15] = 0xf000;
 
@@ -4478,10 +4458,10 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe119; // getbiti r1,---
-        inputMemory[1] = 0x00f0; // getbiti r1,0xf <- getbiti 5,15 <- r1 := 0x0001
-        inputMemory[2] = 0xe119; // getbiti r1,---
-        inputMemory[3] = 0x0000; // getbiti r1,0x0 <- getbiti 5,0 <- r1 := 0x0000
+        inputMemory.set( 0, 0xe119 ); // getbiti r1,---
+        inputMemory.set( 1, 0x00f0 ); // getbiti r1,0xf <- getbiti 5,15 <- r1 := 0x0001
+        inputMemory.set( 2, 0xe119 ); // getbiti r1,---
+        inputMemory.set( 3, 0x0000 ); // getbiti r1,0x0 <- getbiti 5,0 <- r1 := 0x0000
 
         inputRegisters[15] = 0xf000;
 
@@ -4515,10 +4495,10 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe11a; // putbit r1,---
-        inputMemory[1] = 0x00f0; // putbit r1,0xf <- putbit 5,15 <- r15 := 0x0000
-        inputMemory[2] = 0xe11a; // putbit r1,---
-        inputMemory[3] = 0x0000; // putbit r1,0x0 <- putbit 5,0 <- r15 := 0x8000
+        inputMemory.set( 0, 0xe11a ); // putbit r1,---
+        inputMemory.set( 1, 0x00f0 ); // putbit r1,0xf <- putbit 5,15 <- r15 := 0x0000
+        inputMemory.set( 2, 0xe11a ); // putbit r1,---
+        inputMemory.set( 3, 0x0000 ); // putbit r1,0x0 <- putbit 5,0 <- r15 := 0x8000
 
         inputRegisters[1] = 0xf000;
 
@@ -4552,10 +4532,10 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe11b; // putbiti r1,---
-        inputMemory[1] = 0x00f0; // putbiti r1,0xf <- putbiti 5,15 <- r15 := 0x0001
-        inputMemory[2] = 0xe11b; // putbiti r1,---
-        inputMemory[3] = 0x0000; // putbiti r1,0x0 <- putbiti 5,0 <- r15 := 0x0001 <- no change to 0th bit, howver putbit, like inject updates and does not set
+        inputMemory.set( 0, 0xe11b ); // putbiti r1,---
+        inputMemory.set( 1, 0x00f0 ); // putbiti r1,0xf <- putbiti 5,15 <- r15 := 0x0001
+        inputMemory.set( 2, 0xe11b ); // putbiti r1,---
+        inputMemory.set( 3, 0x0000 ); // putbiti r1,0x0 <- putbiti 5,0 <- r15 := 0x0001 <- no change to 0th bit, howver putbit, like inject updates and does not set
 
         inputRegisters[1] = 0xf000;
 
@@ -4589,38 +4569,38 @@ import * as Emulator from './Emulator';
         var inputMemory = fresh()['memory'];
         var inputRegisters = fresh()['registers'];
 
-        inputMemory[0] = 0xe51c; // addc r5,rx,rx
-        inputMemory[1] = 0x1100; // addc r5,r1,r1 <- addc 5,1,1 + 0 <- r5 := 2, r15 := 0xc000
-        inputMemory[2] = 0xe51c; // addc r5,rx,rx
-        inputMemory[3] = 0x0000; // addc r5,r0,r0 <- addc 5,0,0 + 0 <- r5 := 0, r15 := 0x2000
-        inputMemory[4] = 0xe51c; // addc r5,rx,rx
-        inputMemory[5] = 0x0300; // addc r5,r0,r3 <- addc 5,0,0xffff + 0 <- r5 := 0xffff, r15 := 0x9000
+        inputMemory.set( 0, 0xe51c ); // addc r5,rx,rx
+        inputMemory.set( 1, 0x1100 ); // addc r5,r1,r1 <- addc 5,1,1 + 0 <- r5 := 2, r15 := 0xc000
+        inputMemory.set( 2, 0xe51c ); // addc r5,rx,rx
+        inputMemory.set( 3, 0x0000 ); // addc r5,r0,r0 <- addc 5,0,0 + 0 <- r5 := 0, r15 := 0x2000
+        inputMemory.set( 4, 0xe51c ); // addc r5,rx,rx
+        inputMemory.set( 5, 0x0300 ); // addc r5,r0,r3 <- addc 5,0,0xffff + 0 <- r5 := 0xffff, r15 := 0x9000
 
-        inputMemory[6] = 0xe51c; // addc r5,rx,rx
-        inputMemory[7] = 0x3100; // addc r5,r3,r1 <- addc 5,0xffff,1 + 0 <- r5 := 0, r15 := 0x2500 <- ccC, ccV, ccE
+        inputMemory.set( 6, 0xe51c ); // addc r5,rx,rx
+        inputMemory.set( 7, 0x3100 ); // addc r5,r3,r1 <- addc 5,0xffff,1 + 0 <- r5 := 0, r15 := 0x2500 <- ccC, ccV, ccE
 
-        inputMemory[8] = 0xe51c; // addc r5,rx,rx
-        inputMemory[9] = 0x3200; // addc r5,r3,r2 <- addc 5,0xffff,2 + 0 <- r5 := 1, r15 := 0xc500 <- ccC, ccV, ccG, ccg
+        inputMemory.set( 8, 0xe51c ); // addc r5,rx,rx
+        inputMemory.set( 9, 0x3200 ); // addc r5,r3,r2 <- addc 5,0xffff,2 + 0 <- r5 := 1, r15 := 0xc500 <- ccC, ccV, ccG, ccg
 
-        inputMemory[10] = 0xe51c; // addc r5,rx,rx
-        inputMemory[11] = 0x3400; // addc r5,r3,r4 <- addc 5,0xffff,0xfffe + 0 <- r5 := 0xfffd, r15 := 0x9500 <- ccC, ccV, ccG, ccl
+        inputMemory.set( 10, 0xe51c ); // addc r5,rx,rx
+        inputMemory.set( 11, 0x3400 ); // addc r5,r3,r4 <- addc 5,0xffff,0xfffe + 0 <- r5 := 0xfffd, r15 := 0x9500 <- ccC, ccV, ccG, ccl
 
 
-        inputMemory[12] = 0xe51c; // addc r5,rx,rx
-        inputMemory[13] = 0x1100; // addc r5,r1,r1 <- addc 5,1,1 + ccC <- r5 := 3, r15 := 0xc000
-        inputMemory[14] = 0xe51c; // addc r5,rx,rx
-        inputMemory[15] = 0x0000; // addc r5,r0,r0 <- addc 5,0,0 + ccC <- r5 := 1, r15 := 0xc000
-        inputMemory[16] = 0xe51c; // addc r5,rx,rx
-        inputMemory[17] = 0x0300; // addc r5,r0,r3 <- addc 5,0,0xffff + ccC <- r5 := 0x0, r15 := 0x2500
+        inputMemory.set( 12, 0xe51c ); // addc r5,rx,rx
+        inputMemory.set( 13, 0x1100 ); // addc r5,r1,r1 <- addc 5,1,1 + ccC <- r5 := 3, r15 := 0xc000
+        inputMemory.set( 14, 0xe51c ); // addc r5,rx,rx
+        inputMemory.set( 15, 0x0000 ); // addc r5,r0,r0 <- addc 5,0,0 + ccC <- r5 := 1, r15 := 0xc000
+        inputMemory.set( 16, 0xe51c ); // addc r5,rx,rx
+        inputMemory.set( 17, 0x0300 ); // addc r5,r0,r3 <- addc 5,0,0xffff + ccC <- r5 := 0x0, r15 := 0x2500
 
-        inputMemory[18] = 0xe51c; // addc r5,rx,rx
-        inputMemory[19] = 0x3100; // addc r5,r3,r1 <- addc 5,0xffff,1 + ccC <- r5 := 1, r15 := 0xc500
+        inputMemory.set( 18, 0xe51c ); // addc r5,rx,rx
+        inputMemory.set( 19, 0x3100 ); // addc r5,r3,r1 <- addc 5,0xffff,1 + ccC <- r5 := 1, r15 := 0xc500
 
-        inputMemory[20] = 0xe51c; // addc r5,rx,rx
-        inputMemory[21] = 0x3200; // addc r5,r3,r2 <- addc 5,0xffff,2 + ccC <- r5 := 2, r15 := 0xc500
+        inputMemory.set( 20, 0xe51c ); // addc r5,rx,rx
+        inputMemory.set( 21, 0x3200 ); // addc r5,r3,r2 <- addc 5,0xffff,2 + ccC <- r5 := 2, r15 := 0xc500
 
-        inputMemory[22] = 0xe51c; // addc r5,rx,rx
-        inputMemory[23] = 0x3400; // addc r5,r3,r4 <- addc 5,0xffff,0xfffe + ccC <- r5 := 0xfffe, r15 := 0x9500
+        inputMemory.set( 22, 0xe51c ); // addc r5,rx,rx
+        inputMemory.set( 23, 0x3400 ); // addc r5,r3,r4 <- addc 5,0xffff,0xfffe + ccC <- r5 := 0xfffe, r15 := 0x9500
 
         inputRegisters[1] = 0x0001;
         inputRegisters[2] = 0x0002;

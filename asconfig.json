@@ -2,7 +2,7 @@
   "targets": {
     "release": {
       "binaryFile": "public/wasm/Emulator.wasm",
-      "textFile": "public/wasm/Emulator.wat",
+      "textFile": "assembly/Emulator.wat",
       "sourceMap": true,
       "optimizeLevel": 3,
       "shrinkLevel": 1,

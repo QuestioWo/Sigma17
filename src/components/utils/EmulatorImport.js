@@ -7,7 +7,7 @@
 import { instantiateStreaming } from 'assemblyscript/lib/loader';
 
 export default instantiateStreaming(
-  fetch(`${process.env.PUBLIC_URL}/wasm/Emulator.wasm`)
-).then(emu => {
+  fetch( `${process.env.PUBLIC_URL}/wasm/Emulator.wasm` )
+).then( emu => {
   return emu.exports;
 });
