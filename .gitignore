@@ -13,6 +13,9 @@
 # production
 /build
 
+# binaries
+/public/wasm
+
 # misc
 .DS_Store
 .env.local
