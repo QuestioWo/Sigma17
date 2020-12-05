@@ -13,8 +13,6 @@ import { Col, Row } from 'react-bootstrap';
 
 import NavBar from './NavBar';
 
-import Emu from './utils/EmulatorImport';
-
 export default class HomeView extends React.Component {
 // CLASS METHODS
   constructor( props, context ) {
@@ -61,10 +59,6 @@ export default class HomeView extends React.Component {
 
       localStorage.setItem( 'theme', 'light' );
     }
-
-    var result;
-
-    Emu.then(emu => console.log(emu)).catch(err => console.log(err));
 
     return(
       <React.Fragment>
@@ -127,9 +121,6 @@ export default class HomeView extends React.Component {
                 </a>
               </div>
             </Col>
-          </Row>
-          <Row>
-            {result}
           </Row>
         </div>
       </React.Fragment>
