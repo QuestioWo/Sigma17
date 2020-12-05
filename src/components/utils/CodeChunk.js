@@ -35,7 +35,11 @@ export default class CodeMirrorComponent extends React.Component {
   componentDidMount() {
     this.checkCode( this.state.code, 0, Infinity, true );
 
-    if ( this.props.lineComp ) this.setState( { lineComp : this.props.lineComp } );
+    if ( this.props.lineComp ) {
+      this.setState( prevState => { 
+        lineComp : this.props.lineComp 
+      } );
+    }
   }
 
 // CHECKING METHODS
