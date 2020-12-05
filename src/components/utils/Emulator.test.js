@@ -1206,69 +1206,30 @@ import * as Emulator from './Emulator';
     // FULLY COMPATIBLE
       test( 'CHECK checkCodeIsCompatible fully', () => {
         for ( var i = 0; i < fullyCompatibleCommands.length; i++ ) {
-          expect( Emulator.checkCodeIsCompatible( fullyCompatibleCommands[i] ) ).toStrictEqual( [ // dont add arguments as function only checks if the command is valid and assumes that the arguments are correct
-            true, // is compatible
-            {}, // warn is empty
-            {} // error is empty
-          ] );
+          // dont add arguments as function only checks if the command is valid and assumes that the arguments are correct
+          expect( Emulator.checkCodeIsCompatible( fullyCompatibleCommands[i] ) ).toStrictEqual( new Map() );
         }
 
-        expect( Emulator.checkCodeIsCompatible( 'data 21' ) ).toStrictEqual( [ // dont add arguments as function only checks if the command is valid and assumes that the arguments are correct
-          true, // is compatible
-          {}, // warn is empty
-          {} // error is empty
-        ] );
+        expect( Emulator.checkCodeIsCompatible( 'data 21' ) ).toStrictEqual( new Map() );
 
-        expect( Emulator.checkCodeIsCompatible( 'data $0021' ) ).toStrictEqual( [ // dont add arguments as function only checks if the command is valid and assumes that the arguments are correct
-          true, // is compatible
-          {}, // warn is empty
-          {} // error is empty
-        ] );
+        expect( Emulator.checkCodeIsCompatible( 'data $0021' ) ).toStrictEqual( new Map() );
 
-        expect( Emulator.checkCodeIsCompatible( 'data #0001110' ) ).toStrictEqual( [ // dont add arguments as function only checks if the command is valid and assumes that the arguments are correct
-          true, // is compatible
-          {}, // warn is empty
-          {} // error is empty
-        ] );
+        expect( Emulator.checkCodeIsCompatible( 'data #0001110' ) ).toStrictEqual( new Map() );
       } );
 
     // PARTIALLY COMPATIBLE
       test( 'CHECK checkCodeIsCompatible partially', () => {
         for ( var i = 0; i < Object.keys( partiallyCompatibleCommands ).length; i++ ) {
-          expect( Emulator.checkCodeIsCompatible( Object.keys( partiallyCompatibleCommands )[i] ) ).toStrictEqual( [ // dont add arguments as function only checks if the command is valid and assumes that the arguments are correct
-            true, // is compatible
-            { 1 : {
-                'warn' : partiallyCompatibleCommands[ Object.keys( partiallyCompatibleCommands )[i] ],
-                'error' : ''
-              }
-            },
-            {} // error is empty
-          ] );
+          expect( Emulator.checkCodeIsCompatible( Object.keys( partiallyCompatibleCommands )[i] ) ).toStrictEqual( new Map( [[1, 'Compatibility warning : ' + partiallyCompatibleCommands[ Object.keys( partiallyCompatibleCommands )[i] ]]] ) );
         }
 
-        expect( Emulator.checkCodeIsCompatible( 'data 21,$0021,#0001110' ) ).toStrictEqual( [ // dont add arguments as function only checks if the command is valid and assumes that the arguments are correct
-          true, // is compatible
-          { 1 : {
-              'warn' : 'Multiple data constants is not supported by the original emulator',
-              'error' : ''
-            } 
-          }, // warn is empty
-          {} // error is empty
-        ] );
+        expect( Emulator.checkCodeIsCompatible( 'data 21,$0021,#0001110' ) ).toStrictEqual( new Map( [[1, 'Compatibility warning : Multiple data constants is not supported by the original emulator']] ) );
       } );
 
     // NON COMPATIBLE
       test( 'CHECK checkCodeIsCompatible non', () => {
         for ( var i = 0; i < nonCompatibleCommands.length; i++ ) {
-          expect( Emulator.checkCodeIsCompatible( nonCompatibleCommands[i] ) ).toStrictEqual( [ // dont add arguments as function only checks if the command is valid and assumes that the arguments are correct
-            false, // is not compatible
-            {}, // warn is empty
-            { 1 : {
-                'warn' : '',
-                'error' : 'Assembler does not recognise command at all and will return an error'            
-              }
-            }
-          ] );
+          expect( Emulator.checkCodeIsCompatible( nonCompatibleCommands[i] ) ).toStrictEqual( new Map( [[1, 'Compatibility error : Assembler does not recognise command at all and will return an error']] ) );
         }
       } );
 

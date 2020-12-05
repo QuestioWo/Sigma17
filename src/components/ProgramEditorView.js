@@ -42,8 +42,7 @@ export default class ProgramEditorView extends React.PureComponent {
       downloadAs : 0,
       fileName : 'S16DownloadFile',
 
-      lineCompWarn : {},
-      lineCompError : {},
+      lineComp : new Map(),
 
       registers : new Array( 16 ).fill( 0 ),
       cpuControl : new Map(),
@@ -614,46 +613,37 @@ export default class ProgramEditorView extends React.PureComponent {
 
     if ( check[0] ) {
       const checkCompatible = Emulator.checkCodeIsCompatible( this.codeRef.current.state.code );
-      if ( checkCompatible[0] ) {
+      const keys = Array.from( checkCompatible.keys() );
+
+      if ( keys.length !== 0 ) {
         var textValue = this.state.fileName;
         if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
           textValue += '.asm.txt';
         }
 
-        this.downloadFile( textValue, Emulator.parseCodeToCompatible( this.codeRef.current.state.code ) );
+        this.setState( { lineComp : checkCompatible } );
 
-        keys = Object.keys( checkCompatible[1] );
-        if ( keys.length ) {
-          keysString = '';
-
-          for ( i = 0; i < keys.length; i++ ) {
-            if ( i !== 0 ) {
-              keysString += ', ';
-            }
-
-            keysString += keys[i];
-          }
-
-          this.setState( { lineCompWarn : checkCompatible[1], lineCompError : checkCompatible[2] } );
-          this.updateAlert( 'Download shall continue however, some only partially compatible commands in code at line(s): ' + keysString, 'warning' );
-        } else {
-          this.setState( { lineCompWarn : {}, lineCompError : {} } );
-          this.updateAlert( 'Download successful', 'success' );
-        }
-      } else {
-        keys = Object.keys( checkCompatible[2] );
+        var error = false;
         keysString = '';
 
-        for ( i = 0; i < keys.length; i++ ) {
-          if ( i !== 0 ) {
-            keysString += ', ';
+        for ( var it = 0; it < keys.length; it++ ) {
+          if ( checkCompatible.get( keys[it] ).startsWith( 'Compatibility error : ' ) ) {
+            error = true;
           }
 
-          keysString += keys[i];
+          if ( it !== 0 ) keysString += ', ';
+          keysString += keys[it];
         }
-
-        this.setState( { lineCompWarn : checkCompatible[1], lineCompError : checkCompatible[2] } );
-        this.updateAlert( 'Download cannot continue as some fully non compatible commands in code at line(s): ' + keysString, 'danger' );
+        
+        if ( error ) {
+          this.updateAlert( 'Download cannot continue as some fully non compatible commands in code at line(s): ' + keysString, 'danger' );
+        } else {
+          this.updateAlert( 'Download shall continue however, some only partially compatible commands in code at line(s): ' + keysString, 'warning' );
+          this.downloadFile( textValue, Emulator.parseCodeToCompatible( this.codeRef.current.state.code ) );
+        }
+      } else {
+        this.setState( { lineComp : new Map() } );
+        this.updateAlert( 'Download successful', 'success' );
       }
     } else {
       keys = Object.keys( check[1] );
@@ -763,54 +753,44 @@ export default class ProgramEditorView extends React.PureComponent {
 
     if ( check[0] ) {
       const checkCompatible = Emulator.checkCodeIsCompatible( this.codeRef.current.state.code );
-      if ( checkCompatible[0] ) {
-        var machineCode = this.parseCode();
-        var stream = '';
+      const keys = Array.from( checkCompatible.keys() );
 
-        for ( i = 0; i < machineCode.length; i++ ) {
-          stream += ' data $' + Emulator.writeHex( machineCode[i] ) + '\n';
-        }
-
+      if ( keys.length !== 0 ) {
         var textValue = this.state.fileName;
         if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
           textValue += '.asm.txt';
         }
 
-        this.downloadFile( textValue, stream );
-        this.updateAlert( 'Download successful', 'success' );
+        this.setState( { lineComp : checkCompatible } );
 
-        keys = Object.keys( checkCompatible[1] );
-        if ( keys.length ) {
-          keysString = '';
-
-          for ( i = 0; i < keys.length; i++ ) {
-            if ( i !== 0 ) {
-              keysString += ', ';
-            }
-
-            keysString += keys[i];
-          }
-
-          this.setState( { lineCompWarn : checkCompatible[1], lineCompError : checkCompatible[2] } );
-          this.updateAlert( 'Download can continue however, some only partially compatible commands in code at line(s): ' + keysString, 'warning' );
-        } else {
-          this.setState( { lineCompWarn : {}, lineCompError : {} } );
-          this.updateAlert( 'Download successful', 'success' );
-        }
-      } else {
-        keys = Object.keys( checkCompatible[2] );
+        var error = false;
         keysString = '';
 
-        for ( i = 0; i < keys.length; i++ ) {
-          if ( i !== 0 ) {
-            keysString += ', ';
+        for ( var it = 0; it < keys.length; it++ ) {
+          if ( checkCompatible.get( keys[it] ).startsWith( 'Compatibility error : ' ) ) {
+            error = true;
           }
 
-          keysString += keys[i];
+          if ( it !== 0 ) keysString += ', ';
+          keysString += keys[it];
         }
+        
+        if ( error ) {
+          this.updateAlert( 'Download cannot continue as some fully non compatible commands in code at line(s): ' + keysString, 'danger' );
+        } else {
+          var machineCode = this.parseCode();
+          var stream = '';
 
-        this.setState( { lineCompWarn : checkCompatible[1], lineCompError : checkCompatible[2] } );
-        this.updateAlert( 'Download cannot continue as some fully non compatible commands in code at line(s): ' + keysString, 'danger' );
+          for ( var ite = 0; ite < machineCode.length; ite++ ) {
+            stream += ' data $' + Emulator.writeHex( machineCode[ite] ) + '\n';
+          }
+
+          this.updateAlert( 'Download shall continue however, some only partially compatible commands in code at line(s): ' + keysString, 'warning' );
+          this.downloadFile( textValue, stream );
+        }
+      } else {
+        this.setState( { lineComp : new Map() } );
+        this.updateAlert( 'Download successful', 'success' );
       }
     } else {
       keys = Object.keys( check[1] );
@@ -1219,8 +1199,7 @@ export default class ProgramEditorView extends React.PureComponent {
                 ref={this.codeRef}
                 code={this.state.code} 
                 breakpoints={this.state.breakpoints}
-                lineCompWarn={this.state.lineCompWarn} 
-                lineCompError={this.state.lineCompError}
+                lineComp={this.state.lineComp} 
                 alertShow={this.state.alertShow}
                 readOnly={false} />
             </Col>
