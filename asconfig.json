@@ -3,7 +3,7 @@
     "release": {
       "binaryFile": "public/wasm/Emulator.wasm",
       "textFile": "assembly/Emulator.wat",
-      "sourceMap": true,
+      "sourceMap": false,
       "optimizeLevel": 3,
       "shrinkLevel": 1,
       "converge": false,

@@ -13,10 +13,6 @@
 # production
 /build
 
-# binaries
-/public/wasm
-**/*.wat
-
 # misc
 .DS_Store
 .env.local

@@ -8,6 +8,10 @@ import React from 'react';
 
 import * as Emulator from './Emulator';
 
+require( 'ts-node' ).register( { project: path.join( __dirname, '../../../assembly/tsconfig.json' ) } );
+
+import Emu from './EmulatorImport';
+
 // RUN TESTS USING `npm run test` in the `Sigma17/` directory
 
 // SETUP
@@ -117,6 +121,14 @@ import * as Emulator from './Emulator';
 // UTIL FUNCTIONS
   // readSignedHex
     test( 'UTIL readSignedHex', () => {
+      var importObject = { imports: { imported_func: arg => console.log(arg) } };
+
+      // const wasm = (await window.WebAssembly.instantiateStreaming( fetch( './wasm/Emulator.wasm' ), importObject )).instance.exports;
+
+      // console.log(new WebAssembly.Instance(WebAssembly.instantiateStreaming( fetch( './wasm/Emulator.wasm' ) )));
+
+      
+
       expect( Emulator.readSignedHex( 0xffff ) ).toBe( -1 );
       expect( Emulator.readSignedHex( 0x8000 ) ).toBe( -32768 );
       expect( Emulator.readSignedHex( 0x0000 ) ).toBe( 0 );
@@ -2948,8 +2960,6 @@ import * as Emulator from './Emulator';
           outputMemory.set( 36, 0x0 );
           outputMemory.set( 37, 0x0 );
           outputMemory.set( 38, 0x0 );
-
-          console.log( parsed['input'] )
 
           parsed = testFromChanges( parsed,
           {

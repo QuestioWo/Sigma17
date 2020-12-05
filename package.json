@@ -21,18 +21,12 @@
     "react-scripts": "^3.4.3",
     "react-select": "^3.1.0",
     "sass": "^1.26.5",
-    "typescript": "^3.8.3",
-    "underscore": "^1.10.2",
-    "@assemblyscript/loader": "^0.17.4"
+    "typescript": "^3.8.3"
   },
   "scripts": {
-    "jsbuild": "react-scripts build",
-    "asbuild:optimized": "asc assembly/index.ts --target release",
-    "asbuild": "asc assembly/Emulator.ts --target release",
-    "jsstart": "set HTTPS=true&&react-scripts start",
-    "start": "npm run asbuild && npm run jsstart",
-    "build": "npm run asbuild && npm run jsbuild",
-    "test": "npm run asbuild && react-scripts test",
+    "build": "react-scripts build",
+    "start": "set HTTPS=true&&react-scripts start",
+    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
@@ -51,8 +45,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "assemblyscript": "^0.17.4"
   }
 }
