@@ -36,31 +36,10 @@ export default class ProgramDebugView extends React.Component {
 
       machineCode : [],
 
-      registers : {
-        0 : 0,
-        1 : 0,
-        2 : 0,
-        3 : 0,
-        4 : 0,
-        5 : 0,
-        6 : 0,
-        7 : 0,
-        8 : 0,
-        9 : 0,
-        10 : 0,
-        11 : 0,
-        12 : 0,
-        13 : 0,
-        14 : 0,
-        15 : 0
-      },
-      cpuControl : {
-        'pc' : 0,
-        'ir' : 0,
-        'adr' : 0
-      },
+      registers : new Array( 16 ).fill( 0 ),
+      cpuControl : new Map(),
 
-      memory : {},
+      memory : new Map(),
 
       output : '',
 
@@ -95,6 +74,10 @@ export default class ProgramDebugView extends React.Component {
 
       outputModalShow : false
     };
+
+    this.state.cpuControl.set( 'pc', 0 );
+    this.state.cpuControl.set( 'ir', 0 );
+    this.state.cpuControl.set( 'adr', 0 );
 
     this.inputRef = React.createRef();
     this.codeRef = React.createRef();
@@ -160,20 +143,20 @@ export default class ProgramDebugView extends React.Component {
 // REGISTER/MEMORY METHODS
   controlColumn() {
     var controls = [];
-    var controlKeys = Object.keys( this.state.cpuControl );
+    var controlKeys = this.state.cpuControl.keys();
 
-    for ( var i = 0; i < controlKeys.length; i++ ) {
+    for ( const key of controlKeys ) {
       controls.push( 
         <div 
-          key={'control ' + controlKeys[i]}
-          id={'control ' + controlKeys[i]}
+          key={'control ' + key}
+          id={'control ' + key}
           className={'systeminfo-column-elem'}>
           <Row>
             <Col>
-              <strong>{controlKeys[i]}</strong>
+              <strong>{key}</strong>
             </Col>
             <Col style={{textAlign:'right'}}>
-                ${Emulator.writeHex( this.state.cpuControl[controlKeys[i]] )}
+                ${Emulator.writeHex( this.state.cpuControl.get( key ) )}
             </Col>
           </Row>
         </div> 
@@ -201,7 +184,7 @@ export default class ProgramDebugView extends React.Component {
     for ( var i = 0; i < 16; i++ ) {
       var classNameRegister = 'systeminfo-column-elem';
 
-      if ( this.state.changedRegisters.includes( String( i ) ) ) classNameRegister += ' changed';
+      if ( this.state.changedRegisters.includes( i ) ) classNameRegister += ' changed';
 
       registers.push( 
         <div 
@@ -210,7 +193,7 @@ export default class ProgramDebugView extends React.Component {
           className={classNameRegister}>
           <Row>
             <Col>
-              <strong>{'R'+i}</strong>
+              <strong>{'R' + i}</strong>
             </Col>
             <Col style={{textAlign:'right'}}>
               <OverlayTrigger
@@ -251,7 +234,7 @@ export default class ProgramDebugView extends React.Component {
   }
   //
   memoryOptions( memory ) {
-    const memoryKeys = Object.keys( memory ).map( key => Number( key ) );
+    const memoryKeys = Array.from( memory.keys( memory ) );
 
     const interval = 0x500;
 
@@ -293,7 +276,7 @@ export default class ProgramDebugView extends React.Component {
 
   memoryColumn() {
     var memoryValues = [];
-    var memoryKeys = Object.keys( this.state.memory ).map( key => Number( key ) );
+    var memoryKeys = Array.from( this.state.memory.keys() );
 
     for ( var i = memoryKeys.indexOf( this.state.memoryViewOptions[this.state.memoryViewStart] ); i < memoryKeys.length && memoryKeys[i] < this.state.memoryViewOptions[this.state.memoryViewStart + 1]; i++ ) {
       var classNameMemory = 'systeminfo-column-elem';
@@ -306,7 +289,7 @@ export default class ProgramDebugView extends React.Component {
       }
 
       if ( this.state.breakpointsMachineCode.includes( memoryKeys[i] ) ) decoration = 'underline';
-      if ( this.state.changedMemory.includes( String( memoryKeys[i] ) ) ) classNameMemory += ' changed';
+      if ( this.state.changedMemory.includes( memoryKeys[i] ) ) classNameMemory += ' changed';
 
       memoryValues.push( 
         <div 
@@ -323,11 +306,11 @@ export default class ProgramDebugView extends React.Component {
                 placement={'left'}
                 overlay={
                   <Tooltip>
-                    { Emulator.readUnsignedHex( this.state.memory[memoryKeys[i]] ) }/{ Emulator.readSignedHex( this.state.memory[memoryKeys[i]] ) }
+                    { Emulator.readUnsignedHex( this.state.memory.get( memoryKeys[i] ) ) }/{ Emulator.readSignedHex( this.state.memory.get( memoryKeys[i] ) ) }
                   </Tooltip>
                 }>
                 <span>
-                  ${Emulator.writeHex( this.state.memory[memoryKeys[i]] )}
+                  ${Emulator.writeHex( this.state.memory.get( memoryKeys[i] ) )}
                 </span>
               </OverlayTrigger>
             </Col>
@@ -412,11 +395,11 @@ export default class ProgramDebugView extends React.Component {
 
       if ( this.state.lineToMemory[i] ) {
         var parsedMachineCodeStringStart = Emulator.writeHex( this.state.lineToMemory[i][0] );
-        var parsedMachineCodeStringCodes = Emulator.writeHex( this.state.memory[ this.state.lineToMemory[i][0] ] );
+        var parsedMachineCodeStringCodes = Emulator.writeHex( this.state.memory.get( this.state.lineToMemory[i][0] ) );
 
         if ( this.state.lineToMemory[i][1] ) {
           parsedMachineCodeStringStart += ', ' + Emulator.writeHex( this.state.lineToMemory[i][1] );
-          parsedMachineCodeStringCodes += ', ' + Emulator.writeHex( this.state.memory[ this.state.lineToMemory[i][1] ] );
+          parsedMachineCodeStringCodes += ', ' + Emulator.writeHex( this.state.memory.get( this.state.lineToMemory[i][1] ) );
         }
 
         var parsedMachineCodeString = parsedMachineCodeStringStart + ' | ' + parsedMachineCodeStringCodes;
@@ -666,30 +649,12 @@ export default class ProgramDebugView extends React.Component {
 
 // RUNNING METHODS
   resetCPUandMemory() {
-    var registersNew = {
-      0 : 0,
-      1 : 0,
-      2 : 0,
-      3 : 0,
-      4 : 0,
-      5 : 0,
-      6 : 0,
-      7 : 0,
-      8 : 0,
-      9 : 0,
-      10 : 0,
-      11 : 0,
-      12 : 0,
-      13 : 0,
-      14 : 0,
-      15 : 0
-    };
+    var registersNew = new Array( 16 ).fill( 0 );
 
-    var cpuControlNew = {
-      'pc' : 0,
-      'ir' : 0,
-      'adr' : 0
-    };
+    var cpuControlNew = new Map();
+    cpuControlNew.set( 'pc', 0 );
+    cpuControlNew.set( 'ir', 0 );
+    cpuControlNew.set( 'adr', 0 );
 
     var outputNew = '';
 
@@ -750,7 +715,7 @@ export default class ProgramDebugView extends React.Component {
 
       while ( !( ran['halted'] ) && !encounteredBreakpoint && ( interrupt ? count !== runCap : true ) ) {
         if ( ran['control'] !== undefined ) {
-          lastRanLine = ran['control']['pc'];
+          lastRanLine = ran['control'].get( 'pc' );
         }
 
         ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
@@ -758,7 +723,7 @@ export default class ProgramDebugView extends React.Component {
         localInput = ran['input'];
         localOutput = ran['output'];
         
-        if ( this.state.breakpointsMachineCode.includes( ran['control']['pc'] ) ) {
+        if ( this.state.breakpointsMachineCode.includes( ran['control'].get( 'pc' ) ) ) {
           encounteredBreakpoint = true;
         }
 
@@ -776,7 +741,7 @@ export default class ProgramDebugView extends React.Component {
         inputRan : localInput, 
         output : localOutput, 
         lastLine : lastRanLine,
-        activeLine : localControl['pc'],
+        activeLine : localControl.get( 'pc' ),
         halted : ran['halted'],
 
         changedRegisters : Object.keys( _.omit( localRegisters, function( v, k ) { return initialRegisters[k] === v; } ) ),
@@ -821,7 +786,7 @@ export default class ProgramDebugView extends React.Component {
         inputRan : localInput, 
         output : localOutput, 
         lastLine : prevState.activeLine,
-        activeLine : localControl['pc'],
+        activeLine : localControl.get( 'pc' ),
         halted : ran['halted'],
 
         changedRegisters : Object.keys( _.omit( localRegisters, function( v, k ) { return initialRegisters[k] === v; } ) ),

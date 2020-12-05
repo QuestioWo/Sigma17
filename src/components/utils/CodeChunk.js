@@ -26,12 +26,20 @@ export default class CodeMirrorComponent extends React.Component {
       code : props.code,
       breakpoints : props.breakpoints,
 
-      lineError : {}
+      lineError : new Map(),
+
+      lineComp : new Map()
     };
   }
 
   componentDidMount() {
     this.checkCode( this.state.code, 0, Infinity, true );
+
+    if ( this.props.lineComp ) {
+      this.setState( prevState => ( { 
+        lineComp : this.props.lineComp
+      } ) );
+    }
   }
 
 // CHECKING METHODS
@@ -40,6 +48,8 @@ export default class CodeMirrorComponent extends React.Component {
     var check;
 
     var lineErrorCopy = this.state.lineError;
+    var lineCompCopy = new Map();
+    if ( this.props.lineComp ) lineCompCopy = this.state.lineComp;
 
     var currentLine = 0;
 
@@ -68,17 +78,27 @@ export default class CodeMirrorComponent extends React.Component {
     for ( i = changedLineFrom; i < lines.length && i <= changedLineTo; i++ ) {
       check = Emulator.checkLine( lines[i], labels );
       if ( check.length ) {
-        lineErrorCopy[i + 1] = check;
+        lineErrorCopy.set( i + 1, check );
         ranSuccessfully = false;
       } else {
-        delete lineErrorCopy[i + 1];
+        lineErrorCopy.delete( i + 1 );
+
+        if ( this.props.lineComp ) {
+          const checkCompatible = Emulator.checkCodeIsCompatible( lines[i] );
+          
+          if ( checkCompatible.get( 1 ) !== undefined ) {
+            lineCompCopy.set( i + 1, checkCompatible.get( 1 ) );
+          } else {
+            lineCompCopy.delete( i + 1 );
+          }
+        }
       }
     }
 
     if ( updateState ) {
-      this.setState( { code : code, lineError : lineErrorCopy } );
+      this.setState( { code : code, lineError : lineErrorCopy, lineComp : lineCompCopy } );
     } else {
-      return [ranSuccessfully, lineErrorCopy];
+      return [ranSuccessfully, lineErrorCopy, lineCompCopy];
     }
   }
 
@@ -94,15 +114,7 @@ export default class CodeMirrorComponent extends React.Component {
 
     const lines = this.state.code.split( '\n' );
 
-    const lineErrorKeys = Object.keys( this.state.lineError );
-
-    var lineCompWarnKeys = [];
-    var lineCompErrorKeys = [];
-
-    if ( this.props.lineCompWarn ) { 
-      lineCompWarnKeys = Object.keys( this.props.lineCompWarn );
-      lineCompErrorKeys = Object.keys( this.props.lineCompError );
-    }
+    const lineErrorKeys = Array.from( this.state.lineError.keys() );
 
     for ( var i = 0; i < lineErrorKeys.length; i++ ) {
       const lineI = lineErrorKeys[i] - 1;
@@ -121,7 +133,7 @@ export default class CodeMirrorComponent extends React.Component {
             placement={'right'}
             overlay={
               <Tooltip>
-                {this.state.lineError[lineI + 1]}
+                {this.state.lineError.get( lineI + 1 )}
               </Tooltip>
             }>
             <div 
@@ -137,55 +149,27 @@ export default class CodeMirrorComponent extends React.Component {
       }
     }
 
-    if ( this.props.lineCompError ) {
-      for ( i = 0; i < lineCompErrorKeys.length; i++ ) {
-        const lineI = lineCompErrorKeys[i] - 1;
+    if ( this.props.lineComp ) {
+      for ( const key of this.state.lineComp.keys() ) {
+        const lineI = key - 1;
+        var classExtension = this.state.lineComp.get( key ).startsWith( 'Compatibility error : ' ) ? ' comperror' : ' compwarn';
 
         if ( !( linesDotted.includes( lineI ) ) && lineI <= lines.length ) {
           const styleTop = ( 25 * ( lineI + 0.75 ) ) + 3 +'px';
 
           breakpoints.push( 
             <OverlayTrigger
-              key={'breakpoint ' + ( lineI + 1 ) + ' comperror tooltip'}
+              key={'breakpoint ' + key + classExtension + ' tooltip'}
               placement={'right'}
               overlay={
                 <Tooltip>
-                  {this.props.lineCompError[lineI + 1]['error']}
+                  {this.state.lineComp.get( key )}
                 </Tooltip>
               }>
               <div 
-                key={'breakpoint ' + ( lineI + 1 )}
-                id={'breakpoint ' + ( lineI + 1 )} 
-                className={'breakpoint ' + ( lineI + 1 ) + ' comperror'} 
-                style={{top : styleTop}} />
-            </OverlayTrigger>
-          );
-
-          linesDotted.push( lineI );
-        }
-      }
-    }
-
-    if ( this.props.lineCompWarn ) {
-      for ( var it = 0; it < lineCompWarnKeys.length; it++ ) {
-        const lineI = lineCompWarnKeys[it] - 1;
-
-        if ( !( linesDotted.includes( lineI ) ) && lineI <= lines.length ) {
-          const styleTop = ( 25 * ( lineI + 0.75 ) ) + 3 +'px';
-
-          breakpoints.push( 
-            <OverlayTrigger
-              key={'breakpoint ' + ( lineI + 1 ) + ' compwarn tooltip'}
-              placement={'right'}
-              overlay={
-                <Tooltip>
-                  {this.props.lineCompWarn[lineI + 1]['warn']}
-                </Tooltip>
-              }>
-              <div 
-                key={'breakpoint ' + ( lineI + 1 )}
-                id={'breakpoint ' + ( lineI + 1 )} 
-                className={'breakpoint ' + ( lineI + 1 ) + ' compwarn'} 
+                key={'breakpoint ' + key}
+                id={'breakpoint ' + key} 
+                className={'breakpoint ' + key + classExtension} 
                 style={{top : styleTop}} />
             </OverlayTrigger>
           );

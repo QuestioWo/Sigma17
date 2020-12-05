@@ -5,103 +5,102 @@
 */
 
 // CONSTS FOR COMMAND RECOGNITION
-  const allCommands = {
-    add : 'rrr', 
-    sub : 'rrr', 
-    mul : 'rrr', 
-    div : 'rrr', 
-    cmplt : 'rrr', 
-    cmpeq : 'rrr', 
-    cmpgt : 'rrr', 
-    and : 'rrr', 
-    andold : 'rrr', 
-    or : 'rrr', 
-    orold : 'rrr', 
-    xor : 'rrr',
-    xorold : 'rrr',
-    trap : 'rrr',
+  const allCommands = new Map();
+    allCommands.set( 'add', 'rrr', );
+    allCommands.set( 'sub', 'rrr', );
+    allCommands.set( 'mul', 'rrr', );
+    allCommands.set( 'div', 'rrr', );
+    allCommands.set( 'cmplt', 'rrr', );
+    allCommands.set( 'cmpeq', 'rrr', );
+    allCommands.set( 'cmpgt', 'rrr', );
+    allCommands.set( 'and', 'rrr', );
+    allCommands.set( 'andold', 'rrr', );
+    allCommands.set( 'or', 'rrr', );
+    allCommands.set( 'orold', 'rrr', );
+    allCommands.set( 'xor', 'rrr' );
+    allCommands.set( 'xorold', 'rrr' );
+    allCommands.set( 'trap', 'rrr' );
 
-    cmp : 'rr', 
-    inv : 'rr',
-    invold : 'rr',
+    allCommands.set( 'cmp', 'rr', );
+    allCommands.set( 'inv', 'rr' );
+    allCommands.set( 'invold', 'rr' );
 
-    lea : 'rx', 
-    load : 'rx', 
-    store : 'rx', 
-    jumpf : 'rx', 
-    jumpt : 'rx', 
-    jal : 'rx', 
-    testset : 'rx',
+    allCommands.set( 'lea', 'rx', );
+    allCommands.set( 'load', 'rx', );
+    allCommands.set( 'store', 'rx', );
+    allCommands.set( 'jumpf', 'rx', );
+    allCommands.set( 'jumpt', 'rx', );
+    allCommands.set( 'jal', 'rx', );
+    allCommands.set( 'testset', 'rx' );
 
-    jump : 'jx', 
+    allCommands.set( 'jump', 'jx', );
 
-    jumpc0 : 'kx', 
-    jumpc1 : 'kx',
+    allCommands.set( 'jumpc0', 'kx', );
+    allCommands.set( 'jumpc1', 'kx' );
 
-    jumple : 'jumpAlias',
-    jumpne : 'jumpAlias',
-    jumpge : 'jumpAlias',
-    jumpnv : 'jumpAlias',
-    jumpnvu : 'jumpAlias',
-    jumpnco : 'jumpAlias',
-    jumpnso : 'jumpAlias',
+    allCommands.set( 'jumple', 'jumpAlias' );
+    allCommands.set( 'jumpne', 'jumpAlias' );
+    allCommands.set( 'jumpge', 'jumpAlias' );
+    allCommands.set( 'jumpnv', 'jumpAlias' );
+    allCommands.set( 'jumpnvu', 'jumpAlias' );
+    allCommands.set( 'jumpnco', 'jumpAlias' );
+    allCommands.set( 'jumpnso', 'jumpAlias' );
 
-    jumplt : 'jumpAlias',
-    jumpeq : 'jumpAlias',
-    jumpgt : 'jumpAlias',
-    jumpv : 'jumpAlias',
-    jumpvu : 'jumpAlias',
-    jumpco : 'jumpAlias',
-    jumpso : 'jumpAlias',
+    allCommands.set( 'jumplt', 'jumpAlias' );
+    allCommands.set( 'jumpeq', 'jumpAlias' );
+    allCommands.set( 'jumpgt', 'jumpAlias' );
+    allCommands.set( 'jumpv', 'jumpAlias' );
+    allCommands.set( 'jumpvu', 'jumpAlias' );
+    allCommands.set( 'jumpco', 'jumpAlias' );
+    allCommands.set( 'jumpso', 'jumpAlias' );
 
-    data : 'x',
+    allCommands.set( 'data', 'x' );
 
-    rfi : 'noEXP',
+    allCommands.set( 'rfi', 'noEXP' );
 
-    execute : 'rrEXP',
+    allCommands.set( 'execute', 'rrEXP' );
 
-    save : 'rrxEXP',
-    restore : 'rrxEXP',
+    allCommands.set( 'save', 'rrxEXP' );
+    allCommands.set( 'restore', 'rrxEXP' );
 
-    getctl : 'rcEXP',
-    putctl : 'rcEXP',
+    allCommands.set( 'getctl', 'rcEXP' );
+    allCommands.set( 'putctl', 'rcEXP' );
 
-    push : 'rrrEXP',
-    pop : 'rrrEXP',
-    top : 'rrrEXP',
-    addc : 'rrrEXP',
+    allCommands.set( 'push', 'rrrEXP' );
+    allCommands.set( 'pop', 'rrrEXP' );
+    allCommands.set( 'top', 'rrrEXP' );
+    allCommands.set( 'addc', 'rrrEXP' );
 
-    shiftl : 'rrkEXP',
-    shiftr : 'rrkEXP',
+    allCommands.set( 'shiftl', 'rrkEXP' );
+    allCommands.set( 'shiftr', 'rrkEXP' );
 
-    getbit : 'rkEXP',
-    getbiti : 'rkEXP',
-    putbit : 'rkEXP',
-    putbiti : 'rkEXP',
+    allCommands.set( 'getbit', 'rkEXP' );
+    allCommands.set( 'getbiti', 'rkEXP' );
+    allCommands.set( 'putbit', 'rkEXP' );
+    allCommands.set( 'putbiti', 'rkEXP' );
 
-    field : 'injectIAlias',
+    allCommands.set( 'field', 'injectIAlias' );
 
-    extract : 'rrkkEXP',
-    extracti : 'rrkkEXP',
+    allCommands.set( 'extract', 'rrkkEXP' );
+    allCommands.set( 'extracti', 'rrkkEXP' );
 
-    inject : 'rrrkkEXP',
-    injecti : 'rrrkkEXP',
-    logicb : 'rrrkkEXP',
+    allCommands.set( 'inject', 'rrrkkEXP' );
+    allCommands.set( 'injecti', 'rrrkkEXP' );
+    allCommands.set( 'logicb', 'rrrkkEXP' );
 
-    logicw : 'rrrkEXP',
+    allCommands.set( 'logicw', 'rrrkEXP' );
 
-    andb : 'logicAliasRRRK',
-    orb : 'logicAliasRRRK',
-    xorb : 'logicAliasRRRK',
+    allCommands.set( 'andb', 'logicAliasRRRK' );
+    allCommands.set( 'orb', 'logicAliasRRRK' );
+    allCommands.set( 'xorb', 'logicAliasRRRK' );
 
-    invb : 'logicAliasRRK',
+    allCommands.set( 'invb', 'logicAliasRRK' );
 
-    andnew : 'logicAliasRRR',
-    ornew : 'logicAliasRRR',
-    xornew : 'logicAliasRRR',
+    allCommands.set( 'andnew', 'logicAliasRRR' );
+    allCommands.set( 'ornew', 'logicAliasRRR' );
+    allCommands.set( 'xornew', 'logicAliasRRR' );
 
-    invnew : 'logicAliasRR'
-  };
+    allCommands.set( 'invnew', 'logicAliasRR' );
 
   // const fullyCompatibleCommands = [
   //   'add',
@@ -170,17 +169,16 @@
   //   'invb'
   // ];
 
-  const partiallyCompatibleCommands = { // recognised by assembler but has other effects
-    testset : 'Assembles but no functionality',
-    rfi : 'Assembles, but hangs when ran in a program',
-    execute : 'Assembles, however, not as per docs and has no functionality',
-    getctl : 'Assembles differently and has different range of functionality',
-    putctl : 'Assembles differently and has different range of functionality',
-    push : 'Assembles but no functionality',
-    pop : 'Assembles but no functionality',
-    top : 'Assembles but no functionality',
-    field : 'Assembler accepts but does not produce any codes'
-  };
+  const partiallyCompatibleCommands = new Map(); // recognised by assembler but has other effects
+    partiallyCompatibleCommands.set( 'testset', 'Assembles but no functionality' );
+    partiallyCompatibleCommands.set( 'rfi', 'Assembles, but hangs when ran in a program' );
+    partiallyCompatibleCommands.set( 'execute', 'Assembles, however, not as per docs and has no functionality' );
+    partiallyCompatibleCommands.set( 'getctl', 'Assembles differently and has different range of functionality' );
+    partiallyCompatibleCommands.set( 'putctl', 'Assembles differently and has different range of functionality' );
+    partiallyCompatibleCommands.set( 'push', 'Assembles but no functionality' );
+    partiallyCompatibleCommands.set( 'pop', 'Assembles but no functionality' );
+    partiallyCompatibleCommands.set( 'top', 'Assembles but no functionality' );
+    partiallyCompatibleCommands.set( 'field', 'Assembler accepts but does not produce any codes' );
 
   const nonCompatibleCommands = [ // not even recognised by assembler
     'addc',
@@ -202,146 +200,128 @@
   const fourthColumn = Math.pow( 16, 0 );
 
   // RRR
-    const rrCommands = {
-      cmp : 4,
-      inv : 8,
-      invold : 8
-    };
-    const rrrCommands = { 
-      add : 0, 
-      sub : 1,
-      mul : 2,
-      div : 3,
-      cmplt : 5,
-      cmpeq : 6,
-      cmpgt : 7,
-      and : 9,
-      andold : 9,
-      or : 0xa,
-      orold : 0xa,
-      xor : 0xb,
-      xorold : 0xb,
-      trap : 0xd
-    };
+    const rrCommands = new Map();
+      rrCommands.set( 'cmp', 4 );
+      rrCommands.set( 'inv', 8 );
+      rrCommands.set( 'invold', 8 );
+
+    const rrrCommands = new Map() 
+      rrrCommands.set( 'add', 0 );
+      rrrCommands.set( 'sub', 1 );
+      rrrCommands.set( 'mul', 2 );
+      rrrCommands.set( 'div', 3 );
+      rrrCommands.set( 'cmplt', 5 );
+      rrrCommands.set( 'cmpeq', 6 );
+      rrrCommands.set( 'cmpgt', 7 );
+      rrrCommands.set( 'and', 9 );
+      rrrCommands.set( 'andold', 9 );
+      rrrCommands.set( 'or', 0xa );
+      rrrCommands.set( 'orold', 0xa );
+      rrrCommands.set( 'xor', 0xb );
+      rrrCommands.set( 'xorold', 0xb );
+      rrrCommands.set( 'trap', 0xd );
 
   // RX
-    const jxCommands = {
-      jump : 3
-    };
-    const jumpAliasCommands = { // 4 is jumpc0, 5 is jumpc1
-      jumple : [ 4, 1 ],
-      jumpne : [ 4, 2 ],
-      jumpge : [ 4, 3 ],
-      jumpnv : [ 4, 6 ],
-      jumpnvu : [ 4, 5 ],
-      jumpnco : [ 4, 7 ],
-      jumpnso : [ 4, 8 ],
+    const jxCommands = new Map();
+      jxCommands.set( 'jump', 3 );
 
-      jumplt : [ 5, 3 ],
-      jumpeq : [ 5, 2 ],
-      jumpgt : [ 5, 1 ],
-      jumpv : [ 5, 6 ],
-      jumpvu : [ 5, 5 ],
-      jumpco : [ 5, 7 ],
-      jumpso : [ 5, 8 ]
-    };
-    const kxCommands = {
-      jumpc0 : 4,
-      jumpc1 : 5
-    };
-    const rxCommands = {
-      lea : 0,
-      load : 1,
-      store : 2,
-      jumpf : 6,
-      jumpt : 7,
-      jal : 8,
-      testset : 9
-    };
+    const jumpAliasCommands = new Map() // 4 is jumpc0, 5 is jumpc1
+      jumpAliasCommands.set( 'jumple', [ 4, 1 ] );
+      jumpAliasCommands.set( 'jumpne', [ 4, 2 ] );
+      jumpAliasCommands.set( 'jumpge', [ 4, 3 ] );
+      jumpAliasCommands.set( 'jumpnv', [ 4, 6 ] );
+      jumpAliasCommands.set( 'jumpnvu', [ 4, 5 ] );
+      jumpAliasCommands.set( 'jumpnco', [ 4, 7 ] );
+      jumpAliasCommands.set( 'jumpnso', [ 4, 8 ] );
 
-  // X
-    const xCommands = {
-      data : 0 // data doesnt have an op code since it kind of isnt a command but for convention sake, its in a dictionary
-    };
+      jumpAliasCommands.set( 'jumplt', [ 5, 3 ] );
+      jumpAliasCommands.set( 'jumpeq', [ 5, 2 ] );
+      jumpAliasCommands.set( 'jumpgt', [ 5, 1 ] );
+      jumpAliasCommands.set( 'jumpv', [ 5, 6 ] );
+      jumpAliasCommands.set( 'jumpvu', [ 5, 5 ] );
+      jumpAliasCommands.set( 'jumpco', [ 5, 7 ] );
+      jumpAliasCommands.set( 'jumpso', [ 5, 8 ] );
 
-  // EXP
-    const noEXPCommands = {
-      rfi : 0
-    };
+    const kxCommands = new Map();
+      kxCommands.set( 'jumpc0', 4 );
+      kxCommands.set( 'jumpc1', 5 );
 
-    const rrEXPCommands = {
-      execute : 0xc
-    };
+    const rxCommands = new Map();
+      rxCommands.set( 'lea', 0 );
+      rxCommands.set( 'load', 1 );
+      rxCommands.set( 'store', 2 );
+      rxCommands.set( 'jumpf', 6 );
+      rxCommands.set( 'jumpt', 7 );
+      rxCommands.set( 'jal', 8 );
+      rxCommands.set( 'testset', 9 );
 
-    const rrxEXPCommands = {
-      save : 8,
-      restore : 9
-    };
+    // X
+    const xCommands = new Map();
+      xCommands.set( 'data', 0 ); // data doesnt have an op code since it kind of isnt a command but for convention sake, its in a dictionary );
 
-    const rcEXPCommands = {
-      getctl : 0xa,
-      putctl : 0xb
-    };
+    // EXP
+      const noEXPCommands = new Map();
+        noEXPCommands.set( 'rfi', 0 );
 
-    const rrrEXPCommands = {
-      push : 0xd,
-      pop : 0xe,
-      top : 0xf,
-      addc : 0x1c
-    };
+      const rrEXPCommands = new Map();
+        rrEXPCommands.set( 'execute', 0xc );
 
-    const rrkEXPCommands = {
-      shiftl : 0x10,
-      shiftr : 0x11,
-    };
+      const rrxEXPCommands = new Map();
+        rrxEXPCommands.set( 'save', 8, );
+        rrxEXPCommands.set( 'restore', 9 );
 
-    const rkEXPCommands = {
-      getbit : 0x18,
-      getbiti : 0x19,
-      putbit : 0x1a,
-      putbiti : 0x1b,
-    };
+      const rcEXPCommands = new Map();
+        rcEXPCommands.set( 'getctl', 0xa, );
+        rcEXPCommands.set( 'putctl', 0xb );
 
-    const rrkkEXPCommands = {
-      extract : 0x12,
-      extracti : 0x13
-    };
+      const rrrEXPCommands = new Map();
+        rrrEXPCommands.set( 'push', 0xd, );
+        rrrEXPCommands.set( 'pop', 0xe, );
+        rrrEXPCommands.set( 'top', 0xf, );
+        rrrEXPCommands.set( 'addc', 0x1c );
 
-    const rrrkkEXPCommands = {
-      inject : 0x14,
-      injecti : 0x15,
-      logicb : 0x17
-    };
+      const rrkEXPCommands = new Map();
+        rrkEXPCommands.set( 'shiftl', 0x10, );
+        rrkEXPCommands.set( 'shiftr', 0x11, );
 
-    const rrrkEXPCommands = {
-      logicw : 0x16
-    };
+      const rkEXPCommands = new Map();
+        rkEXPCommands.set( 'getbit', 0x18, );
+        rkEXPCommands.set( 'getbiti', 0x19, );
+        rkEXPCommands.set( 'putbit', 0x1a, );
+        rkEXPCommands.set( 'putbiti', 0x1b, );
 
-    const logicAliasRRRKCommands = {
-      andb : [ 0x17, 1 ],
-      orb : [ 0x17, 7 ],
-      xorb : [ 0x17, 6 ]
-    };
+      const rrkkEXPCommands = new Map();
+        rrkkEXPCommands.set( 'extract', 0x12, );
+        rrkkEXPCommands.set( 'extracti', 0x13 );
 
-    const logicAliasRRKCommands = {
-      invb : [ 0x17, 0xc ]
-    };
+      const rrrkkEXPCommands = new Map();
+        rrrkkEXPCommands.set( 'inject', 0x14, );
+        rrrkkEXPCommands.set( 'injecti', 0x15, );
+        rrrkkEXPCommands.set( 'logicb', 0x17 );
 
-    const logicAliasRRRCommands = {
-      andnew : [ 0x16, 1 ],
-      ornew : [ 0x16, 7 ],
-      xornew : [ 0x16, 6 ]
-    };
+      const rrrkEXPCommands = new Map();
+        rrrkEXPCommands.set( 'logicw', 0x16 );
 
-    const logicAliasRRCommands = {
-      invnew : [ 0x16, 0xc ]
-    };
+      const logicAliasRRRKCommands = new Map();
+        logicAliasRRRKCommands.set( 'andb', [ 0x17, 1 ], );
+        logicAliasRRRKCommands.set( 'orb', [ 0x17, 7 ], );
+        logicAliasRRRKCommands.set( 'xorb', [ 0x17, 6 ] );
 
-    const injectIAliasCommands = {
-      field : [ 0x15, 0, 0 ]
-    };
+      const logicAliasRRKCommands = new Map();
+        logicAliasRRKCommands.set( 'invb', [ 0x17, 0xc ] );
 
-    const allCommandsList = Object.keys( allCommands );
+      const logicAliasRRRCommands = new Map();
+        logicAliasRRRCommands.set( 'andnew', [ 0x16, 1 ], );
+        logicAliasRRRCommands.set( 'ornew', [ 0x16, 7 ], );
+        logicAliasRRRCommands.set( 'xornew', [ 0x16, 6 ] );
+
+      const logicAliasRRCommands = new Map();
+        logicAliasRRCommands.set( 'invnew', [ 0x16, 0xc ] );
+
+      const injectIAliasCommands = new Map();
+        injectIAliasCommands.set( 'field', [ 0x15, 0, 0 ] );
+
+    const allCommandsList = Array.from( allCommands.keys() );
 
     const registerRegExp = '[rR]((1[0-5])|([0-9]))';
     const controlRegisterRegExp = '((pc)|(ir)|(adr))';
@@ -528,31 +508,26 @@
   }
 
   function getR15Dict() {
-    return {
-      'G' : 0,
-      'g' : 0,
-      'E' : 0,
-      'l' : 0,
-      'L' : 0,
-      'V' : 0,
-      'v' : 0,
-      'C' : 0,
-      'S' : 0
-    };
+    var r15Dict = new Map();
+    const flags = [ 'G', 'g', 'E', 'l', 'L', 'V', 'v', 'C', 'S' ];
+
+    for ( var i = 0; i < flags.length; i++ ) r15Dict.set( flags[i], 0 );
+
+    return r15Dict;
   }
 
   function setR15Flags( flagDict ) {
     var r15 = 0;
 
-    if ( flagDict['G'] === 1 ) r15 += ( 0b1000000000000000 );
-    if ( flagDict['g'] === 1 ) r15 += ( 0b0100000000000000 );
-    if ( flagDict['E'] === 1 ) r15 += ( 0b0010000000000000 );
-    if ( flagDict['l'] === 1 ) r15 += ( 0b0001000000000000 );
-    if ( flagDict['L'] === 1 ) r15 += ( 0b0000100000000000 );
-    if ( flagDict['V'] === 1 ) r15 += ( 0b0000010000000000 );
-    if ( flagDict['v'] === 1 ) r15 += ( 0b0000001000000000 );
-    if ( flagDict['C'] === 1 ) r15 += ( 0b0000000100000000 );
-    if ( flagDict['S'] === 1 ) r15 += ( 0b0000000010000000 );
+    if ( flagDict.get( 'G' ) === 1 ) r15 += ( 0b1000_0000_0000_0000 );
+    if ( flagDict.get( 'g' ) === 1 ) r15 += ( 0b0100_0000_0000_0000 );
+    if ( flagDict.get( 'E' ) === 1 ) r15 += ( 0b0010_0000_0000_0000 );
+    if ( flagDict.get( 'l' ) === 1 ) r15 += ( 0b0001_0000_0000_0000 );
+    if ( flagDict.get( 'L' ) === 1 ) r15 += ( 0b0000_1000_0000_0000 );
+    if ( flagDict.get( 'V' ) === 1 ) r15 += ( 0b0000_0100_0000_0000 );
+    if ( flagDict.get( 'v' ) === 1 ) r15 += ( 0b0000_0010_0000_0000 );
+    if ( flagDict.get( 'C' ) === 1 ) r15 += ( 0b0000_0001_0000_0000 );
+    if ( flagDict.get( 'S' ) === 1 ) r15 += ( 0b0000_0000_1000_0000 );
 
     return r15;
   }
@@ -772,7 +747,7 @@
 
   function checkCommands( command, argument, labels ) {
     var check;
-    switch ( allCommands[command] ) {
+    switch ( allCommands.get( command ) ) {
       case 'rr' :
         // first word is an rr command
         if ( argument ) { 
@@ -1045,18 +1020,15 @@
   }
 
   function checkCommandIsCompatible( command, argument ) {
-    var result = {
-      warn : '',
-      error : ''
-    };
+    var result = new Map();
 
-    if ( Object.keys( partiallyCompatibleCommands ).includes( command ) ) {
-      result['warn'] = partiallyCompatibleCommands[command];
+    if ( partiallyCompatibleCommands.has( command ) ) {
+      result.set( 'warn', partiallyCompatibleCommands.get( command ) );
     } else if ( nonCompatibleCommands.includes( command ) ) {
-      result['error'] = 'Assembler does not recognise command at all and will return an error';
+      result.set( 'error', 'Assembler does not recognise command at all and will return an error' );
     } else if ( command === 'data' ) {
       if ( argument && argument.split( ',' ).length > 1 ) {
-        result['warn'] = 'Multiple data constants is not supported by the original emulator';
+        result.set( 'warn', 'Multiple data constants is not supported by the original emulator' );
       }
     }
     // else, is fully compatible
@@ -1066,18 +1038,15 @@
 
   function checkLineIsComaptible( line ) {
     var linesplit = line.trim().split( ';' )[0].split( /\s+/ );
-    var parsed = {
-      warn : '',
-      error : ''
-    };
+    var parsed = new Map();
 
     if ( linesplit[0] ) {
       // lines isnt empty
       if ( allCommandsList.includes( linesplit[0] ) ) {
         // first word is a command
-        parsed = checkCommandIsCompatible( linesplit[0], linesplit[1] ); // will return error is arguments not present so dont have to check
+        parsed = new Map( checkCommandIsCompatible( linesplit[0], linesplit[1] ) ); // will return error is arguments not present so dont have to check
       } else if ( linesplit[0] && linesplit[1] && allCommandsList.includes( linesplit[1] ) ) {    
-        parsed = checkCommandIsCompatible( linesplit[1], linesplit[2] );
+        parsed = new Map( checkCommandIsCompatible( linesplit[1], linesplit[2] ) );
       }
     }
 
@@ -1089,23 +1058,19 @@
     var lines = code.split( '\n' );
     var check;
 
-    var lineWarn = {};
-    var lineError = {};
-
-    var compatible = true;
+    var result = new Map();
 
     for ( var i = 0; i < lines.length; i++ ) {
       check = checkLineIsComaptible( lines[i] );
 
-      if ( check['warn'].length ) {
-        lineWarn[i + 1] = check;
-      } else if ( check['error'].length ) {
-        lineError[i + 1] = check;
-        compatible = false;
+      if ( check.has( 'warn' ) ) {
+        result.set( i + 1, 'Compatibility warning : ' + check.get( 'warn' ) );
+      } else if ( check.has( 'error' ) ) {
+        result.set( i + 1, 'Compatibility error : ' + check.get( 'error' ) );
       } 
     }
 
-    return [compatible, lineWarn, lineError];
+    return result;
   }
 
 // PARSING METHODS
@@ -1116,137 +1081,137 @@
       op : 0
     };
 
-    switch ( allCommands[command] ) {
+    switch ( allCommands.get( command ) ) {
       case 'rr' :
         result['words'] = 1;
         result['type'] = 'rrr';
-        result['op'] = rrCommands[command];
+        result['op'] = rrCommands.get( command );
         break;
         
       case 'rrr' :
         result['words'] = 1;
         result['type'] = 'rrr';
-        result['op'] = rrrCommands[command];
+        result['op'] = rrrCommands.get( command );
         break;
         
       case 'jx' :
         result['words'] = 2;
         result['type'] = 'rx';
-        result['op'] = jxCommands[command];
+        result['op'] = jxCommands.get( command );
         break;
         
       case 'jumpAlias' :
         result['words'] = 2;
         result['type'] = 'rx';
-        result['op'] = jumpAliasCommands[command][0];
+        result['op'] = jumpAliasCommands.get( command )[0];
         break;
         
       case 'kx' :
         result['words'] = 2;
         result['type'] = 'rx';
-        result['op'] = kxCommands[command];
+        result['op'] = kxCommands.get( command );
         break;
         
       case 'rx' :
         result['words'] = 2;
         result['type'] = 'rx';
-        result['op'] = rxCommands[command];
+        result['op'] = rxCommands.get( command );
         break;
         
       case 'x' :
         result['words'] = 1;
         result['type'] = 'x';
-        result['op'] = xCommands[command];
+        result['op'] = xCommands.get( command );
         break;
 
       case 'noEXP' :
         result['words'] = 1;
         result['type'] = 'exp0';
-        result['op'] = noEXPCommands[command];
+        result['op'] = noEXPCommands.get( command );
         break;
 
       case 'rrEXP' :
         result['words'] = 2;
         result['type'] = 'exp4'; // doesnt matter if exp4 or exp8, g, h and gh elements will be 0 either way
-        result['op'] = rrEXPCommands[command];
+        result['op'] = rrEXPCommands.get( command );
         break;
 
       case 'rrxEXP' :
         result['words'] = 2;
         result['type'] = 'exp8'; // g and h arguments will be 0 and gh will carry the 8 bit disp
-        result['op'] = rrxEXPCommands[command];
+        result['op'] = rrxEXPCommands.get( command );
         break;
 
       case 'rcEXP' :
         result['words'] = 2;
         result['type'] = 'exp4'; // exp4 as doubt that there will be more than 16 control registers ( even if interupts are added )
-        result['op'] = rcEXPCommands[command];
+        result['op'] = rcEXPCommands.get( command );
         break;
 
       case 'rrrEXP' :
         result['words'] = 2;
         result['type'] = 'exp4'; // doesnt matter if exp4 or exp8, g, h and gh elements will be 0 either way
-        result['op'] = rrrEXPCommands[command];
+        result['op'] = rrrEXPCommands.get( command );
         break;
 
       case 'rrkEXP' :
         result['words'] = 2;
         result['type'] = 'exp4'; // f will be 0 and h will hold k argument as k only goes upto 15
-        result['op'] = rrkEXPCommands[command];
+        result['op'] = rrkEXPCommands.get( command );
         break;
 
       case 'rkEXP' :
         result['words'] = 2;
         result['type'] = 'exp4'; // g and h will hold k arguments as k only goes upto 15
-        result['op'] = rkEXPCommands[command];
+        result['op'] = rkEXPCommands.get( command );
         break;
 
       case 'rrkkEXP' :
         result['words'] = 2;
         result['type'] = 'exp4'; // two k arguments to be held in g and h fields, needs to be a exp4
-        result['op'] = rrkkEXPCommands[command];
+        result['op'] = rrkkEXPCommands.get( command );
         break;
 
       case 'rrrkkEXP' :
         result['words'] = 2;
         result['type'] = 'exp4'; // two k arguments to be held in g and h fields, needs to be a exp4
-        result['op'] = rrrkkEXPCommands[command];
+        result['op'] = rrrkkEXPCommands.get( command );
         break;
 
       case 'rrrkEXP' :
         result['words'] = 2;
         result['type'] = 'exp4'; // one k field to be held as a 4 bit number, needs to be a exp4
-        result['op'] = rrrkEXPCommands[command];
+        result['op'] = rrrkEXPCommands.get( command );
         break;
 
       case 'logicAliasRRRK' :
         result['words'] = 2;
         result['type'] = 'exp4'; // one k field to be held as a 4 bit number and one constant held in g as instruction type, needs to be a exp4
-        result['op'] = logicAliasRRRKCommands[command][0];
+        result['op'] = logicAliasRRRKCommands.get( command )[0];
         break;
 
       case 'logicAliasRRK' :
         result['words'] = 2;
         result['type'] = 'exp4'; // one k field to be held as a 4 bit number and one constant held in g as instruction type, needs to be a exp4
-        result['op'] = logicAliasRRKCommands[command][0];
+        result['op'] = logicAliasRRKCommands.get( command )[0];
         break;
 
       case 'logicAliasRRR' :
         result['words'] = 2;
         result['type'] = 'exp4'; // does matter as logic type is set in g field
-        result['op'] = logicAliasRRRCommands[command][0];
+        result['op'] = logicAliasRRRCommands.get( command )[0];
         break;
 
       case 'logicAliasRR' :
         result['words'] = 2;
         result['type'] = 'exp4'; // does matter as logic type is set in g field
-        result['op'] = logicAliasRRCommands[command][0];
+        result['op'] = logicAliasRRCommands.get( command )[0];
         break;
 
       case 'injectIAlias' :
         result['words'] = 2;
         result['type'] = 'exp4'; // does matter as bitStart and bitEnd are set in g and h fields as 4 bit numbers
-        result['op'] = injectIAliasCommands[command][0];
+        result['op'] = injectIAliasCommands.get( command )[0];
         break;
 
       default :
@@ -1257,80 +1222,82 @@
   }
 
   function findArgumentInfo( command, argument, labels ) {
-    var result = {
-      d : 0,
-      a : 0,
-      b : 0,
-      disp : 0,
+    // all defaulted to a list of zero so that for command types that dont set any values, the parsing doesnt return NaN
+    var result = new Map();
+      result.set( 'd', [0] );
+      result.set( 'a', [0] );
+      result.set( 'b', [0] );
+      result.set( 'disp', [0] );
 
-      e : 0,
-      f : 0,
-      g : 0,
-      h : 0,
-      gh : 0
-    };
+      result.set( 'e', [0] );
+      result.set( 'f', [0] );
+      result.set( 'g', [0] );
+      result.set( 'h', [0] );
+      result.set( 'gh', [0] );
 
     var argumentList = [];
 
-    switch ( allCommands[command] ) {
+    switch ( allCommands.get( command ) ) {
       case 'rr' :
         argumentList = argument.split( ',' );
-        result['a'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['b'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result.set( 'a', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'b', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
         
-        result['d'] = result['a'];
+        result.set( 'd', [ result.get( 'a' ) ] );
         break;
         
       case 'rrr' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['a'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
-        result['b'] = Number( argumentList[2].slice( 1, argumentList[2].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'a', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
+        result.set( 'b', [ Number( argumentList[2].slice( 1, argumentList[2].length ) ) ] );
         break;
         
       case 'jx' :
         argumentList = argument.split( '[' );
-        result['a'] = Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ); // removes ']' from string
-        result['disp'] = readConstant( argumentList[0], labels );
+        result.set( 'a', [ Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ) ] ); // removes ']' from string
+        result.set( 'disp', [ readConstant( argumentList[0], labels ) ] );
 
-        result['d'] = 0;
+        result.set( 'd', [0] );
         break;
         
       case 'jumpAlias' :
         argumentList = argument.split( '[' );
-        result['a'] = Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ); // removes ']' from string
-        result['disp'] = readConstant( argumentList[0], labels );
+        result.set( 'a', [ Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ) ] ); // removes ']' from string
+        result.set( 'disp', [ readConstant( argumentList[0], labels ) ] );
 
-        result['d'] = jumpAliasCommands[command][1];
+        result.set( 'd', [ jumpAliasCommands.get( command )[1] ] );
         break;
         
       case 'kx' :
         argumentList = argument.split( ',' );
-        result['d'] = readConstant( argumentList[0], labels );
+        result.set( 'd', [ readConstant( argumentList[0], labels ) ] );
 
         argumentList = argumentList[1].split( '[' );
-        result['a'] = Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ); // removes ']' from string
-        result['disp'] = readConstant( argumentList[0], labels );
+        result.set( 'a', [ Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ) ] ); // removes ']' from string
+        result.set( 'disp', [ readConstant( argumentList[0], labels ) ] );
         break;
         
       case 'rx' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
 
         argumentList = argumentList[1].split( '[' );
-        result['a'] = Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ); // removes ']' from string
-        result['disp'] = readConstant( argumentList[0], labels );
+        result.set( 'a', [ Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ) ] ); // removes ']' from string
+        result.set( 'disp', [ readConstant( argumentList[0], labels ) ] );
         break;
         
       case 'x' :
-        result['disp'] = [];
+        var holding = [];
         const xsplit = argument.split( ',' );
 
         for ( var i = 0; i < xsplit.length; i++ ) {
           var x = xsplit[i];
 
-          result['disp'].push( readConstant( x, labels ) );
+          holding.push( readConstant( x, labels ) );
         }
+
+        result.set( 'disp', holding );
         break;
 
       case 'noEXP' :
@@ -1340,39 +1307,39 @@
       case 'rrEXP' :
         // copy of 'rr' case with a and b changed to d and e respectively
         argumentList = argument.split( ',' );
-        result['e'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['f'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result.set( 'e', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'f', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
         break;
 
       case 'rrxEXP' :
         argumentList = argument.split( ',' );
-        result['e'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['f'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result.set( 'e', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'f', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
 
         argumentList = argumentList[2].split( '[' );
-        result['d'] = Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ); // removes ']' from string
-        result['gh'] = readConstant( argumentList[0], labels );
+        result.set( 'd', [ Number( argumentList[1].slice( 1, argumentList[1].length - 1 ) ) ] ); // removes ']' from string
+        result.set( 'gh', [ readConstant( argumentList[0], labels ) ] );
         break;
 
       case 'rcEXP' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
         
         switch ( argumentList[1] ) {
           case 'pc' :
-            result['g'] = 1;
+            result.set( 'g', [ 1 ] );
             break;
 
           case 'ir' :
-            result['g'] = 2;
+            result.set( 'g', [ 2 ] );
             break;
 
           case 'adr' :
-            result['g'] = 3;
+            result.set( 'g', [ 3 ] );
             break;
 
           default :
-            result['g'] = 0;
+            result.set( 'g', [ 0 ] );
             break;
         }
         break;
@@ -1380,99 +1347,99 @@
       case 'rrrEXP' :
         // copy of 'rrr' case with d, a, and b changed to d, e, and f respectively
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
-        result['f'] = Number( argumentList[2].slice( 1, argumentList[2].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'e', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
+        result.set( 'f', [ Number( argumentList[2].slice( 1, argumentList[2].length ) ) ] );
         break;
 
       case 'rrkEXP' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'e', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
         
-        result['g'] = readConstant( argumentList[2], labels );
+        result.set( 'g', [ readConstant( argumentList[2], labels ) ] );
         break;
 
       case 'rkEXP' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
         
-        result['g'] = readConstant( argumentList[1], labels );
+        result.set( 'g', [ readConstant( argumentList[1], labels ) ] );
         break;
 
       case 'rrkkEXP' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'e', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
         
-        result['g'] = readConstant( argumentList[2], labels );
-        result['h'] = readConstant( argumentList[3], labels );
+        result.set( 'g', [ readConstant( argumentList[2], labels ) ] );
+        result.set( 'h', [ readConstant( argumentList[3], labels ) ] );
         break;
 
       case 'rrrkkEXP' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
-        result['f'] = Number( argumentList[2].slice( 1, argumentList[2].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'e', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
+        result.set( 'f', [ Number( argumentList[2].slice( 1, argumentList[2].length ) ) ] );
         
-        result['g'] = readConstant( argumentList[3], labels );
-        result['h'] = readConstant( argumentList[4], labels );
+        result.set( 'g', [ readConstant( argumentList[3], labels ) ] );
+        result.set( 'h', [ readConstant( argumentList[4], labels ) ] );
         break;
 
       case 'rrrkEXP' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
-        result['f'] = Number( argumentList[2].slice( 1, argumentList[2].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'e', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
+        result.set( 'f', [ Number( argumentList[2].slice( 1, argumentList[2].length ) ) ] );
         
-        result['g'] = readConstant( argumentList[3], labels );
+        result.set( 'g', [ readConstant( argumentList[3], labels ) ] );
         break;
 
       case 'logicAliasRRRK' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
-        result['f'] = Number( argumentList[2].slice( 1, argumentList[2].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'e', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
+        result.set( 'f', [ Number( argumentList[2].slice( 1, argumentList[2].length ) ) ] );
         
-        result['g'] = logicAliasRRRKCommands[command][1];
-        result['h'] = readConstant( argumentList[3], labels );
+        result.set( 'g', [ logicAliasRRRKCommands.get( command )[1] ] );
+        result.set( 'h', [ readConstant( argumentList[3], labels ) ] );
         break;
 
       case 'logicAliasRRK' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'e', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
         
-        result['g'] = logicAliasRRKCommands[command][1];
-        result['h'] = readConstant( argumentList[2], labels );
+        result.set( 'g', [ logicAliasRRKCommands.get( command )[1] ] );
+        result.set( 'h', [ readConstant( argumentList[2], labels ) ] );
         break;
 
       case 'logicAliasRRR' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
-        result['f'] = Number( argumentList[2].slice( 1, argumentList[2].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'e', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
+        result.set( 'f', [ Number( argumentList[2].slice( 1, argumentList[2].length ) ) ] );
         
-        result['g'] = logicAliasRRRCommands[command][1];
+        result.set( 'g', [ logicAliasRRRCommands.get( command )[1] ] );
         break;
 
       case 'logicAliasRR' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
-        result['e'] = Number( argumentList[1].slice( 1, argumentList[1].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
+        result.set( 'e', [ Number( argumentList[1].slice( 1, argumentList[1].length ) ) ] );
         
-        result['g'] = logicAliasRRCommands[command][1];
+        result.set( 'g', [ logicAliasRRCommands.get( command )[1] ] );
         break;
 
       case 'injectIAlias' :
         argumentList = argument.split( ',' );
-        result['d'] = Number( argumentList[0].slice( 1, argumentList[0].length ) );
+        result.set( 'd', [ Number( argumentList[0].slice( 1, argumentList[0].length ) ) ] );
         
-        result['e'] = injectIAliasCommands[command][1];
-        result['f'] = injectIAliasCommands[command][2];
+        result.set( 'e', [ injectIAliasCommands.get( command )[1] ] );
+        result.set( 'f', [ injectIAliasCommands.get( command )[2] ] );
         
-        result['g'] = readConstant( argumentList[1], labels );
-        result['h'] = readConstant( argumentList[2], labels );
+        result.set( 'g', [ readConstant( argumentList[1], labels ) ] );
+        result.set( 'h', [ readConstant( argumentList[2], labels ) ] );
         break;
 
       default :
@@ -1490,35 +1457,35 @@
 
     switch ( commandInfo['type'] ) {
       case 'rrr' :
-        result.push( commandInfo['op']*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + argumentInfo['b']*fourthColumn );
+        result.push( commandInfo['op']*firstColumn + argumentInfo.get( 'd' )[0]*secondColumn + argumentInfo.get( 'a' )[0]*thirdColumn + argumentInfo.get( 'b' )[0]*fourthColumn );
         break;
 
       case 'rx' :
-        result.push( 0xf*firstColumn + argumentInfo['d']*secondColumn + argumentInfo['a']*thirdColumn + commandInfo['op']*fourthColumn );
+        result.push( 0xf*firstColumn + argumentInfo.get( 'd' )[0]*secondColumn + argumentInfo.get( 'a' )[0]*thirdColumn + commandInfo['op']*fourthColumn );
 
-        result.push( argumentInfo['disp'] );
+        result.push( argumentInfo.get( 'disp' )[0] );
         break;
 
       case 'x' :
-        for ( var i = 0; i < argumentInfo['disp'].length; i++ ) {
-          result.push( argumentInfo['disp'][i] );
+        for ( var i = 0; i < argumentInfo.get( 'disp' ).length; i++ ) {
+          result.push( argumentInfo.get( 'disp' )[i] );
         }
         break;
 
       case 'exp0' :
-        result.push( 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn );
+        result.push( 0xe*firstColumn + argumentInfo.get( 'd' )[0]*secondColumn + commandInfo['op']*fourthColumn );
         break;
 
       case 'exp4' :
-        result.push( 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn );
+        result.push( 0xe*firstColumn + argumentInfo.get( 'd' )[0]*secondColumn + commandInfo['op']*fourthColumn );
         
-        result.push( argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['g']*thirdColumn + argumentInfo['h']*fourthColumn );
+        result.push( argumentInfo.get( 'e' )[0]*firstColumn + argumentInfo.get( 'f' )[0]*secondColumn + argumentInfo.get( 'g' )[0]*thirdColumn + argumentInfo.get( 'h' )[0]*fourthColumn );
         break;
 
       case 'exp8' :
-        result.push( 0xe*firstColumn + argumentInfo['d']*secondColumn + commandInfo['op']*fourthColumn );
+        result.push( 0xe*firstColumn + argumentInfo.get( 'd' )[0]*secondColumn + commandInfo['op']*fourthColumn );
         
-        result.push( argumentInfo['e']*firstColumn + argumentInfo['f']*secondColumn + argumentInfo['gh']*fourthColumn );
+        result.push( argumentInfo.get( 'e' )[0]*firstColumn + argumentInfo.get( 'f' )[0]*secondColumn + argumentInfo.get( 'gh' )[0]*fourthColumn );
         break;
 
       default :
@@ -1597,35 +1564,34 @@
 
   function findLineInfo( line ) {
     var linesplit = line.trim().split( ';' )[0].split( /\s+/ );
-    var lineResult = {
-      label : ' ',
-      command : '',
-      argument : '',
-      comment : ''
-    };
+    var lineResult = new Map();
+      lineResult.set( 'label', ' ' );
+      lineResult.set( 'command', '' );
+      lineResult.set( 'argument', '' );
+      lineResult.set( 'comment', '' );
 
-    if ( line.includes( ';' ) ) lineResult['comment'] = ';' + line.trim().split( ';' )[1];
+    if ( line.includes( ';' ) ) lineResult.set( 'comment', ';' + line.trim().split( ';' )[1] );
 
     if ( linesplit[0] && linesplit[0] !== '' ) {
       // lines isnt empty
       if ( allCommandsList.includes( linesplit[0] ) ) {
         // first word is a command
-        lineResult['command'] = linesplit[0];
-        lineResult['argument'] = linesplit[1];
+        lineResult.set( 'command', linesplit[0] );
+        lineResult.set( 'argument', linesplit[1] );
       } else {
         // first word is not a command
         if ( /\w/.test( linesplit[0] ) ) {
           // first word is a label
-          lineResult['label'] = linesplit[0] + ' ';
+          lineResult.set( 'label', linesplit[0] + ' ' );
           if ( linesplit[1] ) {
             // theres more after label
             if ( allCommandsList.includes( linesplit[1] ) ) {
-              lineResult['command'] = linesplit[1];
-              lineResult['argument'] = linesplit[2];
+              lineResult.set( 'command', linesplit[1] );
+              lineResult.set( 'argument', linesplit[2] );
             }
           } else {
             // is just a label
-            lineResult['label'] = linesplit[0] + ' ';
+            lineResult.set( 'label', linesplit[0] + ' ' );
           }
         }
       }
@@ -1635,23 +1601,23 @@
   }
 
   function infoToLine( lineResult ) {
-    var line = lineResult['label'];
+    var line = lineResult.get( 'label' );
 
     var argumentList = [];
 
-    if ( lineResult['command'].length ) {
-      line += lineResult['command'] + ' ';
+    if ( lineResult.get( 'command' ).length ) {
+      line += lineResult.get( 'command' ) + ' ';
 
-      switch ( allCommands[lineResult['command']] ) {
+      switch ( allCommands.get( lineResult.get( 'command' ) ) ) {
         case 'rr' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
           break;
           
         case 'rrr' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
@@ -1660,21 +1626,21 @@
           break;
           
         case 'jx' :
-          argumentList = lineResult['argument'].split( '[' );
+          argumentList = lineResult.get( 'argument' ).split( '[' );
           line += readCompatibleConstant( argumentList[0] );
           line += '[';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
           break;
           
         case 'jumpAlias' :
-          argumentList = lineResult['argument'].split( '[' );
+          argumentList = lineResult.get( 'argument' ).split( '[' );
           line += readCompatibleConstant( argumentList[0] );
           line += '[';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
           break;
           
         case 'kx' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += argumentList[0];
           line += ',';
 
@@ -1685,7 +1651,7 @@
           break;
           
         case 'rx' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
 
@@ -1696,32 +1662,32 @@
           break;
           
         case 'x' :
-          const splat = lineResult['argument'].split( ',' );
+          const splat = lineResult.get( 'argument' ).split( ',' );
           for ( var i = 0; i < splat.length; i++ ) {
             line += readCompatibleConstant( splat[i] );
 
             if ( i !== splat.length - 1 ) {
-              line += lineResult['comment'];
+              line += lineResult.get( 'comment' );
               line += '\n';
-              line += ' ' + lineResult['command'] + ' ';
+              line += ' ' + lineResult.get( 'command' ) + ' ';
             }
           }
           break;
 
         case 'noEXP' :
-          // no need for lineResult['argument'] handling as exp0 takes no arguments
+          // no need for lineResult.get( 'argument' ) handling as exp0 takes no arguments
           break;
 
         case 'rrEXP' :
           // copy of 'rr' case with a and b changed to d and e respectively
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
           break;
 
         case 'rrxEXP' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
@@ -1734,7 +1700,7 @@
           break;
 
         case 'rcEXP' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += argumentList[1];
@@ -1742,7 +1708,7 @@
 
         case 'rrrEXP' :
           // copy of 'rrr' case with d, a, and b changed to d, e, and f respectively
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
@@ -1751,7 +1717,7 @@
           break;
 
         case 'rrkEXP' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
@@ -1760,14 +1726,14 @@
           break;
 
         case 'rkEXP' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += readCompatibleConstant( argumentList[1] );
           break;
 
         case 'rrkkEXP' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
@@ -1778,7 +1744,7 @@
           break;
 
         case 'rrrkkEXP' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
@@ -1791,7 +1757,7 @@
           break;
 
         case 'rrrkEXP' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
@@ -1802,7 +1768,7 @@
           break;
 
         case 'logicAliasRRRK' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
@@ -1813,7 +1779,7 @@
           break;
 
         case 'logicAliasRRK' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
@@ -1822,7 +1788,7 @@
           break;
 
         case 'logicAliasRRR' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
@@ -1831,14 +1797,14 @@
           break;
 
         case 'logicAliasRR' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += 'R' + argumentList[1].slice( 1, argumentList[1].length );
           break;
 
         case 'injectIAlias' :
-          argumentList = lineResult['argument'].split( ',' );
+          argumentList = lineResult.get( 'argument' ).split( ',' );
           line += 'R' + argumentList[0].slice( 1, argumentList[0].length );
           line += ',';
           line += readCompatibleConstant( argumentList[1] );
@@ -1851,7 +1817,7 @@
       }
     }
 
-    line += lineResult['comment'];
+    line += lineResult.get( 'comment' );
 
     return line;
   }
@@ -1870,10 +1836,10 @@
 
 // RUNNING FUNCTIONS
   export function setMemory( machineCode ) {
-    var memory = {};
+    var memory = new Map();
 
     for ( var i = 0; i < machineCode.length; i++ ) {
-      memory[i] = machineCode[i];
+      memory.set(i, machineCode[i]);
     }
 
     return memory;
@@ -1887,20 +1853,20 @@
 
     // signed comparisons
     if ( RaValueSigned > RbValueSigned ) {
-      flagDict['g'] = 1;
+      flagDict.set( 'g', 1 );
     } else if ( RaValueSigned < RbValueSigned ) {
-      flagDict['l'] = 1;
+      flagDict.set( 'l', 1 );
     } else {
       signedEquals = true;
     }
     
     // unsigned comparisons
     if ( RaValue > RbValue ) {
-      flagDict['G'] = 1;
+      flagDict.set( 'G', 1 );
     } else if ( RaValue < RbValue ) {
-      flagDict['L'] = 1;
+      flagDict.set( 'L', 1 );
     } else if ( signedEquals ) {
-      flagDict['E'] = 1;
+      flagDict.set( 'E', 1 );
     }
 
     return flagDict;
@@ -1919,9 +1885,9 @@
 
         for ( var i = 0; i < registers[Rb]; i++ ) {
           if ( input.length > i ) {
-            memory[memoryBufferStartInput + i] = input.charCodeAt( i );
+            memory.set( memoryBufferStartInput + i, input.charCodeAt( i ) );
           } else {
-            memory[memoryBufferStartInput + i] = 0;
+            memory.set( memoryBufferStartInput + i, 0 );
           }
         }
         output += '>>' + input.slice( 0, registers[Rb] );
@@ -1934,8 +1900,8 @@
 
         for ( var it = 0; it < registers[Rb]; it++ ) {
           // if in memory, add to output, else add default memory value
-          if ( memory[memoryBufferStartOutput + it] ) {
-            output += String.fromCharCode( memory[memoryBufferStartOutput + it] );
+          if ( memory.has( memoryBufferStartOutput + it ) ) {
+            output += String.fromCharCode( memory.get( memoryBufferStartOutput + it ) );
           } else {
             output += String.fromCharCode( 0 );
           }
@@ -1969,26 +1935,26 @@
 
       case 0x1 :
         // load
-        if ( !( memory[ effectiveADR ] ) ) memory[ effectiveADR ] = 0;
+        if ( !( memory.has( effectiveADR ) ) ) memory.set( effectiveADR, 0 );
 
-        registers[Rd] = memory[ effectiveADR ];
+        registers[Rd] = memory.get( effectiveADR );
         break;
 
       case 0x2 :
         // store
-        memory[ effectiveADR ] = registers[Rd];
+        memory.set( effectiveADR, registers[Rd] );
         break;
 
       case 0x3 :
         // jump
-        control['pc'] = effectiveADR;
+        control.set( 'pc', effectiveADR );
         jumped = true;
         break;
 
       case 0x4 :
         // jumpc0
         if ( getBitFromRegister( registers[15], Rd ) === 0 ) {
-          control['pc'] = effectiveADR;
+          control.set( 'pc', effectiveADR );
           jumped = true;
         }
 
@@ -1997,7 +1963,7 @@
       case 0x5 :
         // jumpc1
         if ( getBitFromRegister( registers[15], Rd ) > 0 ) {
-          control['pc'] = effectiveADR;
+          control.set( 'pc', effectiveADR );
           jumped = true;
         }
 
@@ -2006,7 +1972,7 @@
       case 0x6 :
         // jumpf
         if ( registers[Rd] === 0 ) {
-          control['pc'] = effectiveADR;
+          control.set( 'pc', effectiveADR );
           jumped = true;
         }
         break;
@@ -2014,22 +1980,24 @@
       case 0x7 :
         // jumpt
         if ( registers[Rd] === 1 ) {
-          control['pc'] = effectiveADR;
+          control.set( 'pc', effectiveADR );
           jumped = true;
         }
         break;
 
       case 0x8 :
         // jal
-        registers[Rd] = control['pc'] + 2;
-        control['pc'] = effectiveADR;
+        registers[Rd] = control.get( 'pc' ) + 2;
+        control.set( 'pc', effectiveADR );
         jumped = true;
         break;
 
       case 0x9 :
         // testset
-        registers[Rd] = memory[effectiveADR];
-        memory[effectiveADR] = 1;
+        if ( !( memory.has( effectiveADR ) ) ) memory.set( effectiveADR, 0 );
+
+        registers[Rd] = memory.get( effectiveADR );
+        memory.set( effectiveADR, 1 );
 
         break;
 
@@ -2087,7 +2055,7 @@
         for ( var iSave = Re; iSave <= ( Re + diffSave ); iSave++ ) {
           var regNoSave = iSave % 16;
           var validMemorySave = guarantee16Bits( effectiveADRsave + ( iSave - Re ) );
-          memory[validMemorySave] = registers[regNoSave];
+          memory.set( validMemorySave, registers[regNoSave] );
         }
 
         break;
@@ -2109,8 +2077,8 @@
 
           var validMemoryRestore = guarantee16Bits( effectiveADRrestore + ( iRestore - Re ) );
 
-          if ( memory[validMemoryRestore] ) {
-            registers[regNoRestore] = memory[validMemoryRestore];
+          if ( memory.get( validMemoryRestore ) ) {
+            registers[regNoRestore] = memory.get( validMemoryRestore );
           } else {
             registers[regNoRestore] = 0;
           }
@@ -2123,15 +2091,15 @@
         instructionWords = 2;
         switch ( g ) {
           case 1 :
-            registers[Rd] = control['pc'];
+            registers[Rd] = control.get( 'pc' );
             break;
 
           case 2 :
-            registers[Rd] = control['ir'];
+            registers[Rd] = control.get( 'ir' );
             break;
 
           case 3 :
-            registers[Rd] = control['adr'];
+            registers[Rd] = control.get( 'adr' );
             break;
 
           default :
@@ -2144,16 +2112,16 @@
         instructionWords = 2;
         switch ( g ) {
           case 1 :
-            control['pc'] = registers[Rd];
+            control.set( 'pc', registers[Rd] );
             jumped = true;
             break;
 
           case 2 :
-            control['ir'] = registers[Rd];
+            control.set( 'ir', registers[Rd] );
             break;
 
           case 3 :
-            control['adr'] = registers[Rd];
+            control.set( 'adr', registers[Rd] );
             break;
 
           default :
@@ -2181,8 +2149,8 @@
           // control['ir'] = registers[Re];
           // control['adr'] = registers[Rf];
 
-          control['ir'] = 0xe00c;
-          control['adr'] = adr;
+          control.set( 'ir', 0xe00c );
+          control.set( 'adr', adr );
 
           setR15 = true;
         } else {
@@ -2197,10 +2165,10 @@
         if ( registers[Re] < registers[Rf] ) {
           registers[Re] += 1;
 
-          memory[registers[Re]] = registers[Rd];
+          memory.set( registers[Re], registers[Rd] );
         } else {
           // stack overflow flag set and nop
-          flagDict['S'] = 1;
+          flagDict.set( 'S', 1 );
           setR15 = true;
         }
         break;
@@ -2209,7 +2177,7 @@
         // pop
         instructionWords = 2;
         if ( registers[Re] <= registers[Rf] ) {
-          registers[Rd] = memory[registers[Re]];
+          registers[Rd] = memory.get( registers[Re] );
 
           registers[Re] -= 1;
         }
@@ -2218,7 +2186,7 @@
       case 0xf :
         // top
         instructionWords = 2;
-        registers[Rd] = memory[registers[Re]];
+        registers[Rd] = memory.get( registers[Re] );
         break;
 
       case 0x10 :
@@ -2227,7 +2195,7 @@
         registers[Rd] = registers[Re] << g;
 
         if ( registers[Rd] >= 0x10000 && Rd !== 15 ) {
-          flagDict['V'] = 1;
+          flagDict.set( 'V', 1 );
 
           registers[Rd] = guarantee16Bits( registers[Rd] );
         }
@@ -2400,8 +2368,8 @@
 
         if ( registers[Rd] >= 0x10000 ) {
           registers[Rd] = guarantee16Bits( registers[Rd] );
-          flagDict['V'] = 1;
-          flagDict['C'] = 1;
+          flagDict.set( 'V', 1 );
+          flagDict.set( 'C', 1 );
         }
         
         flagDict = compareRegisters( registers[Rd], registers[0], flagDict );
@@ -2447,8 +2415,8 @@
     var flagDict = getR15Dict();
     var setR15 = false;
 
-    control['ir'] = instructionIr;
-    control['adr'] = instructionADR;
+    control.set( 'ir', instructionIr );
+    control.set( 'adr', instructionADR );
 
     switch ( Op ) {
       case 0x0 :
@@ -2458,8 +2426,8 @@
 
         if ( registers[Rd] >= 0x10000 ) {
           registers[Rd] = guarantee16Bits( registers[Rd] );
-          flagDict['V'] = 1;
-          flagDict['C'] = 1;
+          flagDict.set( 'V', 1 );
+          flagDict.set( 'C', 1 );
         }
         
         flagDict = compareRegisters( registers[Rd], registers[0], flagDict );
@@ -2474,7 +2442,7 @@
         registers[Rd] = RaValue;
 
         if ( RaValue < RbValue ) {
-          flagDict['v'] = 1;
+          flagDict.set( 'v', 1 );
           registers[Rd] += 0x10000;
         }
 
@@ -2491,7 +2459,7 @@
         registers[Rd] = RaValue * RbValue;
 
         if ( registers[Rd] >= 0x10000 ) {
-          flagDict['V'] = 1;
+          flagDict.set( 'V', 1 );
           registers[Rd] = guarantee16Bits( registers[Rd] );
         }
         
@@ -2652,12 +2620,12 @@
 
   export function runMemory( control, registers, memory, input, output, testMode=false ) {
     // memory for execution is valid
-    const instructionIr = memory[control['pc']];
-    if ( !( memory[control['pc'] + 1] ) && instructionIr >= 0xe008 ) memory[control['pc'] + 1] = 0;
+    const instructionIr = memory.get( control.get( 'pc' ) );
+    if ( !( memory.has( control.get( 'pc' ) + 1) ) && instructionIr >= 0xe008 ) memory.set( control.get( 'pc' ) + 1, 0);
 
     // update adr with memory values
     var instructionADR = 0;
-    if ( instructionIr >= 0xe008 ) instructionADR = memory[control['pc'] + 1]; // 0xe008 as this is the start of the EXP4, EXP8, and, RX commands which are all two words
+    if ( instructionIr >= 0xe008 ) instructionADR = memory.get( control.get( 'pc' ) + 1 ); // 0xe008 as this is the start of the EXP4, EXP8, and, RX commands which are all two words
 
     // run the ir with adr
     const ran = runFromInstruction( control, registers, memory, input, output, instructionIr, instructionADR );
@@ -2672,15 +2640,15 @@
     const jumped = ran['jumped'];
 
     if ( !jumped ) {
-      control['pc'] += instructionWords;
+      control.set( 'pc', control.get( 'pc' ) + instructionWords );
 
-      if ( !( control['pc'] < 0x10000 ) ) {
+      if ( !( control.get( 'pc' ) < 0x10000 ) ) {
         halted = true; 
-        control['pc'] = 0;
+        control.set( 'pc', 0 );
       }
     }
 
-    if ( !halted && !testMode && !( memory[control['pc']] ) ) memory[control['pc']] = 0;
+    if ( !halted && !testMode && !( memory.get( control.get( 'pc' ) ) ) ) memory.set( control.get( 'pc' ), 0);
 
     // checking that happens outwith running that would break the emulator during next execution
     // commented out as may be useful as developer to use if such an error does occur, howver assumed that it wont so check in regualr use will slow down program
@@ -2698,7 +2666,7 @@
       'control' : control, 
       'registers' : registers, 
       'memory' : memory, 
-      'input': input, 
+      'input' : input, 
       'output' : output, 
       'halted' : halted 
     };
