@@ -47,7 +47,7 @@ Measured by stopwatch
 #### This emulator
 
 Measured by `console.time()` to nearest two decimal places
-> 25.96 ms
+> 58.17 ms
 
 ### Memory performance test :
 
@@ -81,7 +81,7 @@ Measured by stopwatch and Google Chrome Task Manager Tool
 #### This emulator
 
 Measured by `console.time()` and Google Chrome Task Manager Tool
-> 52.77 ms; 162MB
+> 221.80 ms; 81MB
 
 ## Author
 
