@@ -184,7 +184,7 @@ export default class ProgramDebugView extends React.Component {
     for ( var i = 0; i < 16; i++ ) {
       var classNameRegister = 'systeminfo-column-elem';
 
-      if ( this.state.changedRegisters.includes( i ) ) classNameRegister += ' changed';
+      if ( this.state.changedRegisters.includes( String( i ) ) ) classNameRegister += ' changed';
 
       registers.push( 
         <div 
@@ -289,7 +289,7 @@ export default class ProgramDebugView extends React.Component {
       }
 
       if ( this.state.breakpointsMachineCode.includes( memoryKeys[i] ) ) decoration = 'underline';
-      if ( this.state.changedMemory.includes( memoryKeys[i] ) ) classNameMemory += ' changed';
+      if ( this.state.changedMemory.includes( String( memoryKeys[i] ) ) ) classNameMemory += ' changed';
 
       memoryValues.push( 
         <div 
@@ -703,8 +703,8 @@ export default class ProgramDebugView extends React.Component {
 
       var lastRanLine = this.state.activeLine;
 
-      const initialRegisters = Object.assign( {}, this.state.registers );
-      const initialMemory = Object.assign( {}, this.state.memory );
+      const initialRegisters = this.state.registers.slice();
+      const initialMemory = new Map( this.state.memory );
 
       var encounteredBreakpoint = false;
 
@@ -734,6 +734,12 @@ export default class ProgramDebugView extends React.Component {
 
       this.setLastLineScrollPosition( lastRanLine );
 
+      const checkDifferences = (a, b) => Object.keys( Object.assign(
+        ...b.map( ( v, i ) => a[i] !== v ? { [i] : v } : {} )
+      ) );
+
+      const localMemoryObj = Object.fromEntries( localMemory );
+
       this.setState( prevState => ( { 
         cpuControl : localControl, 
         registers : localRegisters, 
@@ -744,8 +750,8 @@ export default class ProgramDebugView extends React.Component {
         activeLine : localControl.get( 'pc' ),
         halted : ran['halted'],
 
-        changedRegisters : Object.keys( _.omit( localRegisters, function( v, k ) { return initialRegisters[k] === v; } ) ),
-        changedMemory : Object.keys( _.omit( localMemory, function( v, k ) { return initialMemory[k] === v; } ) )
+        changedRegisters : checkDifferences( initialRegisters, localRegisters ),
+        changedMemory : Object.keys( _.omit( localMemoryObj, function( v, k ) { return initialMemory.get( Number.parseInt( k ) ) === v; } ) )
       } ) );
       
       if ( interrupt && count === runCap ) {
@@ -767,8 +773,8 @@ export default class ProgramDebugView extends React.Component {
       var localInput = this.state.inputRan;
       var localOutput = this.state.output;
 
-      const initialRegisters = Object.assign( {}, this.state.registers );
-      const initialMemory = Object.assign( {}, this.state.memory );
+      const initialRegisters = this.state.registers.slice();
+      const initialMemory = new Map( this.state.memory );
 
       ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
 
@@ -778,6 +784,12 @@ export default class ProgramDebugView extends React.Component {
       this.memoryOptions( localMemory );
 
       this.setLastLineScrollPosition( this.state.activeLine );
+
+      const checkDifferences = (a, b) => Object.keys( Object.assign(
+        ...b.map( ( v, i ) => a[i] !== v ? { [i] : v } : {} )
+      ) );
+
+      const localMemoryObj = Object.fromEntries( localMemory );
 
       this.setState( prevState => ( { 
         cpuControl : localControl, 
@@ -789,8 +801,8 @@ export default class ProgramDebugView extends React.Component {
         activeLine : localControl.get( 'pc' ),
         halted : ran['halted'],
 
-        changedRegisters : Object.keys( _.omit( localRegisters, function( v, k ) { return initialRegisters[k] === v; } ) ),
-        changedMemory : Object.keys( _.omit( localMemory, function( v, k ) { return initialMemory[k] === v; } ) )
+        changedRegisters : checkDifferences( initialRegisters, localRegisters ),
+        changedMemory : Object.keys( _.omit( localMemoryObj, function( v, k ) { return initialMemory.get( Number.parseInt( k ) ) === v; } ) )
       } ) );
     } else {
       // machine language is blank
