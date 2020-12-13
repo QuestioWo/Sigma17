@@ -644,6 +644,13 @@ export default class ProgramEditorView extends React.PureComponent {
           this.downloadFile( textValue, Emulator.parseCodeToCompatible( this.codeRef.current.state.code ) );
         }
       } else {
+        var textValueFine = this.state.fileName;
+        if ( !( textValueFine.endsWith( '.asm.txt' ) ) ) {
+          textValueFine += '.asm.txt';
+        }
+
+        this.downloadFile( textValueFine, Emulator.parseCodeToCompatible( this.codeRef.current.state.code ) );
+
         this.setState( { lineComp : new Map() } );
         this.updateAlert( 'Download successful', 'success' );
       }
@@ -757,6 +764,9 @@ export default class ProgramEditorView extends React.PureComponent {
       const checkCompatible = Emulator.checkCodeIsCompatible( this.codeRef.current.state.code );
       const keys = Array.from( checkCompatible.keys() );
 
+      var stream = '';
+      var machineCode;
+
       if ( keys.length !== 0 ) {
         var textValue = this.state.fileName;
         if ( !( textValue.endsWith( '.asm.txt' ) ) ) {
@@ -780,8 +790,7 @@ export default class ProgramEditorView extends React.PureComponent {
         if ( error ) {
           this.updateAlert( 'Download cannot continue as some fully non compatible commands in code at line(s): ' + keysString, 'danger' );
         } else {
-          var machineCode = this.parseCode();
-          var stream = '';
+          machineCode = this.parseCode();
 
           for ( var ite = 0; ite < machineCode.length; ite++ ) {
             stream += ' data $' + Emulator.writeHex( machineCode[ite] ) + '\n';
@@ -791,6 +800,19 @@ export default class ProgramEditorView extends React.PureComponent {
           this.downloadFile( textValue, stream );
         }
       } else {
+        var textValueFine = this.state.fileName;
+        if ( !( textValueFine.endsWith( '.asm.txt' ) ) ) {
+          textValueFine += '.asm.txt';
+        }
+
+        machineCode = this.parseCode();
+
+        for ( var iter = 0; iter < machineCode.length; iter++ ) {
+          stream += ' data $' + Emulator.writeHex( machineCode[iter] ) + '\n';
+        }
+
+        this.downloadFile( textValueFine, stream );
+
         this.setState( { lineComp : new Map() } );
         this.updateAlert( 'Download successful', 'success' );
       }
