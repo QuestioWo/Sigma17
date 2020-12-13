@@ -234,7 +234,8 @@ export default class ProgramDebugView extends React.Component {
   }
   //
   memoryOptions( memory ) {
-    const memoryKeys = Array.from( memory.keys( memory ) );
+    const memoryKeys = Array.from( memory.keys() );
+    memoryKeys.sort( function( a, b ) { return a - b; } );
 
     const interval = 0x500;
 
@@ -277,6 +278,7 @@ export default class ProgramDebugView extends React.Component {
   memoryColumn() {
     var memoryValues = [];
     var memoryKeys = Array.from( this.state.memory.keys() );
+    memoryKeys.sort( function( a, b ) { return a - b; } );
 
     for ( var i = memoryKeys.indexOf( this.state.memoryViewOptions[this.state.memoryViewStart] ); i < memoryKeys.length && memoryKeys[i] < this.state.memoryViewOptions[this.state.memoryViewStart + 1]; i++ ) {
       var classNameMemory = 'systeminfo-column-elem';

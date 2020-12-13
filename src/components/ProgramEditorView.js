@@ -164,6 +164,7 @@ export default class ProgramEditorView extends React.PureComponent {
   //
   memoryOptions( memory ) {
     const memoryKeys = Array.from( memory.keys() );
+    memoryKeys.sort( function( a, b ) { return a - b; } );
 
     const interval = 0x500;
 
@@ -206,6 +207,7 @@ export default class ProgramEditorView extends React.PureComponent {
   memoryColumn() {
     var memoryValues = [];
     var memoryKeys = Array.from( this.state.memory.keys() );
+    memoryKeys.sort( function( a, b ) { return a - b; } );
 
     for ( var i = memoryKeys.indexOf( this.state.memoryViewOptions[this.state.memoryViewStart] ); i < memoryKeys.length && memoryKeys[i] < this.state.memoryViewOptions[this.state.memoryViewStart + 1]; i++ ) {
       memoryValues.push( 
