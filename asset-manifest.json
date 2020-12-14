@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/Sigma17/static/css/main.1757d56f.chunk.css",
-    "main.js": "/Sigma17/static/js/main.09c50b2f.chunk.js",
-    "main.js.map": "/Sigma17/static/js/main.09c50b2f.chunk.js.map",
+    "main.js": "/Sigma17/static/js/main.0491ff0b.chunk.js",
+    "main.js.map": "/Sigma17/static/js/main.0491ff0b.chunk.js.map",
     "runtime-main.js": "/Sigma17/static/js/runtime-main.ca648892.js",
     "runtime-main.js.map": "/Sigma17/static/js/runtime-main.ca648892.js.map",
     "static/css/2.cf67cc5a.chunk.css": "/Sigma17/static/css/2.cf67cc5a.chunk.css",
     "static/js/2.26c2332a.chunk.js": "/Sigma17/static/js/2.26c2332a.chunk.js",
     "static/js/2.26c2332a.chunk.js.map": "/Sigma17/static/js/2.26c2332a.chunk.js.map",
     "index.html": "/Sigma17/index.html",
-    "precache-manifest.69c769dd6fc4e633931bcb1538a875e2.js": "/Sigma17/precache-manifest.69c769dd6fc4e633931bcb1538a875e2.js",
+    "precache-manifest.0e93fbea2482decb904902c1e283d06b.js": "/Sigma17/precache-manifest.0e93fbea2482decb904902c1e283d06b.js",
     "service-worker.js": "/Sigma17/service-worker.js",
     "static/css/2.cf67cc5a.chunk.css.map": "/Sigma17/static/css/2.cf67cc5a.chunk.css.map",
     "static/css/main.1757d56f.chunk.css.map": "/Sigma17/static/css/main.1757d56f.chunk.css.map",
@@ -20,6 +20,6 @@
     "static/css/2.cf67cc5a.chunk.css",
     "static/js/2.26c2332a.chunk.js",
     "static/css/main.1757d56f.chunk.css",
-    "static/js/main.09c50b2f.chunk.js"
+    "static/js/main.0491ff0b.chunk.js"
   ]
 }
