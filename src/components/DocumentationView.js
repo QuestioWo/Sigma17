@@ -1996,7 +1996,7 @@ export default class DocumentationView extends React.Component {
                   <InfoArea state={this.state} title={'Infinite loops'} depth={3}>
                     <div className='info-body white'>
                       If you attempt to run a program with a command with an <strong>infinite loop</strong>, such as a <code>jump 0[r0]</code>, the IDE will <strong>interrupt execution</strong> as it will recognise that <strong>too many</strong> instructions have been <strong>executed</strong><br/>
-                      The <strong>limit</strong> for the number of that the emulator will run is <strong>100 million</strong>, which <strong>equates</strong> to around <strong>90 seconds</strong> of execution
+                      The <strong>limit</strong> for the number of that the emulator will run is <strong>10 million</strong>, which <strong>equates</strong> to around <strong>7-8 seconds</strong> of execution
                       The <strong>IDE</strong> will then <strong>display</strong> an alert detailing that an <strong>infinite loop</strong> has been <strong>encountered</strong> during execution :<br/>
                       
                       <img style={{width : '100%', height : '100%'}} src={`${process.env.PUBLIC_URL}/docs/debugging12.jpg`} alt='Red box around infinite loop error'/><br/>
