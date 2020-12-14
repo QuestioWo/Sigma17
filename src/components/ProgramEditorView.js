@@ -503,8 +503,8 @@ export default class ProgramEditorView extends React.PureComponent {
 
         var count = 0;
 
-        // const runCap = 500_000_000; // ~ 25-30 second
-        const runCap = 100_000_000; // ~ 5-6 seconds
+        // const runCap = 100_000_000; // ~ 90 second
+        const runCap = 10_000_000; // ~ 7-8 seconds
 
         while ( !( ran['halted'] ) && ( interrupt ? count !== runCap : true ) ) {
           ran = Emulator.runMemory( localControl, localRegisters, localMemory, localInput, localOutput );
@@ -530,7 +530,7 @@ export default class ProgramEditorView extends React.PureComponent {
         } );
         
         if ( interrupt && count === runCap ) {
-          this.updateAlert( <span>100 million instructions ran, execution interrupted: Infinite loop likely in code. <strong><span className='alertlink' onClick={e => this.runCode(e, false)}>Press here to run code without interrupt</span></strong></span>, 'danger' );
+          this.updateAlert( <span>10 million instructions ran, execution interrupted: Infinite loop likely in code. <strong><span className='alertlink' onClick={e => this.runCode(e, false)}>Press here to run code without interrupt</span></strong></span>, 'danger' );
         }
       } else {
         this.updateAlert( canRun, 'danger' );

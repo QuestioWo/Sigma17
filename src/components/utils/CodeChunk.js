@@ -148,11 +148,57 @@ export default class CodeMirrorComponent extends React.Component {
         linesDotted.push( lineI );
       }
     }
+    
+    for ( var ite = 0; ite < this.state.breakpoints.length; ite++ ) {
+      const lineI = this.state.breakpoints[ite] - 1;
+
+      if ( !( linesDotted.includes( lineI ) ) && lineI <= lines.length ) {
+        const styleTop = ( 25 * ( lineI + 0.75 ) ) + 3 +'px';
+
+        if ( this.props.lineComp && this.state.lineComp.get( lineI + 1 ) ) {
+          const classExtension = this.state.lineComp.get( ( lineI + 1 ) ).startsWith( 'Compatibility error : ' ) ? ' comperror' : ' compwarn';
+
+          breakpoints.push( 
+            <OverlayTrigger
+              key={'breakpoint ' + ( lineI + 1 ) + classExtension + ' tooltip'}
+              placement={'right'}
+              overlay={
+                <Tooltip>
+                  {this.state.lineComp.get( ( lineI + 1 ) )}
+                </Tooltip>
+              }>
+              <div 
+                key={'breakpoint ' + ( lineI + 1 )}
+                id={'breakpoint ' + ( lineI + 1 )} 
+                className={'breakpoint active'} 
+                style={{top : styleTop}} 
+                onClick={this.breakpointOnClick}/>
+            </OverlayTrigger>
+          );
+
+          linesDotted.push( lineI );
+        
+        } else {
+          breakpoints.push( 
+            <div 
+              key={'breakpoint ' + ( lineI + 1 )}
+              id={'breakpoint ' + ( lineI + 1 )} 
+              className={'breakpoint active'} 
+              style={{top : styleTop}} 
+              onClick={this.breakpointOnClick}/>
+          );
+
+          linesDotted.push( lineI );
+        }
+      }
+    }
+
+    // comp have less priority than regular breakpoints as they will have an overlay trigger to show the comp warning when a break point is activated
 
     if ( this.props.lineComp ) {
       for ( const key of this.state.lineComp.keys() ) {
         const lineI = key - 1;
-        var classExtension = this.state.lineComp.get( key ).startsWith( 'Compatibility error : ' ) ? ' comperror' : ' compwarn';
+        const classExtension = this.state.lineComp.get( key ).startsWith( 'Compatibility error : ' ) ? ' comperror' : ' compwarn';
 
         if ( !( linesDotted.includes( lineI ) ) && lineI <= lines.length ) {
           const styleTop = ( 25 * ( lineI + 0.75 ) ) + 3 +'px';
@@ -173,26 +219,7 @@ export default class CodeMirrorComponent extends React.Component {
                 style={{top : styleTop}} />
             </OverlayTrigger>
           );
-
-          linesDotted.push( lineI );
         }
-      }
-    }
-    
-    for ( var ite = 0; ite < this.state.breakpoints.length; ite++ ) {
-      const lineI = this.state.breakpoints[ite] - 1;
-
-      if ( !( linesDotted.includes( lineI ) ) && lineI <= lines.length ) {
-        const styleTop = ( 25 * ( lineI + 0.75 ) ) + 3 +'px';
-
-        breakpoints.push( 
-          <div 
-            key={'breakpoint ' + ( lineI + 1 )}
-            id={'breakpoint ' + ( lineI + 1 )} 
-            className={'breakpoint active'} 
-            style={{top : styleTop}} 
-            onClick={this.breakpointOnClick}/>
-        );
       }
     }
  
