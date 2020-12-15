@@ -1570,7 +1570,7 @@
       lineResult.set( 'argument', '' );
       lineResult.set( 'comment', '' );
 
-    if ( line.includes( ';' ) ) lineResult.set( 'comment', ';' + line.trim().split( ';' )[1] );
+    if ( line.includes( ';' ) ) lineResult.set( 'comment', ';' + line.trim().split( ';' ).slice( 1 ).join( ';' ) );
 
     if ( linesplit[0] && linesplit[0] !== '' ) {
       // lines isnt empty

@@ -378,7 +378,7 @@ export default class CodeMirrorComponent extends React.Component {
             value={this.state.code}
             className={this.props.codeMirrorClassName}
             onBeforeChange={(editor, data, value) => {
-              if ( data.origin === "paste" ) {
+              if ( data.origin === 'paste' ) {
                 this.checkCode( value, data.from.line, Infinity, true );
               }
               this.checkCode( value, data.from.line, data.to.line, true );
@@ -392,7 +392,7 @@ export default class CodeMirrorComponent extends React.Component {
               indentUnit : 4,
               extraKeys : {
                   Tab: function( cm ) {
-                    const spaces = Array( cm.getOption( "indentUnit" ) + 1 ).join( " " );
+                    const spaces = Array( cm.getOption( 'indentUnit' ) + 1 ).join( ' ' );
                     cm.replaceSelection( spaces );
                   }
                 }
