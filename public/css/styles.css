@@ -28,6 +28,21 @@
 
   --inputbg: #e9ecef;
   --inputtext: #495057;
+
+  --alertsuccesscol: #155724;
+  --alertsuccessbg: #d4edda;
+  --alertsuccessborder: #c3e6cb;
+
+  --alertwarningcol: #856404;
+  --alertwarningbg: #fff3cd;
+  --alertwarningborder: #ffeeba;
+
+  --alertdangercol: #721c24;
+  --alertdangerbg: #f8d7da;
+  --alertdangerborder: #f5c6cb;
+
+  --buttonoutlinesecondarycol: #6c757d;
+  --buttonoutlinesecondaryborder: #6c757d;
 }
 
 .dark {
@@ -54,6 +69,21 @@
 
   --inputbg: #262e36;
   --inputtext: #a9b0b7;
+
+  --alertsuccesscol: rgb(153, 230, 171);
+  --alertsuccessbg: rgb(26, 62, 41);
+  --alertsuccessborder: rgb(63, 154, 85);
+
+  --alertwarningcol: rgb(251, 215, 112);
+  --alertwarningbg: rgb(81, 62, 0);
+  --alertwarningborder: rgb(218, 163, 0);
+
+  --alertdangercol: rgb(225, 134, 143);
+  --alertdangerbg: rgb(67, 12, 17);
+  --alertdangerborder: rgb(186, 32, 48);
+
+  --buttonoutlinesecondarycol: rgb(158, 150, 137);
+  --buttonoutlinesecondaryborder: rgb(102, 94, 83);
 }
 
 body {
@@ -83,9 +113,48 @@ pre {
   color: inherit;
 }
 
+.nav-link.nav-link {
+  color: blue;
+  background-color: var( --info1 );
+  border-color: var( --info1 ) var( --info1 ) var( --bg );
+}
+
+.nav-link.nav-link:hover {
+  border-color: var( --bg ) var( --bg ) var( --bg );
+}
+
+.nav-link.nav-link.active {
+  color: var( --text );
+  background-color: var( --bg );
+  border-color: var( --info1 ) var( --info1 ) var( --bg );
+}
+
 .alertlink:hover {
   text-decoration: underline;
   cursor: pointer;
+}
+
+.alert-success {
+  color: var( --alertsuccesscol );
+  background-color: var( --alertsuccessbg );
+  border-color: var( --alertsuccessborder );
+}
+
+.alert-warning {
+  color: var( --alertwarningcol );
+  background-color: var( --alertwarningbg );
+  border-color: var( --alertwarningborder );
+}
+
+.alert-danger {
+  color: var( --alertdangercol );
+  background-color: var( --alertdangerbg );
+  border-color: var( --alertdangerborder );
+}
+
+.btn-outline-secondary {
+  color: var( --buttonoutlinesecondarycol );
+  border-color: var( --buttonoutlinesecondaryborder );
 }
 
 .dark-mode-container {
