@@ -25,18 +25,18 @@ trap r0,r0,r0
 
 buffersize data 13
 buffer data $0048
-  data $0065
-  data $006c
-  data $006c
-  data $006f
-  data $002c
-  data $0020
-  data $0057
-  data $006f
-  data $0072
-  data $006c
-  data $0064
-  data $0021`;
+    data $0065
+    data $006c
+    data $006c
+    data $006f
+    data $002c
+    data $0020
+    data $0057
+    data $006f
+    data $0072
+    data $006c
+    data $0064
+    data $0021`;
 
     this.state.breakpoints = [];
     this.state.input = '';
