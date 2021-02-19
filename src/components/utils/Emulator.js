@@ -205,7 +205,7 @@
       rrCommands.set( 'inv', 8 );
       rrCommands.set( 'invold', 8 );
 
-    const rrrCommands = new Map() 
+    const rrrCommands = new Map();
       rrrCommands.set( 'add', 0 );
       rrrCommands.set( 'sub', 1 );
       rrrCommands.set( 'mul', 2 );
@@ -225,7 +225,7 @@
     const jxCommands = new Map();
       jxCommands.set( 'jump', 3 );
 
-    const jumpAliasCommands = new Map() // 4 is jumpc0, 5 is jumpc1
+    const jumpAliasCommands = new Map(); // 4 is jumpc0, 5 is jumpc1
       jumpAliasCommands.set( 'jumple', [ 4, 1 ] );
       jumpAliasCommands.set( 'jumpne', [ 4, 2 ] );
       jumpAliasCommands.set( 'jumpge', [ 4, 3 ] );
@@ -325,12 +325,14 @@
 
     const registerRegExp = '[rR]((1[0-5])|([0-9]))';
     const controlRegisterRegExp = '((pc)|(ir)|(adr))';
+    const hexConstantRegExp = '(\\$(\\d|[a-fA-F])+)';
+    const binaryConstantRegExp = '(\\#[0-1]+)';
 
-    const constantPositiveRegExp = '((\\$((\\d)|([a-fA-F]))+)|(\\#(1|0)+)|(\\d))+';
-    const constantRegExp = '((\\$((\\d)|([a-fA-F]))+)|(\\#(1|0)+)|(-\\d)|(\\d))+';
+    const constantPositiveRegExp = '(' + hexConstantRegExp + '|' + binaryConstantRegExp + '|(\\d))+';
+    const constantRegExp = '(' + hexConstantRegExp + '|' + binaryConstantRegExp + '|(-\\d)|(\\d))+';
 
-    const dispAndIndexRegExp = '((\\$((\\d)|([a-fA-F]))+)|(\\#(1|0)+)|(-(\\d))|(\\d)|(\\w))+\\[' + registerRegExp + '\\]';
-    const dispAndIndexEXPRegExp = '((\\$((\\d)|([a-fA-F]))+)|(\\#(1|0)+)|(\\d))+\\[' + registerRegExp + '\\]';
+    const dispAndIndexRegExp = '(' + hexConstantRegExp + '|' + binaryConstantRegExp + '|(-(\\d))|(\\d)|(\\w))+\\[' + registerRegExp + '\\]';
+    const dispAndIndexEXPRegExp = '(' + hexConstantRegExp + '|' + binaryConstantRegExp + '|(\\d))+\\[' + registerRegExp + '\\]';
 
     // define check regexps here as called when loading file module so doesnt have to made each time the check command is ran
       const rrRegExp = new RegExp( '^' + registerRegExp + ',' + registerRegExp  + '$' );
